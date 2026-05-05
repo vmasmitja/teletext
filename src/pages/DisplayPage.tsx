@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
 import { DEFAULT_SESSION } from "../config";
+import logoPng from "../assets/espai42-logo.png";
 import { TeletextScreen } from "../components/TeletextScreen";
 import { useTeletextWs } from "../hooks/useTeletextWs";
 import "./DisplayPage.css";
@@ -57,6 +58,11 @@ export function DisplayPage() {
         <div className="crt-overlay" aria-hidden />
         <div className="teletext-accent teletext-accent-a" aria-hidden />
         <div className="teletext-accent teletext-accent-b" aria-hidden />
+        <img
+          src={logoPng}
+          alt="Logo Espai42"
+          className={`display-logo ${hasRemote ? "small" : "hero"}`}
+        />
         <TeletextScreen pageNum={page} className="display-screen" />
         {!hasRemote && (
           <div className="display-waiting">
