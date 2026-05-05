@@ -22,7 +22,7 @@ export function TeletextTveHome({ className }: { className?: string }) {
       <div className="tve-edition">Edició interactiu (C) ESPAI42</div>
 
       <header className="tve-banner-blue">
-        <span className="tve-banner-title">INFO ESPAI</span>
+        <span className="tve-banner-title">INFO ESPAI42</span>
         <img src={logoPng} alt="Espai42" className="tve-banner-logo" />
       </header>
 
@@ -33,41 +33,48 @@ export function TeletextTveHome({ className }: { className?: string }) {
       </div>
 
       <div className="tve-quad-grid">
-        <section className="tve-quad tve-q-red" aria-label="Secció 1xx">
-          <h2 className="tve-quad-head">ESPAI42 (1XX)</h2>
-          <MenuLine left="Qui som" page="101" />
-          <MenuLine left="Que fem" page="102" />
-          <MenuLine left="Serveis" page="103" />
-          <MenuLine left="Espai42" page="104" />
+        <section className="tve-quad tve-q-red" aria-label="Espai42">
+          <h2 className="tve-quad-head">ESPAI42</h2>
+          <div className="tve-quad-lines">
+            <MenuLine left="Qui som" page="101" />
+            <MenuLine left="Que fem" page="102" />
+            <MenuLine left="Serveis" page="103" />
+            <MenuLine left="Espai42" page="104" />
+          </div>
         </section>
-        <section className="tve-quad tve-q-green" aria-label="Secció 2xx">
-          <h2 className="tve-quad-head">AGENDA (2XX)</h2>
-          <MenuLine left="Agenda" page="201" />
-          <MenuLine left="Activitats" page="202" />
-          <MenuLine left="Tallers" page="203" />
-          <MenuLine left="Convocatories" page="204" />
+        <section className="tve-quad tve-q-green" aria-label="Agenda">
+          <h2 className="tve-quad-head">AGENDA</h2>
+          <div className="tve-quad-lines">
+            <MenuLine left="Agenda" page="201" />
+            <MenuLine left="Activitats" page="202" />
+            <MenuLine left="Tallers" page="203" />
+            <MenuLine left="Convocatories" page="204" />
+          </div>
         </section>
-        <section className="tve-quad tve-q-yellow" aria-label="Secció 3xx">
-          <h2 className="tve-quad-head">RESIDENTS (3XX)</h2>
-          <MenuLine left="Residents" page="300" />
-          <MenuLine left="Art" page="310" />
-          <MenuLine left="Artesania" page="320" />
-          <MenuLine left="Makers" page="330" />
-          <MenuLine left="Oficis" page="340" />
+        <section className="tve-quad tve-q-yellow" aria-label="Residents">
+          <h2 className="tve-quad-head">RESIDENTS</h2>
+          <div className="tve-quad-lines">
+            <MenuLine left="Residents" page="300" />
+            <MenuLine left="Art" page="310" />
+            <MenuLine left="Artesania" page="320" />
+            <MenuLine left="Makers" page="330" />
+            <MenuLine left="Oficis" page="340" />
+          </div>
         </section>
-        <section className="tve-quad tve-q-cyan" aria-label="Secció 4xx">
-          <h2 className="tve-quad-head">CONTACTE (4XX)</h2>
-          <MenuLine left="Contacte" page="401" />
-          <MenuLine left="Xarxes" page="402" />
-          <MenuLine left="Partners" page="403" />
-          <MenuLine left="Joc serp" page="406" />
+        <section className="tve-quad tve-q-cyan" aria-label="Contacte">
+          <h2 className="tve-quad-head">CONTACTE</h2>
+          <div className="tve-quad-lines">
+            <MenuLine left="Contacte" page="401" />
+            <MenuLine left="Xarxes" page="402" />
+            <MenuLine left="Partners" page="403" />
+          </div>
         </section>
       </div>
 
       <footer className="tve-banner-footer">
         <span className="tve-foot-left">Joc de la serp</span>
         <span className="tve-foot-dots" aria-hidden />
-        <span className="tve-foot-page">406</span>
+        <span className="tve-foot-page">501</span>
       </footer>
     </div>
   );

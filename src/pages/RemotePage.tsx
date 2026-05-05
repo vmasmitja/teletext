@@ -74,7 +74,7 @@ export function RemotePage() {
           ))}
         </div>
         <div className="remote-pad">
-          {page === 406 && (
+          {page === 501 && (
             <div className="remote-gamepad">
               <button type="button" className="remote-btn game start" onClick={sendStart}>
                 COMENÇA
@@ -93,7 +93,7 @@ export function RemotePage() {
               </button>
             </div>
           )}
-          {page === 406 && recordPromptScore !== null && (
+          {page === 501 && recordPromptScore !== null && (
             <div className="remote-record">
               <div className="remote-record-title">NOU RECORD: {recordPromptScore} PUNTS</div>
               <input

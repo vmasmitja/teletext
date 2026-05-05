@@ -86,7 +86,7 @@ export function DisplayPage() {
   const websiteUrl = "https://espai42.org";
 
   const snakeInfoLines = useMemo<TeletextLine[] | undefined>(() => {
-    if (page !== 406) return undefined;
+    if (page !== 501) return undefined;
     const scoreText = String(highScore).padStart(2, "0");
     return [
       { text: "                              ", color: "w" },
@@ -101,7 +101,7 @@ export function DisplayPage() {
       { text: "  En morir, si fas record,    ", color: "m" },
       { text: "  posa el teu nom al mobil.   ", color: "m" },
       { text: "                              ", color: "w" },
-      { text: "  Pàg 406       ESPai42       ", color: "g" },
+      { text: "  Pàg 501       ESPai42       ", color: "g" },
     ];
   }, [page, highName, highScore]);
 
@@ -121,7 +121,7 @@ export function DisplayPage() {
         ) : (
           <TeletextScreen pageNum={page} className="display-screen" lineOverrides={snakeInfoLines} />
         )}
-        {page === 406 && (
+        {page === 501 && (
           <SnakeGame
             control={lastControl}
             startTick={startTick}

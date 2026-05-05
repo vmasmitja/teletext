@@ -43,7 +43,7 @@ export function TeletextScreen({
   const def = getTeletextPage(pageNum);
   const lines = lineOverrides ?? def?.lines ?? [];
   const title = titleOverride ?? def?.title ?? "???";
-  const headerLeft = pageNum === 100 ? "INFO ESPAI" : `Pàg ${String(pageNum).padStart(3, "0")}`;
+  const headerLeft = pageNum === 100 ? "INFO ESPAI42" : `Pàg ${String(pageNum).padStart(3, "0")}`;
   const headerRight = pageNum === 100 ? "ESPAI42" : title;
 
   return (
