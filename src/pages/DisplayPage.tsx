@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
 import { DEFAULT_SESSION } from "../config";
+import logoTeletext from "../assets/espai42-teletext.svg";
 import { TeletextScreen } from "../components/TeletextScreen";
 import { useTeletextWs } from "../hooks/useTeletextWs";
 import "./DisplayPage.css";
@@ -55,6 +56,13 @@ export function DisplayPage() {
     <div className="display-layout">
       <div className="display-crt">
         <div className="crt-overlay" aria-hidden />
+        <div className="pixel-fx pixel-fx-a" aria-hidden />
+        <div className="pixel-fx pixel-fx-b" aria-hidden />
+        <img
+          src={logoTeletext}
+          alt="Logo Espai42"
+          className={`display-logo ${hasRemote ? "small" : "hero"}`}
+        />
         <TeletextScreen pageNum={page} className="display-screen" />
         {!hasRemote && (
           <div className="display-waiting">
@@ -69,11 +77,6 @@ export function DisplayPage() {
         {hasRemote && <div className="display-live-pill">COMANDAMENT CONNECTAT</div>}
         <div className="display-url">{remoteUrl}</div>
       </div>
-      {!hasRemote && (
-        <div className="display-help-strip">
-          1) Escaneja el QR · 2) Obre el comandament · 3) Navega amb el mòbil
-        </div>
-      )}
     </div>
   );
 }
