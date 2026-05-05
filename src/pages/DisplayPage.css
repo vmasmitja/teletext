@@ -96,6 +96,18 @@
   box-shadow: 0 0 0 2px #ffff00;
 }
 
+.display-dual-qrs {
+  display: flex;
+  gap: clamp(1rem, 2.6vw, 2.8rem);
+  align-items: flex-start;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.display-qr-card {
+  width: min(32vw, 260px);
+}
+
 .display-waiting-title {
   margin: 0;
   color: #ffff00;
@@ -106,7 +118,7 @@
 
 .display-waiting-text {
   margin: 0;
-  font-size: clamp(1.8rem, 3vw, 2.8rem);
+  font-size: clamp(1.3rem, 1.95vw, 1.8rem);
 }
 
 .display-waiting-sub {
@@ -145,6 +157,21 @@
   text-overflow: ellipsis;
   font-family: "VT323", monospace;
   letter-spacing: 0.03em;
+}
+
+.display-contact-qr {
+  position: absolute;
+  right: 3vw;
+  bottom: 12vh;
+  z-index: 6;
+  text-align: center;
+}
+
+.display-contact-caption {
+  margin-top: 0.3rem;
+  color: #ffff00;
+  font-family: "VT323", monospace;
+  font-size: 1.05rem;
 }
 
 .display-logo {
@@ -267,6 +294,10 @@
 
   .display-screen .tt-body {
     width: min(58vw, 42ch);
+  }
+
+  .display-qr-card {
+    width: min(42vw, 220px);
   }
 }
 

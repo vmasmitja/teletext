@@ -43,6 +43,29 @@ export function SnakeGame({
   const [score, setScore] = useState(0);
   const dirRef = useRef<Dir>("right");
   const sentOverRef = useRef(false);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const melodyRef = useRef<number | null>(null);
+
+  const beep = (freq: number, ms: number, type: OscillatorType = "square", gainValue = 0.03) => {
+    try {
+      const Ctx = window.AudioContext || (window as never as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+      if (!Ctx) return;
+      if (!audioCtxRef.current) audioCtxRef.current = new Ctx();
+      const ctx = audioCtxRef.current;
+      if (ctx.state === "suspended") void ctx.resume();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = type;
+      osc.frequency.value = freq;
+      gain.gain.value = gainValue;
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + ms / 1000);
+    } catch {
+      /* ignore audio failures */
+    }
+  };
 
   useEffect(() => {
     if (!control) return;
@@ -65,6 +88,8 @@ export function SnakeGame({
     setRunning(true);
     sentOverRef.current = false;
     dirRef.current = "right";
+    beep(440, 90);
+    beep(660, 110);
   }, [startTick]);
 
   useEffect(() => {
@@ -86,6 +111,7 @@ export function SnakeGame({
         else {
           setScore((s) => s + 1);
           setFood(rndFood(next));
+          beep(980, 80, "square", 0.05);
         }
         return next;
       });
@@ -97,8 +123,32 @@ export function SnakeGame({
     if (!dead || sentOverRef.current === true) return;
     sentOverRef.current = true;
     setRunning(false);
+    beep(280, 180, "sawtooth", 0.06);
+    beep(160, 240, "sawtooth", 0.06);
     onGameOver?.(score);
   }, [dead, onGameOver, score]);
+
+  useEffect(() => {
+    if (!running || !active || dead) {
+      if (melodyRef.current) {
+        window.clearInterval(melodyRef.current);
+        melodyRef.current = null;
+      }
+      return;
+    }
+    const notes = [523, 659, 784, 659];
+    let i = 0;
+    melodyRef.current = window.setInterval(() => {
+      beep(notes[i % notes.length], 70, "triangle", 0.015);
+      i += 1;
+    }, 420);
+    return () => {
+      if (melodyRef.current) {
+        window.clearInterval(melodyRef.current);
+        melodyRef.current = null;
+      }
+    };
+  }, [active, dead, running]);
 
   const cells = useMemo(() => {
     const map = new Set(snake.map((s) => `${s.x}:${s.y}`));

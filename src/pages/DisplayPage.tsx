@@ -55,6 +55,8 @@ export function DisplayPage() {
     return u.toString();
   }, [room, remoteBaseUrl]);
 
+  const websiteUrl = "https://espai42.org";
+
   const snakeInfoLines = useMemo<TeletextLine[] | undefined>(() => {
     if (page !== 106) return undefined;
     const scoreText = String(highScore).padStart(2, "0");
@@ -98,15 +100,33 @@ export function DisplayPage() {
         <div className={`display-waiting ${hasRemote ? "hidden" : ""}`}>
           {!hasRemote && (
             <>
-            <p className="display-waiting-title">ESCANEJA I CONTROLA</p>
-            <div className="display-qr">
-              <QRCodeSVG value={remoteUrl} size={210} level="M" fgColor="#111" bgColor="#fff" />
-            </div>
-            <p className="display-waiting-text">Obre el comandament al mòbil</p>
-            <p className="display-waiting-sub">Sessió {room}</p>
+              <p className="display-waiting-title">ESCANEJA I CONTROLA</p>
+              <div className="display-dual-qrs">
+                <div className="display-qr-card">
+                  <div className="display-qr">
+                    <QRCodeSVG value={remoteUrl} size={190} level="M" fgColor="#111" bgColor="#fff" />
+                  </div>
+                  <p className="display-waiting-text">Comandament teletext</p>
+                </div>
+                <div className="display-qr-card">
+                  <div className="display-qr">
+                    <QRCodeSVG value={websiteUrl} size={190} level="M" fgColor="#111" bgColor="#fff" />
+                  </div>
+                  <p className="display-waiting-text">Web oficial Espai42</p>
+                </div>
+              </div>
+              <p className="display-waiting-sub">Sessió {room}</p>
             </>
           )}
         </div>
+        {page === 105 && (
+          <div className="display-contact-qr">
+            <div className="display-qr">
+              <QRCodeSVG value={websiteUrl} size={150} level="M" fgColor="#111" bgColor="#fff" />
+            </div>
+            <div className="display-contact-caption">WEB NORMAL: ESPAI42.ORG</div>
+          </div>
+        )}
         {hasRemote && <div className="display-live-pill">TELETEXT EN DIRECTE</div>}
         <div className="display-url">{remoteUrl}</div>
       </div>
