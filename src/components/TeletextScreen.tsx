@@ -1,4 +1,4 @@
-import { getTeletextPage } from "../content";
+import { getTeletextPage, type TeletextLine } from "../content";
 import "./TeletextScreen.css";
 
 const COLORS: Record<string, string> = {
@@ -14,6 +14,8 @@ type Props = {
   pageNum: number;
   showHeader?: boolean;
   className?: string;
+  lineOverrides?: TeletextLine[];
+  titleOverride?: string;
 };
 
 function padLine(text: string, width: number): string {
@@ -22,10 +24,16 @@ function padLine(text: string, width: number): string {
   return t + " ".repeat(width - t.length);
 }
 
-export function TeletextScreen({ pageNum, showHeader = true, className }: Props) {
+export function TeletextScreen({
+  pageNum,
+  showHeader = true,
+  className,
+  lineOverrides,
+  titleOverride,
+}: Props) {
   const def = getTeletextPage(pageNum);
-  const lines = def?.lines ?? [];
-  const title = def?.title ?? "???";
+  const lines = lineOverrides ?? def?.lines ?? [];
+  const title = titleOverride ?? def?.title ?? "???";
 
   return (
     <div className={`tt-screen ${className ?? ""}`.trim()}>

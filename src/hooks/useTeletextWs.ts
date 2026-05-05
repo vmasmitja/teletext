@@ -8,6 +8,10 @@ export function useTeletextWs(room: string, role: Role) {
   const [connected, setConnected] = useState(false);
   const [hasRemote, setHasRemote] = useState(false);
   const [lastControl, setLastControl] = useState<"up" | "down" | "left" | "right" | null>(null);
+  const [startTick, setStartTick] = useState(0);
+  const [highScore, setHighScore] = useState(0);
+  const [highName, setHighName] = useState("ANONIM");
+  const [recordPromptScore, setRecordPromptScore] = useState<number | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
@@ -26,7 +30,9 @@ export function useTeletextWs(room: string, role: Role) {
           type?: string;
           page?: number;
           hasRemote?: boolean;
-          action?: "up" | "down" | "left" | "right";
+          action?: "up" | "down" | "left" | "right" | "start";
+          score?: number;
+          name?: string;
         };
         if (msg.type === "state" && typeof msg.page === "number") {
           setPage(msg.page);
@@ -34,8 +40,19 @@ export function useTeletextWs(room: string, role: Role) {
         if (msg.type === "presence" && typeof msg.hasRemote === "boolean") {
           setHasRemote(msg.hasRemote);
         }
-        if (msg.type === "control" && msg.action) {
+        if (msg.type === "control" && msg.action && msg.action !== "start") {
           setLastControl(msg.action);
+        }
+        if (msg.type === "control" && msg.action === "start") {
+          setStartTick((t) => t + 1);
+        }
+        if (msg.type === "record" && typeof msg.score === "number" && msg.name) {
+          setHighScore(msg.score);
+          setHighName(msg.name);
+          setRecordPromptScore(null);
+        }
+        if (msg.type === "recordPrompt" && typeof msg.score === "number") {
+          setRecordPromptScore(msg.score);
         }
       } catch {
         /* ignore */
@@ -80,5 +97,37 @@ export function useTeletextWs(room: string, role: Role) {
     ws.send(JSON.stringify({ type: "control", action }));
   }, []);
 
-  return { page, connected, hasRemote, lastControl, setRemotePage, sendControl };
+  const sendStart = useCallback(() => {
+    const ws = wsRef.current;
+    if (!ws || ws.readyState !== WebSocket.OPEN) return;
+    ws.send(JSON.stringify({ type: "control", action: "start" }));
+  }, []);
+
+  const sendSnakeResult = useCallback((score: number) => {
+    const ws = wsRef.current;
+    if (!ws || ws.readyState !== WebSocket.OPEN) return;
+    ws.send(JSON.stringify({ type: "snakeResult", score }));
+  }, []);
+
+  const saveRecord = useCallback((name: string) => {
+    const ws = wsRef.current;
+    if (!ws || ws.readyState !== WebSocket.OPEN) return;
+    ws.send(JSON.stringify({ type: "saveRecord", name }));
+  }, []);
+
+  return {
+    page,
+    connected,
+    hasRemote,
+    lastControl,
+    startTick,
+    highScore,
+    highName,
+    recordPromptScore,
+    setRemotePage,
+    sendControl,
+    sendStart,
+    sendSnakeResult,
+    saveRecord,
+  };
 }

@@ -69,6 +69,7 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-areas:
+    "start start start"
     ". up ."
     "left . right"
     ". down .";
@@ -83,6 +84,14 @@
   color: #f5f5f5;
 }
 
+.remote-btn.game.start {
+  grid-area: start;
+  background: linear-gradient(180deg, #00aa4e 0%, #006a31 100%);
+  color: #f3ffe8;
+  font-size: 1.1rem;
+  letter-spacing: 0.06em;
+}
+
 .remote-btn.game.up {
   grid-area: up;
 }
@@ -94,6 +103,30 @@
 }
 .remote-btn.game.down {
   grid-area: down;
+}
+
+.remote-record {
+  margin: 0.2rem 0 0.35rem;
+  padding: 0.55rem;
+  border: 2px solid #00c9ff;
+  border-radius: 10px;
+  background: rgba(0, 30, 45, 0.45);
+}
+
+.remote-record-title {
+  text-align: center;
+  color: #ffff00;
+  margin-bottom: 0.3rem;
+}
+
+.remote-record-input {
+  width: 100%;
+  border: 2px solid #222;
+  border-radius: 8px;
+  padding: 0.45rem 0.55rem;
+  font-family: "VT323", monospace;
+  font-size: 1.2rem;
+  margin-bottom: 0.35rem;
 }
 
 .remote-buffer {

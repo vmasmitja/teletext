@@ -78,6 +78,12 @@
   background: rgba(0, 0, 150, 0.32);
   color: #fff;
   font-family: "VT323", monospace;
+  transition: opacity 150ms linear;
+}
+
+.display-waiting.hidden {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .display-qr {

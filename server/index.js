@@ -11,7 +11,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, "..");
 const isProd = process.env.NODE_ENV === "production";
 
-/** @typedef {{ displays: import('ws').WebSocket[], remotes: import('ws').WebSocket[], page: number }} Room */
+/** @typedef {{ displays: import('ws').WebSocket[], remotes: import('ws').WebSocket[], page: number, highScore: number, highName: string, pendingScore: number }} Room */
 
 /** @type {Map<string, Room>} */
 const rooms = new Map();
@@ -31,7 +31,7 @@ function getRoom(roomId) {
   const id = roomId || "teletext";
   let r = rooms.get(id);
   if (!r) {
-    r = { displays: [], remotes: [], page: DEFAULT_PAGE };
+    r = { displays: [], remotes: [], page: DEFAULT_PAGE, highScore: 0, highName: "ANONIM", pendingScore: 0 };
     rooms.set(id, r);
   }
   return r;
@@ -64,6 +64,15 @@ function broadcastPresence(roomId) {
   const payload = { type: "presence", hasRemote: r.remotes.length > 0 };
   const body = JSON.stringify(payload);
   for (const ws of r.displays) {
+    if (ws.readyState === 1) ws.send(body);
+  }
+}
+
+function broadcastRemotes(roomId, obj) {
+  const r = rooms.get(roomId);
+  if (!r) return;
+  const body = JSON.stringify(obj);
+  for (const ws of r.remotes) {
     if (ws.readyState === 1) ws.send(body);
   }
 }
@@ -149,6 +158,7 @@ async function main() {
         if (role === "display") r.displays.push(ws);
         else r.remotes.push(ws);
         send(ws, { type: "state", page: r.page });
+        send(ws, { type: "record", score: r.highScore, name: r.highName });
         if (role === "display") {
           send(ws, { type: "presence", hasRemote: r.remotes.length > 0 });
         } else {
@@ -175,8 +185,30 @@ async function main() {
 
       if (msg.type === "control" && role === "remote") {
         const action = String(msg.action || "");
-        if (!["up", "down", "left", "right"].includes(action)) return;
+        if (!["up", "down", "left", "right", "start"].includes(action)) return;
         broadcastDisplays(roomId, { type: "control", action });
+      }
+
+      if (msg.type === "snakeResult" && role === "display") {
+        const r = getRoom(roomId);
+        const score = Number(msg.score);
+        if (!Number.isFinite(score) || score < 0) return;
+        const s = Math.floor(score);
+        if (s > r.highScore) {
+          r.pendingScore = s;
+          broadcastRemotes(roomId, { type: "recordPrompt", score: s });
+        }
+      }
+
+      if (msg.type === "saveRecord" && role === "remote") {
+        const r = getRoom(roomId);
+        const name = String(msg.name || "").trim().slice(0, 12);
+        if (!name || r.pendingScore <= r.highScore) return;
+        r.highScore = r.pendingScore;
+        r.pendingScore = 0;
+        r.highName = name.toUpperCase();
+        broadcastDisplays(roomId, { type: "record", score: r.highScore, name: r.highName });
+        broadcastRemotes(roomId, { type: "record", score: r.highScore, name: r.highName });
       }
     });
 

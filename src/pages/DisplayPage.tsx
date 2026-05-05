@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
 import { DEFAULT_SESSION } from "../config";
+import type { TeletextLine } from "../content";
 import logoPng from "../assets/espai42-logo.png";
 import { SnakeGame } from "../components/SnakeGame";
 import { TeletextScreen } from "../components/TeletextScreen";
@@ -14,7 +15,8 @@ export function DisplayPage() {
   const room = params.get("r") ?? DEFAULT_SESSION;
   const [remoteBaseUrl, setRemoteBaseUrl] = useState<string | null>(null);
 
-  const { page, hasRemote, lastControl, setRemotePage } = useTeletextWs(room, "display");
+  const { page, hasRemote, lastControl, startTick, highScore, highName, sendSnakeResult, setRemotePage } =
+    useTeletextWs(room, "display");
 
   useEffect(() => {
     if (hasRemote) setRemotePage(100);
@@ -53,6 +55,26 @@ export function DisplayPage() {
     return u.toString();
   }, [room, remoteBaseUrl]);
 
+  const snakeInfoLines = useMemo<TeletextLine[] | undefined>(() => {
+    if (page !== 106) return undefined;
+    const scoreText = String(highScore).padStart(2, "0");
+    return [
+      { text: "                              ", color: "w" },
+      { text: "  JOC DE LA SERP              ", color: "y" },
+      { text: "                              ", color: "w" },
+      { text: "  Control: COMENCA + fletxes  ", color: "w" },
+      { text: "  del comandament mobil.      ", color: "w" },
+      { text: "                              ", color: "w" },
+      { text: "  Record actual:              ", color: "c" },
+      { text: `  ${scoreText} punts - ${highName}`.padEnd(30, " "), color: "c" },
+      { text: "                              ", color: "w" },
+      { text: "  En morir, si fas record,    ", color: "m" },
+      { text: "  posa el teu nom al mobil.   ", color: "m" },
+      { text: "                              ", color: "w" },
+      { text: "  Pàg 106       ESPai42       ", color: "g" },
+    ];
+  }, [page, highName, highScore]);
+
   return (
     <div className="display-layout">
       <div className="display-crt">
@@ -64,18 +86,27 @@ export function DisplayPage() {
           alt="Logo Espai42"
           className={`display-logo ${hasRemote ? "side" : "hero"}`}
         />
-        <TeletextScreen pageNum={page} className="display-screen" />
-        {page === 106 && <SnakeGame control={lastControl} active={hasRemote} />}
-        {!hasRemote && (
-          <div className="display-waiting">
+        <TeletextScreen pageNum={page} className="display-screen" lineOverrides={snakeInfoLines} />
+        {page === 106 && (
+          <SnakeGame
+            control={lastControl}
+            startTick={startTick}
+            active={hasRemote}
+            onGameOver={(score) => sendSnakeResult(score)}
+          />
+        )}
+        <div className={`display-waiting ${hasRemote ? "hidden" : ""}`}>
+          {!hasRemote && (
+            <>
             <p className="display-waiting-title">ESCANEJA I CONTROLA</p>
             <div className="display-qr">
               <QRCodeSVG value={remoteUrl} size={210} level="M" fgColor="#111" bgColor="#fff" />
             </div>
             <p className="display-waiting-text">Obre el comandament al mòbil</p>
             <p className="display-waiting-sub">Sessió {room}</p>
-          </div>
-        )}
+            </>
+          )}
+        </div>
         {hasRemote && <div className="display-live-pill">TELETEXT EN DIRECTE</div>}
         <div className="display-url">{remoteUrl}</div>
       </div>

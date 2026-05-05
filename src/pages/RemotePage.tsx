@@ -9,9 +9,13 @@ import "./RemotePage.css";
 export function RemotePage() {
   const [params] = useSearchParams();
   const room = params.get("r") ?? DEFAULT_SESSION;
-  const { page, sendControl, setRemotePage } = useTeletextWs(room, "remote");
+  const { page, recordPromptScore, saveRecord, sendControl, sendStart, setRemotePage } = useTeletextWs(
+    room,
+    "remote",
+  );
 
   const [buffer, setBuffer] = useState("");
+  const [playerName, setPlayerName] = useState("");
   const clearTimer = useRef<number | null>(null);
 
   useEffect(() => {
@@ -74,6 +78,9 @@ export function RemotePage() {
         <div className="remote-pad">
           {page === 106 && (
             <div className="remote-gamepad">
+              <button type="button" className="remote-btn game start" onClick={sendStart}>
+                COMENÇA
+              </button>
               <button type="button" className="remote-btn game up" onClick={() => sendControl("up")}>
                 ▲
               </button>
@@ -85,6 +92,29 @@ export function RemotePage() {
               </button>
               <button type="button" className="remote-btn game down" onClick={() => sendControl("down")}>
                 ▼
+              </button>
+            </div>
+          )}
+          {page === 106 && recordPromptScore !== null && (
+            <div className="remote-record">
+              <div className="remote-record-title">NOU RECORD: {recordPromptScore} PUNTS</div>
+              <input
+                className="remote-record-input"
+                maxLength={12}
+                value={playerName}
+                onChange={(e) => setPlayerName(e.target.value.toUpperCase())}
+                placeholder="NOM"
+              />
+              <button
+                type="button"
+                className="remote-btn wide primary"
+                onClick={() => {
+                  if (!playerName.trim()) return;
+                  saveRecord(playerName.trim());
+                  setPlayerName("");
+                }}
+              >
+                Guardar rècord
               </button>
             </div>
           )}

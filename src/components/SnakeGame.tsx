@@ -21,13 +21,28 @@ function rndFood(snake: Cell[]): Cell {
   }
 }
 
-export function SnakeGame({ control, active }: { control: Dir | null; active: boolean }) {
-  const [snake, setSnake] = useState<Cell[]>([{ x: 6, y: 7 }, { x: 5, y: 7 }, { x: 4, y: 7 }]);
-  const [dir, setDir] = useState<Dir>("right");
+function freshSnake(): Cell[] {
+  return [{ x: 6, y: 7 }, { x: 5, y: 7 }, { x: 4, y: 7 }];
+}
+
+export function SnakeGame({
+  control,
+  startTick,
+  active,
+  onGameOver,
+}: {
+  control: Dir | null;
+  startTick: number;
+  active: boolean;
+  onGameOver?: (score: number) => void;
+}) {
+  const [snake, setSnake] = useState<Cell[]>(freshSnake());
   const [food, setFood] = useState<Cell>({ x: 12, y: 7 });
   const [dead, setDead] = useState(false);
+  const [running, setRunning] = useState(false);
   const [score, setScore] = useState(0);
   const dirRef = useRef<Dir>("right");
+  const sentOverRef = useRef(false);
 
   useEffect(() => {
     if (!control) return;
@@ -37,13 +52,23 @@ export function SnakeGame({ control, active }: { control: Dir | null; active: bo
       (dirRef.current === "left" && control === "right") ||
       (dirRef.current === "right" && control === "left");
     if (!reverse) {
-      setDir(control);
       dirRef.current = control;
     }
   }, [control]);
 
   useEffect(() => {
-    if (!active || dead) return;
+    if (startTick <= 0) return;
+    setSnake(freshSnake());
+    setFood({ x: 12, y: 7 });
+    setDead(false);
+    setScore(0);
+    setRunning(true);
+    sentOverRef.current = false;
+    dirRef.current = "right";
+  }, [startTick]);
+
+  useEffect(() => {
+    if (!active || dead || !running) return;
     const id = window.setInterval(() => {
       setSnake((prev) => {
         const head = nextHead(prev[0], dirRef.current);
@@ -66,7 +91,14 @@ export function SnakeGame({ control, active }: { control: Dir | null; active: bo
       });
     }, 140);
     return () => window.clearInterval(id);
-  }, [active, dead, food.x, food.y]);
+  }, [active, dead, food.x, food.y, running]);
+
+  useEffect(() => {
+    if (!dead || sentOverRef.current === true) return;
+    sentOverRef.current = true;
+    setRunning(false);
+    onGameOver?.(score);
+  }, [dead, onGameOver, score]);
 
   const cells = useMemo(() => {
     const map = new Set(snake.map((s) => `${s.x}:${s.y}`));
@@ -88,6 +120,7 @@ export function SnakeGame({ control, active }: { control: Dir | null; active: bo
           <span key={i} className={`snake-cell ${c}`} />
         ))}
       </div>
+      {!running && !dead && <div className="snake-dead">PREM COMENÇA PER INICIAR</div>}
       {dead && <div className="snake-dead">FI DE PARTIDA · TORNA A PÀG 106</div>}
     </div>
   );
