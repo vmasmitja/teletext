@@ -1,11 +1,11 @@
-import { useEffect, useMemo } from "react";
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
 import { isAudioUnlockedStored, primeAudioFromStorage, unlockAudioByGesture } from "../audio";
 import { DEFAULT_SESSION } from "../config";
 import type { TeletextLine } from "../content";
 import logoPng from "../assets/espai42-logo.png";
+import welcomeRef from "../assets/welcome-teletext-ref.png";
 import { SnakeGame } from "../components/SnakeGame";
 import { TeletextScreen } from "../components/TeletextScreen";
 import { useTeletextWs } from "../hooks/useTeletextWs";
@@ -16,12 +16,31 @@ export function DisplayPage() {
   const room = params.get("r") ?? DEFAULT_SESSION;
   const [remoteBaseUrl, setRemoteBaseUrl] = useState<string | null>(null);
   const [audioUnlocked, setAudioUnlocked] = useState(() => isAudioUnlockedStored());
+  const [showWelcome, setShowWelcome] = useState(false);
+  const prevRemoteRef = useRef(false);
+  const welcomeTimerRef = useRef<number | null>(null);
 
   const { page, hasRemote, lastControl, startTick, highScore, highName, sendSnakeResult, setRemotePage } =
     useTeletextWs(room, "display");
 
   useEffect(() => {
-    if (hasRemote) setRemotePage(100);
+    const prev = prevRemoteRef.current;
+    prevRemoteRef.current = hasRemote;
+    if (hasRemote && !prev) {
+      setShowWelcome(true);
+      if (welcomeTimerRef.current) window.clearTimeout(welcomeTimerRef.current);
+      welcomeTimerRef.current = window.setTimeout(() => {
+        setShowWelcome(false);
+        setRemotePage(100);
+      }, 3000);
+    }
+    if (!hasRemote) {
+      setShowWelcome(false);
+      if (welcomeTimerRef.current) {
+        window.clearTimeout(welcomeTimerRef.current);
+        welcomeTimerRef.current = null;
+      }
+    }
   }, [hasRemote, setRemotePage]);
 
   useEffect(() => {
@@ -99,6 +118,12 @@ export function DisplayPage() {
             active={hasRemote}
             onGameOver={(score) => sendSnakeResult(score)}
           />
+        )}
+        {showWelcome && (
+          <div className="display-welcome" aria-live="polite">
+            <img src={welcomeRef} alt="" className="display-welcome-bg" />
+            <div className="display-welcome-title">Benvinguts a ESPai42!</div>
+          </div>
         )}
         <div className={`display-waiting ${hasRemote ? "hidden" : ""}`}>
           {!hasRemote && (

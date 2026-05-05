@@ -81,6 +81,33 @@
   transition: opacity 150ms linear;
 }
 
+.display-welcome {
+  position: absolute;
+  inset: 0;
+  z-index: 7;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 80, 0.55);
+}
+
+.display-welcome-bg {
+  position: absolute;
+  width: min(62vw, 780px);
+  image-rendering: pixelated;
+  filter: saturate(1.3) contrast(1.2);
+  opacity: 0.92;
+}
+
+.display-welcome-title {
+  position: relative;
+  z-index: 1;
+  margin-top: 37vh;
+  font-family: "VT323", monospace;
+  font-size: clamp(2rem, 4vw, 3.8rem);
+  color: #ffff00;
+  text-shadow: 3px 3px 0 #00112f;
+}
+
 .display-waiting.hidden {
   opacity: 0;
   pointer-events: none;

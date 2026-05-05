@@ -1,8 +1,8 @@
 .snake-wrap {
   position: absolute;
-  right: 3vw;
-  top: 18vh;
-  width: min(41vw, 560px);
+  right: 4vw;
+  top: 23vh;
+  width: min(50vw, 700px);
   z-index: 4;
 }
 
@@ -17,7 +17,7 @@
 .snake-grid {
   display: grid;
   grid-template-columns: repeat(20, 1fr);
-  gap: 2px;
+  gap: 3px;
   padding: 8px;
   border: 2px solid #00ffff;
   background: rgba(0, 0, 80, 0.8);
