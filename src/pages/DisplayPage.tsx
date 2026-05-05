@@ -3,7 +3,6 @@ import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
 import { DEFAULT_SESSION } from "../config";
-import logoTeletext from "../assets/espai42-teletext.svg";
 import { TeletextScreen } from "../components/TeletextScreen";
 import { useTeletextWs } from "../hooks/useTeletextWs";
 import "./DisplayPage.css";
@@ -56,13 +55,8 @@ export function DisplayPage() {
     <div className="display-layout">
       <div className="display-crt">
         <div className="crt-overlay" aria-hidden />
-        <div className="pixel-fx pixel-fx-a" aria-hidden />
-        <div className="pixel-fx pixel-fx-b" aria-hidden />
-        <img
-          src={logoTeletext}
-          alt="Logo Espai42"
-          className={`display-logo ${hasRemote ? "small" : "hero"}`}
-        />
+        <div className="teletext-accent teletext-accent-a" aria-hidden />
+        <div className="teletext-accent teletext-accent-b" aria-hidden />
         <TeletextScreen pageNum={page} className="display-screen" />
         {!hasRemote && (
           <div className="display-waiting">
@@ -74,7 +68,7 @@ export function DisplayPage() {
             <p className="display-waiting-sub">Sessió {room}</p>
           </div>
         )}
-        {hasRemote && <div className="display-live-pill">COMANDAMENT CONNECTAT</div>}
+        {hasRemote && <div className="display-live-pill">TELETEXT EN DIRECTE</div>}
         <div className="display-url">{remoteUrl}</div>
       </div>
     </div>
