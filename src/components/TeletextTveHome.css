@@ -28,12 +28,15 @@
   padding: 0 0.5rem 0.26rem;
 }
 
-/* Alçada del banner = alçada del logo (42 + ESPAI); la resta de pantalla va als quadrants */
+/*
+  Banner blau només embolcalla títol + logo: sense padding vertical.
+  Logo i tipus GRANS; l'alçada del blau és la del bloc (automàtica), sense marges buits.
+*/
 .tve-banner-blue {
-  --logo-h: clamp(3.5rem, 9.8vh, 6.25rem);
   background: #0000aa;
   color: #fff;
   display: flex;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: space-between;
   padding: 0 clamp(0.4rem, 1.25vw, 0.85rem);
@@ -41,9 +44,6 @@
   border: 0;
   border-bottom: 3px solid #000;
   box-sizing: border-box;
-  height: var(--logo-h);
-  min-height: var(--logo-h);
-  max-height: var(--logo-h);
 }
 
 .tve-banner-title {
@@ -60,19 +60,21 @@
   letter-spacing: 0.035em;
   line-height: 1;
   text-transform: uppercase;
-  font-size: min(calc(var(--logo-h) * 0.84), 17vw);
+  font-size: clamp(3.6rem, 9.5vw, 7.35rem);
 }
 
 .tve-banner-logo {
   flex-shrink: 0;
   width: auto;
-  height: var(--logo-h);
-  max-width: min(44vw, 560px);
+  height: clamp(6.4rem, 15.5vh, 10.75rem);
+  max-width: min(46vw, 580px);
   object-fit: contain;
   object-position: right center;
+  display: block;
   image-rendering: pixelated;
   filter: brightness(1.15) contrast(1.1);
   padding: 0;
+  margin: 0;
   box-sizing: border-box;
 }
 
@@ -120,31 +122,42 @@
 
 .tve-quad {
   box-sizing: border-box;
-  padding: clamp(0.42rem, 1.85vh, 1rem) clamp(0.4rem, 1.15vw, 0.85rem);
+  padding: clamp(0.38rem, 1.6vh, 0.9rem) clamp(0.4rem, 1.15vw, 0.85rem);
   min-height: 0;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: clamp(0.2rem, 1vh, 0.55rem);
+  justify-content: center;
+  align-items: stretch;
   border: 2px solid #000;
+}
+
+.tve-quad-body {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: clamp(0.55rem, 2.5vh, 1.15rem);
+  flex: 0 1 auto;
+  min-height: 0;
 }
 
 .tve-quad-head {
   margin: 0;
+  padding: 0;
   font-size: clamp(1.58rem, 4.45vw, 2.85rem);
   font-weight: 400;
   text-transform: uppercase;
-  line-height: 1.05;
+  line-height: 1.18;
   flex-shrink: 0;
 }
 
 .tve-quad-lines {
-  flex: 1;
-  min-height: 0;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: clamp(0.38rem, 2.6vh, 1.35rem);
+  gap: clamp(0.32rem, 2.2vh, 1.05rem);
+  flex: 0 0 auto;
+  min-height: 0;
 }
 
 .tve-q-red {

@@ -36,39 +36,47 @@ export function TeletextTveHome({ className }: { className?: string }) {
 
       <div className="tve-quad-grid">
         <section className="tve-quad tve-q-red" aria-label="Espai42">
-          <h2 className="tve-quad-head">ESPAI42</h2>
-          <div className="tve-quad-lines">
-            <MenuLine left="Qui som" page="101" />
-            <MenuLine left="Que fem" page="102" />
-            <MenuLine left="Serveis" page="103" />
-            <MenuLine left="Espai42" page="104" />
+          <div className="tve-quad-body">
+            <h2 className="tve-quad-head">ESPAI42</h2>
+            <div className="tve-quad-lines">
+              <MenuLine left="Qui som" page="101" />
+              <MenuLine left="Que fem" page="102" />
+              <MenuLine left="Serveis" page="103" />
+              <MenuLine left="Espai42" page="104" />
+            </div>
           </div>
         </section>
         <section className="tve-quad tve-q-green" aria-label="Agenda">
-          <h2 className="tve-quad-head">AGENDA</h2>
-          <div className="tve-quad-lines">
-            <MenuLine left="Agenda" page="201" />
-            <MenuLine left="Activitats" page="202" />
-            <MenuLine left="Tallers" page="203" />
-            <MenuLine left="Convocatories" page="204" />
+          <div className="tve-quad-body">
+            <h2 className="tve-quad-head">AGENDA</h2>
+            <div className="tve-quad-lines">
+              <MenuLine left="Agenda" page="201" />
+              <MenuLine left="Activitats" page="202" />
+              <MenuLine left="Tallers" page="203" />
+              <MenuLine left="Convocatories" page="204" />
+            </div>
           </div>
         </section>
         <section className="tve-quad tve-q-yellow" aria-label="Residents">
-          <h2 className="tve-quad-head">RESIDENTS</h2>
-          <div className="tve-quad-lines">
-            <MenuLine left="Residents" page="300" />
-            <MenuLine left="Art" page="310" />
-            <MenuLine left="Artesania" page="320" />
-            <MenuLine left="Makers" page="330" />
-            <MenuLine left="Oficis" page="340" />
+          <div className="tve-quad-body">
+            <h2 className="tve-quad-head">RESIDENTS</h2>
+            <div className="tve-quad-lines">
+              <MenuLine left="Residents" page="300" />
+              <MenuLine left="Art" page="310" />
+              <MenuLine left="Artesania" page="320" />
+              <MenuLine left="Makers" page="330" />
+              <MenuLine left="Oficis" page="340" />
+            </div>
           </div>
         </section>
         <section className="tve-quad tve-q-cyan" aria-label="Contacte">
-          <h2 className="tve-quad-head">CONTACTE</h2>
-          <div className="tve-quad-lines">
-            <MenuLine left="Contacte" page="401" />
-            <MenuLine left="Xarxes" page="402" />
-            <MenuLine left="Partners" page="403" />
+          <div className="tve-quad-body">
+            <h2 className="tve-quad-head">CONTACTE</h2>
+            <div className="tve-quad-lines">
+              <MenuLine left="Contacte" page="401" />
+              <MenuLine left="Xarxes" page="402" />
+              <MenuLine left="Partners" page="403" />
+            </div>
           </div>
         </section>
       </div>
