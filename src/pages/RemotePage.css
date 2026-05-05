@@ -24,17 +24,6 @@
   overflow: hidden;
 }
 
-.remote-ref {
-  position: absolute;
-  width: 72%;
-  right: -16%;
-  bottom: -8%;
-  opacity: 0.12;
-  transform: rotate(-16deg);
-  filter: grayscale(1) contrast(1.1);
-  pointer-events: none;
-}
-
 .remote-top-metal {
   text-align: center;
   color: #d7d2be;

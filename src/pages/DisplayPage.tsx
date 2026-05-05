@@ -101,20 +101,29 @@ export function DisplayPage() {
           {!hasRemote && (
             <>
               <p className="display-waiting-title">ESCANEJA I CONTROLA</p>
-              <div className="display-dual-qrs">
-                <div className="display-qr-card">
+              {page === 105 ? (
+                <div className="display-dual-qrs">
+                  <div className="display-qr-card">
+                    <div className="display-qr">
+                      <QRCodeSVG value={remoteUrl} size={190} level="M" fgColor="#111" bgColor="#fff" />
+                    </div>
+                    <p className="display-waiting-text">Comandament teletext</p>
+                  </div>
+                  <div className="display-qr-card">
+                    <div className="display-qr">
+                      <QRCodeSVG value={websiteUrl} size={190} level="M" fgColor="#111" bgColor="#fff" />
+                    </div>
+                    <p className="display-waiting-text">Web oficial Espai42</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="display-qr-card single">
                   <div className="display-qr">
-                    <QRCodeSVG value={remoteUrl} size={190} level="M" fgColor="#111" bgColor="#fff" />
+                    <QRCodeSVG value={remoteUrl} size={210} level="M" fgColor="#111" bgColor="#fff" />
                   </div>
                   <p className="display-waiting-text">Comandament teletext</p>
                 </div>
-                <div className="display-qr-card">
-                  <div className="display-qr">
-                    <QRCodeSVG value={websiteUrl} size={190} level="M" fgColor="#111" bgColor="#fff" />
-                  </div>
-                  <p className="display-waiting-text">Web oficial Espai42</p>
-                </div>
-              </div>
+              )}
               <p className="display-waiting-sub">Sessió {room}</p>
             </>
           )}
