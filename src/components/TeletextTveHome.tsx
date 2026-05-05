@@ -22,7 +22,9 @@ export function TeletextTveHome({ className }: { className?: string }) {
       <div className="tve-edition">Edició interactiu (C) ESPAI42</div>
 
       <header className="tve-banner-blue">
-        <span className="tve-banner-title">INFO ESPAI42</span>
+        <div className="tve-banner-title">
+          <span className="tve-banner-title-text">INFO ESPAI42</span>
+        </div>
         <img src={logoPng} alt="Espai42" className="tve-banner-logo" />
       </header>
 

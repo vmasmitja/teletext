@@ -16,56 +16,74 @@
 .tve-status {
   background: #000;
   color: #ffff00;
-  font-size: clamp(1.12rem, 2.55vw, 1.65rem);
-  padding: 0.12rem clamp(5.5rem, 14vw, 7.5rem) 0 0.5rem;
+  font-size: clamp(1.22rem, 2.85vw, 1.82rem);
+  padding: 0.1rem clamp(5.75rem, 14.5vw, 8rem) 0 0.5rem;
   letter-spacing: 0.04em;
 }
 
 .tve-edition {
   background: #000;
   color: #fff;
-  font-size: clamp(0.95rem, 2.05vw, 1.28rem);
-  padding: 0 0.5rem 0.28rem;
+  font-size: clamp(1.05rem, 2.35vw, 1.42rem);
+  padding: 0 0.5rem 0.26rem;
 }
 
 .tve-banner-blue {
+  container-type: size;
+  container-name: tve-banner-blue;
   background: #0000aa;
   color: #fff;
   display: flex;
   align-items: stretch;
   justify-content: space-between;
-  padding: 0 clamp(0.45rem, 1.4vw, 0.95rem);
-  gap: clamp(0.35rem, 1.5vw, 1rem);
+  padding: 0 clamp(0.4rem, 1.25vw, 0.85rem);
+  gap: clamp(0.35rem, 1.25vw, 0.95rem);
   border: 0;
   border-bottom: 3px solid #000;
   box-sizing: border-box;
-  height: clamp(7.25rem, 17.5vh, 12.5rem);
-  min-height: clamp(7.25rem, 17.5vh, 12.5rem);
+  height: clamp(7.85rem, 18.8vh, 13.35rem);
+  min-height: clamp(7.85rem, 18.8vh, 13.35rem);
+  overflow: hidden;
 }
 
 .tve-banner-title {
-  font-size: clamp(2.75rem, 8.2vw, 6rem);
-  font-weight: 400;
-  letter-spacing: 0.05em;
-  line-height: 0.95;
-  text-transform: uppercase;
   flex: 1;
   min-width: 0;
+  min-height: 0;
   display: flex;
   align-items: center;
 }
 
+.tve-banner-title-text {
+  display: block;
+  font-family: inherit;
+  font-weight: 400;
+  letter-spacing: 0.035em;
+  line-height: 1;
+  text-transform: uppercase;
+  /* Omple quasi tota l’alçada del banner; limitat per pantalles estretes */
+  font-size: min(82cqh, 18vw);
+  transform: translateY(-0.05em);
+}
+
+@supports not (font-size: 1cqh) {
+  .tve-banner-title-text {
+    font-size: clamp(4.35rem, 10.8vw, 7.85rem);
+    transform: none;
+  }
+}
+
 .tve-banner-logo {
-  height: 100%;
+  flex-shrink: 0;
   width: auto;
-  max-width: min(42vw, 520px);
+  height: 100%;
+  align-self: stretch;
+  max-width: min(44vw, 560px);
   object-fit: contain;
   object-position: right center;
   image-rendering: pixelated;
   filter: brightness(1.15) contrast(1.1);
-  flex-shrink: 0;
-  align-self: center;
-  padding: 2px 0;
+  padding: 0;
   box-sizing: border-box;
 }
 
@@ -74,10 +92,10 @@
   color: #0000aa;
   display: flex;
   align-items: baseline;
-  padding: clamp(0.3rem, 1.25vh, 0.52rem) 0.55rem;
-  font-size: clamp(1.28rem, 3.4vw, 2.15rem);
+  padding: clamp(0.32rem, 1.3vh, 0.55rem) 0.55rem;
+  font-size: clamp(1.42rem, 3.85vw, 2.45rem);
   border-bottom: 3px solid #000;
-  min-height: clamp(2.5rem, 6.2vh, 3.35rem);
+  min-height: clamp(2.65rem, 6.5vh, 3.55rem);
 }
 
 .tve-yellow-left {
@@ -113,21 +131,21 @@
 
 .tve-quad {
   box-sizing: border-box;
-  padding: clamp(0.35rem, 1.5vh, 0.85rem) clamp(0.45rem, 1.2vw, 0.85rem);
+  padding: clamp(0.32rem, 1.5vh, 0.82rem) clamp(0.4rem, 1.15vw, 0.8rem);
   min-height: 0;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: clamp(0.15rem, 0.8vh, 0.45rem);
+  gap: clamp(0.1rem, 0.75vh, 0.42rem);
   border: 2px solid #000;
 }
 
 .tve-quad-head {
   margin: 0;
-  font-size: clamp(1.35rem, 3.75vw, 2.35rem);
+  font-size: clamp(1.55rem, 4.35vw, 2.75rem);
   font-weight: 400;
   text-transform: uppercase;
-  line-height: 1.05;
+  line-height: 1.04;
   flex-shrink: 0;
 }
 
@@ -137,7 +155,7 @@
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;
-  gap: clamp(0.05rem, 0.5vh, 0.35rem);
+  gap: clamp(0.04rem, 0.65vh, 0.42rem);
 }
 
 .tve-q-red {
@@ -179,8 +197,8 @@
 .tve-menu-line {
   display: flex;
   align-items: baseline;
-  font-size: clamp(1.22rem, 3.25vw, 2.05rem);
-  line-height: 1.2;
+  font-size: clamp(1.4rem, 3.85vw, 2.42rem);
+  line-height: 1.22;
   gap: 0.2ch;
 }
 
@@ -207,10 +225,10 @@
   color: #0000aa;
   display: flex;
   align-items: baseline;
-  padding: clamp(0.3rem, 1.25vh, 0.55rem) 0.55rem;
-  font-size: clamp(1.28rem, 3.4vw, 2.15rem);
+  padding: clamp(0.32rem, 1.3vh, 0.58rem) 0.55rem;
+  font-size: clamp(1.42rem, 3.85vw, 2.45rem);
   border-top: 3px solid #000;
-  min-height: clamp(2.5rem, 6.2vh, 3.5rem);
+  min-height: clamp(2.65rem, 6.5vh, 3.6rem);
   flex-shrink: 0;
 }
 
