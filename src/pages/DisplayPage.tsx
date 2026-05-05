@@ -31,7 +31,7 @@ export function DisplayPage() {
       welcomeTimerRef.current = window.setTimeout(() => {
         setShowWelcome(false);
         setRemotePage(100);
-      }, 3000);
+      }, 4000);
     }
     if (!hasRemote) {
       setShowWelcome(false);
@@ -120,7 +120,8 @@ export function DisplayPage() {
         )}
         {showWelcome && (
           <div className="display-welcome" aria-live="polite">
-            <div className="display-welcome-pixels" aria-hidden />
+            <div className="display-welcome-rays" aria-hidden />
+            <img src={logoPng} alt="Logo Espai42" className="display-welcome-logo" />
             <div className="display-welcome-title">Benvinguts a ESPai42!</div>
             <div className="display-welcome-sub">Teletext interactiu en directe</div>
           </div>
