@@ -1,0 +1,58 @@
+.tt-screen {
+  --tt-blue: #0000aa;
+  --tt-cell: 1ch;
+  background: var(--tt-blue);
+  color: #fff;
+  font-family: "VT323", ui-monospace, monospace;
+  font-size: min(3.2vw, 1.35rem);
+  line-height: 1.15;
+  letter-spacing: 0;
+  padding: 0.75rem 1rem 1rem;
+  border: 0.35rem solid #333;
+  border-radius: 2px;
+  box-shadow:
+    inset 0 0 0 2px #111,
+    0 0 0 4px #222,
+    0 12px 40px rgba(0, 0, 0, 0.45);
+  max-width: 42ch;
+  margin: 0 auto;
+}
+
+.tt-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  margin-bottom: 0.25rem;
+  padding-bottom: 0.2rem;
+  border-bottom: 2px solid #ffff00;
+  color: #ffff00;
+  font-size: 1.05em;
+}
+
+.tt-header-pno {
+  flex-shrink: 0;
+}
+
+.tt-header-title {
+  text-align: right;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tt-body {
+  min-height: 14rem;
+}
+
+.tt-row {
+  white-space: pre;
+  height: 1.15em;
+}
+
+@media (min-width: 720px) {
+  .tt-screen {
+    font-size: 1.5rem;
+  }
+}
