@@ -377,6 +377,17 @@
   animation: blinkAccent 1.3s steps(2) infinite reverse;
 }
 
+/* A la home: franja negra superior (data / hora); blanc a la dreta, RGB a la seva esquerra */
+.display-page-home .teletext-accent-b {
+  top: clamp(0.32rem, 1.1vh, 0.55rem);
+  right: clamp(0.75rem, 2.5vw, 1.75rem);
+}
+
+.display-page-home .teletext-accent-a {
+  top: clamp(0.32rem, 1.1vh, 0.55rem);
+  right: calc(clamp(0.75rem, 2.5vw, 1.75rem) + 16px + 5px);
+}
+
 @keyframes blinkAccent {
   0%,
   100% {
