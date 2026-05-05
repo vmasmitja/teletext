@@ -68,7 +68,7 @@ export function DisplayPage() {
           <div className="display-waiting">
             <p className="display-waiting-title">ESCANEJA I CONTROLA</p>
             <div className="display-qr">
-              <QRCodeSVG value={remoteUrl} size={150} level="M" fgColor="#111" bgColor="#fff" />
+              <QRCodeSVG value={remoteUrl} size={210} level="M" fgColor="#111" bgColor="#fff" />
             </div>
             <p className="display-waiting-text">Obre el comandament al mòbil</p>
             <p className="display-waiting-sub">Sessió {room}</p>
