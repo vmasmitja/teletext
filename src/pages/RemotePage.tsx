@@ -13,8 +13,18 @@ export function RemotePage() {
   const [buffer, setBuffer] = useState("");
 
   const pushDigit = useCallback((d: string) => {
-    setBuffer((b) => (b.length >= 3 ? d : b + d));
-  }, []);
+    setBuffer((b) => {
+      const next = b.length >= 3 ? d : b + d;
+      if (next.length === 3) {
+        const n = Number(next);
+        if (n >= 100 && n <= 899) {
+          setRemotePage(n);
+          return "";
+        }
+      }
+      return next;
+    });
+  }, [setRemotePage]);
 
   const clearBuffer = useCallback(() => setBuffer(""), []);
 

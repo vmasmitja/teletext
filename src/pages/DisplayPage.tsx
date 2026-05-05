@@ -61,7 +61,7 @@ export function DisplayPage() {
         <img
           src={logoPng}
           alt="Logo Espai42"
-          className={`display-logo ${hasRemote ? "small" : "hero"}`}
+          className={`display-logo ${hasRemote ? "side" : "hero"}`}
         />
         <TeletextScreen pageNum={page} className="display-screen" />
         {!hasRemote && (

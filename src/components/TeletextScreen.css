@@ -40,6 +40,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  animation: tt-title-pulse 1.2s steps(2) infinite;
 }
 
 .tt-body {
@@ -49,6 +50,16 @@
 .tt-row {
   white-space: pre;
   height: 1.15em;
+}
+
+@keyframes tt-title-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.72;
+  }
 }
 
 @media (min-width: 720px) {
