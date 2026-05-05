@@ -14,6 +14,25 @@
   background: #0000aa;
 }
 
+.display-page-home .display-logo {
+  display: none;
+}
+
+.display-tve-home-wrap.display-screen {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-content: stretch;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+}
+
+.display-tve-home-wrap.tve-home {
+  flex: 1;
+  min-height: 0;
+}
+
 .crt-overlay {
   pointer-events: none;
   position: absolute;
@@ -70,7 +89,7 @@
 .display-waiting {
   position: absolute;
   inset: 0;
-  z-index: 4;
+  z-index: 25;
   display: grid;
   place-content: center;
   gap: 0.8rem;
@@ -78,13 +97,12 @@
   background: rgba(0, 0, 150, 0.32);
   color: #fff;
   font-family: "VT323", monospace;
-  transition: opacity 150ms linear;
 }
 
 .display-welcome {
   position: absolute;
   inset: 0;
-  z-index: 7;
+  z-index: 30;
   display: grid;
   place-items: center;
   align-content: center;
@@ -188,6 +206,8 @@
 }
 
 .display-waiting.hidden {
+  display: none !important;
+  visibility: hidden;
   opacity: 0;
   pointer-events: none;
 }
@@ -244,7 +264,7 @@
   top: 0.8rem;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 6;
+  z-index: 22;
   background: rgba(0, 0, 0, 0.55);
   border: 2px solid #00ff88;
   color: #00ffff;
@@ -275,7 +295,7 @@
   left: 50%;
   bottom: 2.1rem;
   transform: translateX(-50%);
-  z-index: 8;
+  z-index: 40;
   border: 2px solid #ffff00;
   background: #00114f;
   color: #ffff00;

@@ -6,6 +6,7 @@ import { DEFAULT_SESSION } from "../config";
 import type { TeletextLine } from "../content";
 import logoPng from "../assets/espai42-logo.png";
 import { SnakeGame } from "../components/SnakeGame";
+import { TeletextTveHome } from "../components/TeletextTveHome";
 import { TeletextScreen } from "../components/TeletextScreen";
 import { useTeletextWs } from "../hooks/useTeletextWs";
 import "./DisplayPage.css";
@@ -106,7 +107,7 @@ export function DisplayPage() {
 
   return (
     <div className="display-layout">
-      <div className="display-crt">
+      <div className={`display-crt ${page === 100 ? "display-page-home" : ""}`.trim()}>
         <div className="crt-overlay" aria-hidden />
         <div className="teletext-accent teletext-accent-a" aria-hidden />
         <div className="teletext-accent teletext-accent-b" aria-hidden />
@@ -115,7 +116,11 @@ export function DisplayPage() {
           alt="Logo Espai42"
           className={`display-logo ${hasRemote ? "side" : "hero"}`}
         />
-        <TeletextScreen pageNum={page} className="display-screen" lineOverrides={snakeInfoLines} />
+        {page === 100 ? (
+          <TeletextTveHome className="display-screen display-tve-home-wrap" />
+        ) : (
+          <TeletextScreen pageNum={page} className="display-screen" lineOverrides={snakeInfoLines} />
+        )}
         {page === 406 && (
           <SnakeGame
             control={lastControl}

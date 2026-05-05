@@ -187,6 +187,7 @@ async function main() {
         const action = String(msg.action || "");
         if (!["up", "down", "left", "right", "start"].includes(action)) return;
         broadcastDisplays(roomId, { type: "control", action });
+        broadcastPresence(roomId);
       }
 
       if (msg.type === "snakeResult" && role === "display") {

@@ -1,0 +1,203 @@
+.tve-home {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto auto auto auto 1fr auto;
+  font-family: "VT323", ui-monospace, monospace;
+  color: #fff;
+  background: #000000;
+  image-rendering: pixelated;
+  padding: 0;
+  overflow: hidden;
+}
+
+.tve-status {
+  background: #000;
+  color: #ffff00;
+  font-size: clamp(1rem, 2.2vw, 1.45rem);
+  padding: 0.15rem 0.5rem 0;
+  letter-spacing: 0.04em;
+}
+
+.tve-edition {
+  background: #000;
+  color: #fff;
+  font-size: clamp(0.85rem, 1.8vw, 1.15rem);
+  padding: 0 0.5rem 0.35rem;
+}
+
+.tve-banner-blue {
+  background: #0000aa;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.35rem 0.65rem;
+  gap: 0.75rem;
+  border: 0;
+  border-bottom: 3px solid #000;
+}
+
+.tve-banner-title {
+  font-size: clamp(1.8rem, 5.5vw, 3.4rem);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.tve-banner-logo {
+  height: clamp(2rem, 6vw, 3.25rem);
+  width: auto;
+  object-fit: contain;
+  image-rendering: pixelated;
+  filter: brightness(1.15) contrast(1.1);
+}
+
+.tve-banner-yellow {
+  background: #ffff00;
+  color: #0000aa;
+  display: flex;
+  align-items: baseline;
+  padding: 0.2rem 0.5rem;
+  font-size: clamp(1.1rem, 2.8vw, 1.65rem);
+  border-bottom: 3px solid #000;
+}
+
+.tve-yellow-left {
+  flex-shrink: 0;
+  text-transform: uppercase;
+  font-weight: 400;
+}
+
+.tve-yellow-dots {
+  flex: 1;
+  border-bottom: 3px dotted #0000aa;
+  margin: 0 0.35rem 0.2rem;
+  min-height: 0.35em;
+}
+
+.tve-yellow-page {
+  flex-shrink: 0;
+  font-weight: 400;
+}
+
+.tve-quad-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  min-height: 0;
+  gap: 0;
+  border: 3px solid #000;
+  border-top: none;
+  border-bottom: none;
+}
+
+.tve-quad {
+  box-sizing: border-box;
+  padding: 0.4rem 0.5rem 0.5rem;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+  border: 2px solid #000;
+}
+
+.tve-quad-head {
+  margin: 0 0 0.25rem;
+  font-size: clamp(1.05rem, 2.6vw, 1.55rem);
+  font-weight: 400;
+  text-transform: uppercase;
+  line-height: 1.1;
+}
+
+.tve-q-red {
+  background: #ff0000;
+  color: #fff;
+}
+
+.tve-q-red .tve-menu-dots {
+  border-bottom-color: #fff;
+}
+
+.tve-q-green {
+  background: #00ff00;
+  color: #0000aa;
+}
+
+.tve-q-green .tve-menu-dots {
+  border-bottom-color: #0000aa;
+}
+
+.tve-q-yellow {
+  background: #ffff00;
+  color: #000;
+}
+
+.tve-q-yellow .tve-menu-dots {
+  border-bottom-color: #000;
+}
+
+.tve-q-cyan {
+  background: #00ffff;
+  color: #0000aa;
+}
+
+.tve-q-cyan .tve-menu-dots {
+  border-bottom-color: #0000aa;
+}
+
+.tve-menu-line {
+  display: flex;
+  align-items: baseline;
+  font-size: clamp(0.95rem, 2.25vw, 1.35rem);
+  line-height: 1.15;
+  gap: 0.2ch;
+}
+
+.tve-menu-label {
+  flex-shrink: 0;
+}
+
+.tve-menu-dots {
+  flex: 1;
+  border-bottom: 2px dotted currentColor;
+  margin: 0 0.15rem 0.12rem;
+  min-height: 0.4em;
+  opacity: 0.95;
+}
+
+.tve-menu-page {
+  flex-shrink: 0;
+  min-width: 2.2ch;
+  text-align: right;
+}
+
+.tve-banner-footer {
+  background: #00ff00;
+  color: #0000aa;
+  display: flex;
+  align-items: baseline;
+  padding: 0.25rem 0.5rem;
+  font-size: clamp(1.1rem, 2.8vw, 1.65rem);
+  border-top: 3px solid #000;
+}
+
+.tve-foot-left {
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+
+.tve-foot-dots {
+  flex: 1;
+  border-bottom: 3px dotted #0000aa;
+  margin: 0 0.35rem 0.2rem;
+  min-height: 0.35em;
+}
+
+.tve-foot-page {
+  flex-shrink: 0;
+}
