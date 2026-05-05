@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
-import { isAudioUnlockedStored, primeAudioFromStorage, unlockAudioByGesture } from "../audio";
+import { getAudioState, isAudioUnlockedStored, primeAudioFromStorage, unlockAudioByGesture } from "../audio";
 import { DEFAULT_SESSION } from "../config";
 import type { TeletextLine } from "../content";
 import logoPng from "../assets/espai42-logo.png";
@@ -15,6 +15,7 @@ export function DisplayPage() {
   const room = params.get("r") ?? DEFAULT_SESSION;
   const [remoteBaseUrl, setRemoteBaseUrl] = useState<string | null>(null);
   const [audioUnlocked, setAudioUnlocked] = useState(() => isAudioUnlockedStored());
+  const [audioRunning, setAudioRunning] = useState(() => getAudioState() === "running");
   const [showWelcome, setShowWelcome] = useState(false);
   const prevRemoteRef = useRef(false);
   const welcomeTimerRef = useRef<number | null>(null);
@@ -44,6 +45,10 @@ export function DisplayPage() {
 
   useEffect(() => {
     primeAudioFromStorage();
+    setAudioRunning(getAudioState() === "running");
+    const id = window.setInterval(() => {
+      setAudioRunning(getAudioState() === "running");
+    }, 2000);
     let alive = true;
     fetch("/api/runtime")
       .then((r) => r.json())
@@ -66,6 +71,7 @@ export function DisplayPage() {
       });
     return () => {
       alive = false;
+      window.clearInterval(id);
     };
   }, []);
 
@@ -121,7 +127,9 @@ export function DisplayPage() {
         {showWelcome && (
           <div className="display-welcome" aria-live="polite">
             <div className="display-welcome-rays" aria-hidden />
-            <img src={logoPng} alt="Logo Espai42" className="display-welcome-logo" />
+            <div className="display-welcome-logo-wrap">
+              <img src={logoPng} alt="Logo Espai42" className="display-welcome-logo" />
+            </div>
             <div className="display-welcome-title">Benvinguts a ESPai42!</div>
             <div className="display-welcome-sub">Teletext interactiu en directe</div>
           </div>
@@ -167,16 +175,19 @@ export function DisplayPage() {
         )}
         {hasRemote && <div className="display-live-pill">TELETEXT EN DIRECTE</div>}
         <div className="display-url">{remoteUrl}</div>
-        {!audioUnlocked && (
+        {!audioRunning && (
           <button
             type="button"
             className="display-audio-unlock"
             onClick={async () => {
               const ok = await unlockAudioByGesture();
-              if (ok) setAudioUnlocked(true);
+              if (ok) {
+                setAudioUnlocked(true);
+                setAudioRunning(true);
+              }
             }}
           >
-            ACTIVA SO (1A VEGADA)
+            {audioUnlocked ? "REACTIVA SO" : "ACTIVA SO (1A VEGADA)"}
           </button>
         )}
       </div>

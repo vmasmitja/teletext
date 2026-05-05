@@ -12,6 +12,18 @@ function ensureCtx(): AudioContext | null {
   return ctx;
 }
 
+function playToneInternal(c: AudioContext, freq: number, ms: number, type: OscillatorType, gainValue: number): void {
+  const osc = c.createOscillator();
+  const gain = c.createGain();
+  osc.type = type;
+  osc.frequency.value = freq;
+  gain.gain.value = gainValue;
+  osc.connect(gain);
+  gain.connect(c.destination);
+  osc.start();
+  osc.stop(c.currentTime + ms / 1000);
+}
+
 export function isAudioUnlockedStored(): boolean {
   return window.localStorage.getItem(STORAGE_KEY) === "1";
 }
@@ -46,20 +58,22 @@ export function primeAudioFromStorage(): void {
   }
 }
 
+export function getAudioState(): "unsupported" | "suspended" | "running" {
+  const c = ensureCtx();
+  if (!c) return "unsupported";
+  return c.state === "running" ? "running" : "suspended";
+}
+
 export function playTone(freq: number, ms: number, type: OscillatorType = "square", gainValue = 0.08): void {
   const c = ensureCtx();
   if (!c) return;
-  if (c.state === "suspended") return;
   try {
-    const osc = c.createOscillator();
-    const gain = c.createGain();
-    osc.type = type;
-    osc.frequency.value = freq;
-    gain.gain.value = gainValue;
-    osc.connect(gain);
-    gain.connect(c.destination);
-    osc.start();
-    osc.stop(c.currentTime + ms / 1000);
+    if (c.state === "suspended" && isAudioUnlockedStored()) {
+      void c.resume().then(() => playToneInternal(c, freq, ms, type, gainValue));
+      return;
+    }
+    if (c.state !== "running") return;
+    playToneInternal(c, freq, ms, type, gainValue);
   } catch {
     /* noop */
   }
