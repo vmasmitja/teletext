@@ -20,6 +20,19 @@
     0 14px 28px rgba(0, 0, 0, 0.45),
     inset 0 1px 0 rgba(255, 255, 255, 0.2),
     inset 0 -2px 0 rgba(0, 0, 0, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+.remote-ref {
+  position: absolute;
+  width: 72%;
+  right: -16%;
+  bottom: -8%;
+  opacity: 0.12;
+  transform: rotate(-16deg);
+  filter: grayscale(1) contrast(1.1);
+  pointer-events: none;
 }
 
 .remote-top-metal {
@@ -28,6 +41,19 @@
   letter-spacing: 0.08em;
   font-size: 1.05rem;
   margin-bottom: 0.65rem;
+  position: relative;
+  z-index: 1;
+}
+
+.remote-brand {
+  text-align: center;
+  color: #b8b2a0;
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+  margin: -0.35rem 0 0.6rem;
+  opacity: 0.9;
+  position: relative;
+  z-index: 1;
 }
 
 .remote-pad {
@@ -35,6 +61,8 @@
   flex-direction: column;
   gap: 0.7rem;
   width: 100%;
+  position: relative;
+  z-index: 1;
 }
 
 .remote-buffer {
@@ -127,4 +155,6 @@
   text-align: center;
   color: #f2ead2;
   letter-spacing: 0.03em;
+  position: relative;
+  z-index: 1;
 }

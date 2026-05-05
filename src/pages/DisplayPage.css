@@ -113,7 +113,8 @@
 .display-live-pill {
   position: absolute;
   top: 0.8rem;
-  right: 0.8rem;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 6;
   background: rgba(0, 0, 0, 0.55);
   border: 2px solid #00ff88;

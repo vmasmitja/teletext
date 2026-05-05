@@ -1,5 +1,6 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import telefunkenRef from "../assets/telefunken-remote-ref.png";
 import { DEFAULT_SESSION } from "../config";
 import { KNOWN_PAGE_NUMS } from "../content";
 import { useTeletextWs } from "../hooks/useTeletextWs";
@@ -11,6 +12,13 @@ export function RemotePage() {
   const { page, setRemotePage } = useTeletextWs(room, "remote");
 
   const [buffer, setBuffer] = useState("");
+  const clearTimer = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (clearTimer.current) window.clearTimeout(clearTimer.current);
+    };
+  }, []);
 
   const pushDigit = useCallback((d: string) => {
     setBuffer((b) => {
@@ -19,7 +27,9 @@ export function RemotePage() {
         const n = Number(next);
         if (n >= 100 && n <= 899) {
           setRemotePage(n);
-          return "";
+          if (clearTimer.current) window.clearTimeout(clearTimer.current);
+          clearTimer.current = window.setTimeout(() => setBuffer(""), 220);
+          return next;
         }
       }
       return next;
@@ -51,7 +61,9 @@ export function RemotePage() {
   return (
     <div className="remote-layout">
       <div className="remote-shell">
+        <img src={telefunkenRef} alt="" className="remote-ref" aria-hidden />
         <div className="remote-top-metal">ESPAI42 COMANDAMENT</div>
+        <div className="remote-brand">TELEFUNKEN TELETEXT</div>
         <div className="remote-buffer" aria-live="polite">
           {[0, 1, 2].map((i) => (
             <span key={i} className="remote-buffer-digit">

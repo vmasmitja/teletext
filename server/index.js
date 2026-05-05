@@ -164,8 +164,13 @@ async function main() {
         r.page = Math.floor(page);
         broadcastDisplays(roomId, { type: "state", page: r.page });
         for (const w of r.remotes) {
-          if (w !== ws) send(w, { type: "state", page: r.page });
+          send(w, { type: "state", page: r.page });
         }
+        if (role === "remote") broadcastPresence(roomId);
+      }
+
+      if (msg.type === "heartbeat" && role === "remote") {
+        broadcastPresence(roomId);
       }
     });
 

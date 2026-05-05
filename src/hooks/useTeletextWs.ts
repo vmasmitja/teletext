@@ -49,6 +49,16 @@ export function useTeletextWs(room: string, role: Role) {
     };
   }, [room, role]);
 
+  useEffect(() => {
+    if (role !== "remote") return;
+    const id = window.setInterval(() => {
+      const ws = wsRef.current;
+      if (!ws || ws.readyState !== WebSocket.OPEN) return;
+      ws.send(JSON.stringify({ type: "heartbeat" }));
+    }, 1500);
+    return () => window.clearInterval(id);
+  }, [role]);
+
   const setRemotePage = useCallback((next: number) => {
     const ws = wsRef.current;
     if (!ws || ws.readyState !== WebSocket.OPEN) return;
