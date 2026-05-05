@@ -5,7 +5,6 @@ import { isAudioUnlockedStored, primeAudioFromStorage, unlockAudioByGesture } fr
 import { DEFAULT_SESSION } from "../config";
 import type { TeletextLine } from "../content";
 import logoPng from "../assets/espai42-logo.png";
-import welcomeRef from "../assets/welcome-teletext-ref.png";
 import { SnakeGame } from "../components/SnakeGame";
 import { TeletextScreen } from "../components/TeletextScreen";
 import { useTeletextWs } from "../hooks/useTeletextWs";
@@ -121,8 +120,9 @@ export function DisplayPage() {
         )}
         {showWelcome && (
           <div className="display-welcome" aria-live="polite">
-            <img src={welcomeRef} alt="" className="display-welcome-bg" />
+            <div className="display-welcome-pixels" aria-hidden />
             <div className="display-welcome-title">Benvinguts a ESPai42!</div>
+            <div className="display-welcome-sub">Teletext interactiu en directe</div>
           </div>
         )}
         <div className={`display-waiting ${hasRemote ? "hidden" : ""}`}>
