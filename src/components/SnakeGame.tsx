@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { playTone } from "../audio";
 import "./SnakeGame.css";
 
 type Dir = "up" | "down" | "left" | "right";
@@ -43,29 +44,7 @@ export function SnakeGame({
   const [score, setScore] = useState(0);
   const dirRef = useRef<Dir>("right");
   const sentOverRef = useRef(false);
-  const audioCtxRef = useRef<AudioContext | null>(null);
   const melodyRef = useRef<number | null>(null);
-
-  const beep = (freq: number, ms: number, type: OscillatorType = "square", gainValue = 0.12) => {
-    try {
-      const Ctx = window.AudioContext || (window as never as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-      if (!Ctx) return;
-      if (!audioCtxRef.current) audioCtxRef.current = new Ctx();
-      const ctx = audioCtxRef.current;
-      if (ctx.state === "suspended") void ctx.resume();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = type;
-      osc.frequency.value = freq;
-      gain.gain.value = gainValue;
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start();
-      osc.stop(ctx.currentTime + ms / 1000);
-    } catch {
-      /* ignore audio failures */
-    }
-  };
 
   useEffect(() => {
     if (!control) return;
@@ -88,8 +67,8 @@ export function SnakeGame({
     setRunning(true);
     sentOverRef.current = false;
     dirRef.current = "right";
-    beep(440, 110, "square", 0.14);
-    window.setTimeout(() => beep(660, 130, "square", 0.14), 120);
+    playTone(440, 110, "square", 0.14);
+    window.setTimeout(() => playTone(660, 130, "square", 0.14), 120);
   }, [startTick]);
 
   useEffect(() => {
@@ -111,8 +90,8 @@ export function SnakeGame({
         else {
           setScore((s) => s + 1);
           setFood(rndFood(next));
-          beep(980, 110, "square", 0.18);
-          window.setTimeout(() => beep(1180, 80, "square", 0.14), 90);
+          playTone(980, 110, "square", 0.18);
+          window.setTimeout(() => playTone(1180, 80, "square", 0.14), 90);
         }
         return next;
       });
@@ -124,8 +103,8 @@ export function SnakeGame({
     if (!dead || sentOverRef.current === true) return;
     sentOverRef.current = true;
     setRunning(false);
-    beep(320, 220, "sawtooth", 0.2);
-    window.setTimeout(() => beep(160, 260, "sawtooth", 0.2), 160);
+    playTone(320, 220, "sawtooth", 0.2);
+    window.setTimeout(() => playTone(160, 260, "sawtooth", 0.2), 160);
     onGameOver?.(score);
   }, [dead, onGameOver, score]);
 
@@ -140,7 +119,7 @@ export function SnakeGame({
     const notes = [523, 659, 784, 659];
     let i = 0;
     melodyRef.current = window.setInterval(() => {
-      beep(notes[i % notes.length], 95, "triangle", 0.045);
+      playTone(notes[i % notes.length], 95, "triangle", 0.045);
       i += 1;
     }, 420);
     return () => {

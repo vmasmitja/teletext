@@ -2,6 +2,7 @@ import { useEffect, useMemo } from "react";
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
+import { isAudioUnlockedStored, primeAudioFromStorage, unlockAudioByGesture } from "../audio";
 import { DEFAULT_SESSION } from "../config";
 import type { TeletextLine } from "../content";
 import logoPng from "../assets/espai42-logo.png";
@@ -14,6 +15,7 @@ export function DisplayPage() {
   const [params] = useSearchParams();
   const room = params.get("r") ?? DEFAULT_SESSION;
   const [remoteBaseUrl, setRemoteBaseUrl] = useState<string | null>(null);
+  const [audioUnlocked, setAudioUnlocked] = useState(() => isAudioUnlockedStored());
 
   const { page, hasRemote, lastControl, startTick, highScore, highName, sendSnakeResult, setRemotePage } =
     useTeletextWs(room, "display");
@@ -23,6 +25,7 @@ export function DisplayPage() {
   }, [hasRemote, setRemotePage]);
 
   useEffect(() => {
+    primeAudioFromStorage();
     let alive = true;
     fetch("/api/runtime")
       .then((r) => r.json())
@@ -138,6 +141,18 @@ export function DisplayPage() {
         )}
         {hasRemote && <div className="display-live-pill">TELETEXT EN DIRECTE</div>}
         <div className="display-url">{remoteUrl}</div>
+        {!audioUnlocked && (
+          <button
+            type="button"
+            className="display-audio-unlock"
+            onClick={async () => {
+              const ok = await unlockAudioByGesture();
+              if (ok) setAudioUnlocked(true);
+            }}
+          >
+            ACTIVA SO (1A VEGADA)
+          </button>
+        )}
       </div>
     </div>
   );

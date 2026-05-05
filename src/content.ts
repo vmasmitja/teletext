@@ -13,7 +13,6 @@ export const TELETEXT_PAGES: TeletextPageDef[] = [
     num: 100,
     title: "ESPai42",
     lines: [
-      { text: "                              ", color: "w" },
       { text: "  ESPai42                      ", color: "y" },
       { text: "  Coworking creatiu            ", color: "y" },
       { text: "                              ", color: "w" },
@@ -28,7 +27,6 @@ export const TELETEXT_PAGES: TeletextPageDef[] = [
       { text: "  104  Projectes residents     ", color: "y" },
       { text: "  105  Contacte                ", color: "y" },
       { text: "  106  Joc de la serp          ", color: "y" },
-      { text: "                              ", color: "w" },
       { text: "  Teclegeu el numero de pagina ", color: "c" },
       { text: "  al comandament del mobil.    ", color: "c" },
       { text: "                              ", color: "w" },
