@@ -172,6 +172,12 @@ async function main() {
       if (msg.type === "heartbeat" && role === "remote") {
         broadcastPresence(roomId);
       }
+
+      if (msg.type === "control" && role === "remote") {
+        const action = String(msg.action || "");
+        if (!["up", "down", "left", "right"].includes(action)) return;
+        broadcastDisplays(roomId, { type: "control", action });
+      }
     });
 
     ws.on("close", () => {

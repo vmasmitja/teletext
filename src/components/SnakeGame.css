@@ -1,0 +1,49 @@
+.snake-wrap {
+  position: absolute;
+  right: 3vw;
+  top: 18vh;
+  width: min(41vw, 560px);
+  z-index: 4;
+}
+
+.snake-headline {
+  font-family: "VT323", monospace;
+  color: #ffff00;
+  font-size: clamp(1.1rem, 1.8vw, 1.7rem);
+  margin-bottom: 0.35rem;
+  text-align: center;
+}
+
+.snake-grid {
+  display: grid;
+  grid-template-columns: repeat(20, 1fr);
+  gap: 2px;
+  padding: 8px;
+  border: 2px solid #00ffff;
+  background: rgba(0, 0, 80, 0.8);
+}
+
+.snake-cell {
+  aspect-ratio: 1 / 1;
+  background: #00113d;
+}
+
+.snake-cell.body {
+  background: #00ff66;
+}
+
+.snake-cell.head {
+  background: #ffff00;
+}
+
+.snake-cell.food {
+  background: #ff4fd8;
+}
+
+.snake-dead {
+  margin-top: 0.35rem;
+  text-align: center;
+  color: #ff5f5f;
+  font-family: "VT323", monospace;
+  font-size: clamp(1rem, 1.5vw, 1.3rem);
+}

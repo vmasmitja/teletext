@@ -65,6 +65,37 @@
   z-index: 1;
 }
 
+.remote-gamepad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-areas:
+    ". up ."
+    "left . right"
+    ". down .";
+  gap: 0.45rem;
+  margin-bottom: 0.1rem;
+}
+
+.remote-btn.game {
+  font-size: 1.35rem;
+  padding: 0.72rem 0;
+  background: linear-gradient(180deg, #525252 0%, #2f2f2f 100%);
+  color: #f5f5f5;
+}
+
+.remote-btn.game.up {
+  grid-area: up;
+}
+.remote-btn.game.left {
+  grid-area: left;
+}
+.remote-btn.game.right {
+  grid-area: right;
+}
+.remote-btn.game.down {
+  grid-area: down;
+}
+
 .remote-buffer {
   display: flex;
   justify-content: center;

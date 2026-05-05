@@ -4,6 +4,7 @@ import { useSearchParams } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
 import { DEFAULT_SESSION } from "../config";
 import logoPng from "../assets/espai42-logo.png";
+import { SnakeGame } from "../components/SnakeGame";
 import { TeletextScreen } from "../components/TeletextScreen";
 import { useTeletextWs } from "../hooks/useTeletextWs";
 import "./DisplayPage.css";
@@ -13,7 +14,7 @@ export function DisplayPage() {
   const room = params.get("r") ?? DEFAULT_SESSION;
   const [remoteBaseUrl, setRemoteBaseUrl] = useState<string | null>(null);
 
-  const { page, hasRemote, setRemotePage } = useTeletextWs(room, "display");
+  const { page, hasRemote, lastControl, setRemotePage } = useTeletextWs(room, "display");
 
   useEffect(() => {
     if (hasRemote) setRemotePage(100);
@@ -64,6 +65,7 @@ export function DisplayPage() {
           className={`display-logo ${hasRemote ? "side" : "hero"}`}
         />
         <TeletextScreen pageNum={page} className="display-screen" />
+        {page === 106 && <SnakeGame control={lastControl} active={hasRemote} />}
         {!hasRemote && (
           <div className="display-waiting">
             <p className="display-waiting-title">ESCANEJA I CONTROLA</p>

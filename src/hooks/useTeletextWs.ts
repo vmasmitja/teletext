@@ -7,6 +7,7 @@ export function useTeletextWs(room: string, role: Role) {
   const [page, setPage] = useState(100);
   const [connected, setConnected] = useState(false);
   const [hasRemote, setHasRemote] = useState(false);
+  const [lastControl, setLastControl] = useState<"up" | "down" | "left" | "right" | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
@@ -21,12 +22,20 @@ export function useTeletextWs(room: string, role: Role) {
 
     ws.onmessage = (ev) => {
       try {
-        const msg = JSON.parse(ev.data as string) as { type?: string; page?: number; hasRemote?: boolean };
+        const msg = JSON.parse(ev.data as string) as {
+          type?: string;
+          page?: number;
+          hasRemote?: boolean;
+          action?: "up" | "down" | "left" | "right";
+        };
         if (msg.type === "state" && typeof msg.page === "number") {
           setPage(msg.page);
         }
         if (msg.type === "presence" && typeof msg.hasRemote === "boolean") {
           setHasRemote(msg.hasRemote);
+        }
+        if (msg.type === "control" && msg.action) {
+          setLastControl(msg.action);
         }
       } catch {
         /* ignore */
@@ -55,7 +64,7 @@ export function useTeletextWs(room: string, role: Role) {
       const ws = wsRef.current;
       if (!ws || ws.readyState !== WebSocket.OPEN) return;
       ws.send(JSON.stringify({ type: "heartbeat" }));
-    }, 1500);
+    }, 500);
     return () => window.clearInterval(id);
   }, [role]);
 
@@ -65,5 +74,11 @@ export function useTeletextWs(room: string, role: Role) {
     ws.send(JSON.stringify({ type: "setPage", page: next }));
   }, []);
 
-  return { page, connected, hasRemote, setRemotePage };
+  const sendControl = useCallback((action: "up" | "down" | "left" | "right") => {
+    const ws = wsRef.current;
+    if (!ws || ws.readyState !== WebSocket.OPEN) return;
+    ws.send(JSON.stringify({ type: "control", action }));
+  }, []);
+
+  return { page, connected, hasRemote, lastControl, setRemotePage, sendControl };
 }

@@ -9,7 +9,7 @@ import "./RemotePage.css";
 export function RemotePage() {
   const [params] = useSearchParams();
   const room = params.get("r") ?? DEFAULT_SESSION;
-  const { page, setRemotePage } = useTeletextWs(room, "remote");
+  const { page, sendControl, setRemotePage } = useTeletextWs(room, "remote");
 
   const [buffer, setBuffer] = useState("");
   const clearTimer = useRef<number | null>(null);
@@ -72,6 +72,22 @@ export function RemotePage() {
           ))}
         </div>
         <div className="remote-pad">
+          {page === 106 && (
+            <div className="remote-gamepad">
+              <button type="button" className="remote-btn game up" onClick={() => sendControl("up")}>
+                ▲
+              </button>
+              <button type="button" className="remote-btn game left" onClick={() => sendControl("left")}>
+                ◀
+              </button>
+              <button type="button" className="remote-btn game right" onClick={() => sendControl("right")}>
+                ▶
+              </button>
+              <button type="button" className="remote-btn game down" onClick={() => sendControl("down")}>
+                ▼
+              </button>
+            </div>
+          )}
           <div className="remote-nav">
             <button type="button" className="remote-btn nav" onClick={() => prevNext(-1)}>
               ◀ Anterior
