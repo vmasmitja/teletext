@@ -1,7 +1,16 @@
-import { getTeletextPage, type TeletextLine } from "../content";
+import { getTeletextPage, type TeletextColor, type TeletextLine } from "../content";
 import "./TeletextScreen.css";
 
 const COLORS: Record<string, string> = {
+  y: "#ffff00",
+  w: "#ffffff",
+  c: "#00ffff",
+  g: "#00ff00",
+  m: "#ff00ff",
+  r: "#ff0000",
+};
+
+const BG_COLORS: Record<TeletextColor, string> = {
   y: "#ffff00",
   w: "#ffffff",
   c: "#00ffff",
@@ -34,15 +43,15 @@ export function TeletextScreen({
   const def = getTeletextPage(pageNum);
   const lines = lineOverrides ?? def?.lines ?? [];
   const title = titleOverride ?? def?.title ?? "???";
+  const headerLeft = pageNum === 100 ? "INFO ESPAI" : `Pàg ${String(pageNum).padStart(3, "0")}`;
+  const headerRight = pageNum === 100 ? "ESPAI42" : title;
 
   return (
     <div className={`tt-screen ${className ?? ""}`.trim()}>
       {showHeader && (
         <div className="tt-header">
-          <span className="tt-header-pno">
-            Pàg {String(pageNum).padStart(3, "0")}
-          </span>
-          <span className="tt-header-title">{title}</span>
+          <span className="tt-header-pno">{headerLeft}</span>
+          <span className="tt-header-title">{headerRight}</span>
         </div>
       )}
       <div className="tt-body" aria-live="polite">
@@ -55,7 +64,13 @@ export function TeletextScreen({
         )}
         {lines.map((line, i) => (
           <div key={i} className="tt-row">
-            <span style={{ color: COLORS[line.color ?? "w"] ?? COLORS.w }}>
+            <span
+              style={{
+                color: COLORS[line.color ?? "w"] ?? COLORS.w,
+                backgroundColor: line.bg ? BG_COLORS[line.bg] : "transparent",
+              }}
+              className={line.bg ? "tt-cell-bg" : undefined}
+            >
               {padLine(line.text, 40)}
             </span>
           </div>

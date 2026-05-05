@@ -144,14 +144,14 @@ export function SnakeGame({
 
   return (
     <div className="snake-wrap">
-      <div className="snake-headline">PÀG 106 · JOC SERP · PUNTS {score.toString().padStart(2, "0")}</div>
+      <div className="snake-headline">PÀG 406 · JOC SERP · PUNTS {score.toString().padStart(2, "0")}</div>
       <div className="snake-grid">
         {cells.map((c, i) => (
           <span key={i} className={`snake-cell ${c}`} />
         ))}
       </div>
       {!running && !dead && <div className="snake-dead">PREM COMENÇA PER INICIAR</div>}
-      {dead && <div className="snake-dead">FI DE PARTIDA · TORNA A PÀG 106</div>}
+      {dead && <div className="snake-dead">FI DE PARTIDA · TORNA A PÀG 406</div>}
     </div>
   );
 }

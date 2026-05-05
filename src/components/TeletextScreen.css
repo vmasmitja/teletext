@@ -52,6 +52,11 @@
   height: 1.15em;
 }
 
+.tt-cell-bg {
+  display: inline-block;
+  width: 40ch;
+}
+
 @keyframes tt-title-pulse {
   0%,
   100% {

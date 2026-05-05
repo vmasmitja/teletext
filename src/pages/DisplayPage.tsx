@@ -85,7 +85,7 @@ export function DisplayPage() {
   const websiteUrl = "https://espai42.org";
 
   const snakeInfoLines = useMemo<TeletextLine[] | undefined>(() => {
-    if (page !== 106) return undefined;
+    if (page !== 406) return undefined;
     const scoreText = String(highScore).padStart(2, "0");
     return [
       { text: "                              ", color: "w" },
@@ -100,7 +100,7 @@ export function DisplayPage() {
       { text: "  En morir, si fas record,    ", color: "m" },
       { text: "  posa el teu nom al mobil.   ", color: "m" },
       { text: "                              ", color: "w" },
-      { text: "  Pàg 106       ESPai42       ", color: "g" },
+      { text: "  Pàg 406       ESPai42       ", color: "g" },
     ];
   }, [page, highName, highScore]);
 
@@ -116,7 +116,7 @@ export function DisplayPage() {
           className={`display-logo ${hasRemote ? "side" : "hero"}`}
         />
         <TeletextScreen pageNum={page} className="display-screen" lineOverrides={snakeInfoLines} />
-        {page === 106 && (
+        {page === 406 && (
           <SnakeGame
             control={lastControl}
             startTick={startTick}
@@ -138,7 +138,7 @@ export function DisplayPage() {
           {!hasRemote && (
             <>
               <p className="display-waiting-title">ESCANEJA I CONTROLA</p>
-              {page === 105 ? (
+              {page === 401 ? (
                 <div className="display-dual-qrs">
                   <div className="display-qr-card">
                     <div className="display-qr">
@@ -165,7 +165,7 @@ export function DisplayPage() {
             </>
           )}
         </div>
-        {page === 105 && (
+        {page === 401 && (
           <div className="display-contact-qr">
             <div className="display-qr">
               <QRCodeSVG value={websiteUrl} size={150} level="M" fgColor="#111" bgColor="#fff" />
