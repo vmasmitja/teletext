@@ -41,7 +41,7 @@
   grid-template-columns: minmax(470px, 1fr) minmax(530px, 1.2fr);
   gap: 2rem;
   min-height: 0;
-  align-items: center;
+  align-items: start;
 }
 
 .art330-left,
@@ -88,7 +88,7 @@
   display: grid;
   align-content: start;
   justify-items: center;
-  padding-top: clamp(0.2rem, 1vh, 0.7rem);
+  padding-top: 0;
 }
 
 .art330-artwork {
@@ -99,7 +99,7 @@
   image-rendering: crisp-edges;
   filter: saturate(1.03) contrast(1.02);
   animation: art330Pulse 2.6s steps(2) infinite;
-  margin-top: clamp(-5rem, -10vh, -2rem);
+  margin-top: clamp(-9.5rem, -17vh, -3rem);
 }
 
 @keyframes art330Pulse {

@@ -41,7 +41,7 @@
   grid-template-columns: minmax(470px, 1fr) minmax(530px, 1.2fr);
   gap: 2rem;
   min-height: 0;
-  align-items: center;
+  align-items: start;
 }
 
 .art320-left,
@@ -99,7 +99,7 @@
   image-rendering: crisp-edges;
   filter: saturate(1.02) contrast(1.02) brightness(1);
   animation: art320ColorPulse 1.2s steps(2) infinite;
-  margin-top: clamp(-5rem, -10vh, -2rem);
+  margin-top: clamp(-7rem, -13vh, -2.5rem);
 }
 
 @keyframes art320ColorPulse {

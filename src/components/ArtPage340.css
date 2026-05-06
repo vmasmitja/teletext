@@ -41,7 +41,7 @@
   grid-template-columns: minmax(470px, 1fr) minmax(480px, 1.1fr);
   gap: 2rem;
   min-height: 0;
-  align-items: center;
+  align-items: start;
 }
 
 .art340-left,
@@ -100,7 +100,7 @@
   filter: saturate(1.03) contrast(1.02);
   transform-origin: 50% 50%;
   animation: art340Swing 5.2s ease-in-out infinite;
-  margin-top: clamp(-5rem, -10vh, -2rem);
+  margin-top: clamp(-7rem, -13vh, -2.5rem);
 }
 
 @keyframes art340Swing {
