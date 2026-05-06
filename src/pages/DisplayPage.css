@@ -326,7 +326,8 @@
   right: 2.5vw;
   bottom: 8vh;
   width: min(36vw, 520px);
-  z-index: 7;
+  /* Above display-waiting (25); below welcome splash (30) */
+  z-index: 28;
   border: 2px solid #00ffff;
   background: rgba(0, 18, 80, 0.72);
   padding: 0.45rem;

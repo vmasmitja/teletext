@@ -159,14 +159,15 @@ async function buildApp() {
     res.json({ path: `/editor-assets/${clean}` });
   });
 
-  app.get("/api/instagram/latest", async (_req, res) => {
+  app.get("/api/instagram/latest", async (req, res) => {
     const userId = process.env.IG_USER_ID;
     const accessToken = process.env.IG_ACCESS_TOKEN;
     if (!userId || !accessToken) {
       res.json({ enabled: false, posts: [] });
       return;
     }
-    if (instagramCache.payload && instagramCache.expiresAt > Date.now()) {
+    const skipCache = req.query?.refresh != null || req.query?.fresh != null;
+    if (!skipCache && instagramCache.payload && instagramCache.expiresAt > Date.now()) {
       res.json(instagramCache.payload);
       return;
     }
@@ -178,14 +179,26 @@ async function buildApp() {
       const data = await r.json();
       const posts = Array.isArray(data?.data)
         ? data.data
-            .filter((p) => p && (p.media_type === "IMAGE" || p.media_type === "CAROUSEL_ALBUM"))
-            .map((p) => ({
-              id: String(p.id || ""),
-              caption: String(p.caption || ""),
-              mediaUrl: String(p.media_url || p.thumbnail_url || ""),
-              permalink: String(p.permalink || ""),
-              timestamp: String(p.timestamp || ""),
-            }))
+            .filter(
+              (p) =>
+                p &&
+                (p.media_type === "IMAGE" ||
+                  p.media_type === "CAROUSEL_ALBUM" ||
+                  p.media_type === "VIDEO")
+            )
+            .map((p) => {
+              const isVideo = p.media_type === "VIDEO";
+              const mediaUrl = isVideo
+                ? String(p.thumbnail_url || p.media_url || "")
+                : String(p.media_url || p.thumbnail_url || "");
+              return {
+                id: String(p.id || ""),
+                caption: String(p.caption || ""),
+                mediaUrl,
+                permalink: String(p.permalink || ""),
+                timestamp: String(p.timestamp || ""),
+              };
+            })
             .filter((p) => p.mediaUrl)
         : [];
       const payload = { enabled: true, posts };

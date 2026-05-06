@@ -120,8 +120,9 @@ export function DisplayPage() {
   }, [page, highName, highScore]);
 
   useEffect(() => {
+    if (page !== 402) return;
     let alive = true;
-    fetch("/api/instagram/latest")
+    fetch("/api/instagram/latest?refresh=1")
       .then((r) => r.json())
       .then((data: { enabled?: boolean; posts?: Array<{ id: string; mediaUrl: string; caption: string; permalink: string }> }) => {
         if (!alive) return;
@@ -137,7 +138,7 @@ export function DisplayPage() {
     return () => {
       alive = false;
     };
-  }, []);
+  }, [page]);
 
   useEffect(() => {
     if (page !== 402 || igPosts.length <= 1) return;
