@@ -5,6 +5,7 @@ import { getAudioState, isAudioUnlockedStored, primeAudioFromStorage, unlockAudi
 import { DEFAULT_SESSION } from "../config";
 import type { TeletextLine } from "../content";
 import logoPng from "../assets/espai42-logo.png";
+import { ArtPage310 } from "../components/ArtPage310";
 import { SnakeGame } from "../components/SnakeGame";
 import { TeletextTveHome } from "../components/TeletextTveHome";
 import { TeletextScreen } from "../components/TeletextScreen";
@@ -121,6 +122,8 @@ export function DisplayPage() {
         )}
         {page === 100 ? (
           <TeletextTveHome className="display-screen display-tve-home-wrap" />
+        ) : page === 310 ? (
+          <ArtPage310 className="display-screen" />
         ) : (
           <TeletextScreen pageNum={page} className="display-screen" lineOverrides={snakeInfoLines} />
         )}
