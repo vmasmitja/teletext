@@ -97,7 +97,8 @@ export function DisplayPage() {
   }, [room, remoteBaseUrl]);
 
   const websiteUrl = "https://espai42.org";
-  const hideBackdropLogo = page === 100 || Boolean(currentSection) || Boolean(residentImagePath);
+  const hideBackdropLogo =
+    page === 100 || page === 402 || Boolean(currentSection) || Boolean(residentImagePath);
 
   const snakeInfoLines = useMemo<TeletextLine[] | undefined>(() => {
     if (page !== 501) return undefined;
@@ -155,7 +156,9 @@ export function DisplayPage() {
 
   return (
     <div className="display-layout">
-      <div className={`display-crt ${page === 100 ? "display-page-home" : ""}`.trim()}>
+      <div
+        className={`display-crt ${page === 100 ? "display-page-home" : ""} ${page === 402 ? "display-page-xarxes" : ""}`.trim()}
+      >
         <div className="crt-overlay" aria-hidden />
         <div className="teletext-accent teletext-accent-a" aria-hidden />
         <div className="teletext-accent teletext-accent-b" aria-hidden />
@@ -253,12 +256,14 @@ export function DisplayPage() {
               rel="noreferrer"
               className="display-instagram-link"
             >
-              <img
-                src={`/api/instagram/media?u=${encodeURIComponent(igPosts[igIndex].mediaUrl)}`}
-                alt="Post Instagram Espai42"
-                className="display-instagram-image"
-                referrerPolicy="no-referrer"
-              />
+              <div className="display-instagram-pixel-shell">
+                <img
+                  src={`/api/instagram/media?u=${encodeURIComponent(igPosts[igIndex].mediaUrl)}`}
+                  alt="Post Instagram Espai42"
+                  className="display-instagram-image"
+                  referrerPolicy="no-referrer"
+                />
+              </div>
             </a>
             <div className="display-instagram-caption">{(igPosts[igIndex].caption || "").slice(0, 84) || "Post d'Instagram"}</div>
             {igPosts.length > 1 && (
