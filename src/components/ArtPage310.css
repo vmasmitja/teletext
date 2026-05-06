@@ -87,16 +87,18 @@
 .art310-right {
   display: grid;
   align-content: center;
-  justify-items: center;
+  justify-items: end;
   gap: 0;
+  padding-right: clamp(0.4rem, 1.4vw, 1.2rem);
 }
 
 .art310-artwork {
-  width: min(95%, 760px);
+  width: min(92%, 760px);
   max-height: 66vh;
   object-fit: contain;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
+  justify-self: center;
 }
 
 @media (max-width: 1100px) {
@@ -105,5 +107,6 @@
   }
   .art310-artwork {
     max-height: 46vh;
+    width: min(95%, 700px);
   }
 }

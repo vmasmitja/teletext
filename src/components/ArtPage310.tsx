@@ -1,5 +1,5 @@
 import "./ArtPage310.css";
-import neoPopPng from "../assets/art310-neopop.png";
+import neoPopGif from "../assets/art310-neopop.gif";
 
 export function ArtPage310({ className }: { className?: string }) {
   return (
@@ -34,7 +34,7 @@ export function ArtPage310({ className }: { className?: string }) {
         </div>
 
         <div className="art310-right">
-          <img src={neoPopPng} alt="Collage pop art pixelat" className="art310-artwork" />
+          <img src={neoPopGif} alt="Collage pop art pixelat animat" className="art310-artwork" />
         </div>
       </div>
     </section>
