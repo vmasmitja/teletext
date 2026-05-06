@@ -1,38 +1,5 @@
 import "./ArtPage310.css";
-
-const FACE_ROWS = [
-  "..........yyyyyyyyyyyyy........",
-  "......yyyyyyyyyyyyyyyyyyyy.....",
-  "....yyyyyyyyyccccyyyyyyyyyy....",
-  "...yyyyyyyccccccccccyyyyyyyy...",
-  "..yyyyyycccbbbbbbbbcccyyyyyyy..",
-  ".yyyyyccbbwwwwwwwwbbccyyyyyyy..",
-  ".yyyyccbbwwmmmmmmwwbbccyyyyyy..",
-  ".yyycbbwwmmkkkkkkmmwwbbcyyyyy..",
-  ".yyycbbwwmmkcccckmmwwbbcyyyyy..",
-  ".yyycbbwwmmkkkkkkmmwwbbcyyyyy..",
-  ".yyyyccbbwwmmmmmmwwbbccyyyyyy..",
-  ".yyyyyccbbwwwwwwwwbbccyyyyyyy..",
-  "..yyyyyycccbbbbbbbbcccyyyyyyy..",
-  "...yyyyyyyccccccccccyyyyyyyy...",
-  "....yyyyyyyyyccccyyyyyyyyyy....",
-  "......yyyyyyyyyyyyyyyyyyyy.....",
-  "..........yyyyyyyyyyyyy........",
-];
-
-function PixelFace() {
-  return (
-    <div className="art310-pixelface" aria-hidden>
-      {FACE_ROWS.map((row, rowIndex) => (
-        <div key={rowIndex} className="art310-pixelrow">
-          {row.split("").map((px, colIndex) => (
-            <span key={`${rowIndex}-${colIndex}`} className={`art310-px art310-px-${px}`} />
-          ))}
-        </div>
-      ))}
-    </div>
-  );
-}
+import neoPopPng from "../assets/art310-neopop.png";
 
 export function ArtPage310({ className }: { className?: string }) {
   return (
@@ -67,8 +34,7 @@ export function ArtPage310({ className }: { className?: string }) {
         </div>
 
         <div className="art310-right">
-          <PixelFace />
-          <div className="art310-caption">PIXEL HOMENATGE: NIT ESTELADA</div>
+          <img src={neoPopPng} alt="Collage pop art pixelat" className="art310-artwork" />
         </div>
       </div>
     </section>
