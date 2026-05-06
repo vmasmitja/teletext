@@ -7,6 +7,7 @@ import type { TeletextLine } from "../content";
 import logoPng from "../assets/espai42-logo.png";
 import { ArtPage310 } from "../components/ArtPage310";
 import { ArtPage320 } from "../components/ArtPage320";
+import { ArtPage330 } from "../components/ArtPage330";
 import { SnakeGame } from "../components/SnakeGame";
 import { TeletextTveHome } from "../components/TeletextTveHome";
 import { TeletextScreen } from "../components/TeletextScreen";
@@ -86,7 +87,7 @@ export function DisplayPage() {
   }, [room, remoteBaseUrl]);
 
   const websiteUrl = "https://espai42.org";
-  const hideBackdropLogo = page === 100 || page === 310 || page === 320;
+  const hideBackdropLogo = page === 100 || page === 310 || page === 320 || page === 330;
 
   const snakeInfoLines = useMemo<TeletextLine[] | undefined>(() => {
     if (page !== 501) return undefined;
@@ -127,6 +128,8 @@ export function DisplayPage() {
           <ArtPage310 className="display-screen" />
         ) : page === 320 ? (
           <ArtPage320 className="display-screen" />
+        ) : page === 330 ? (
+          <ArtPage330 className="display-screen" />
         ) : (
           <TeletextScreen pageNum={page} className="display-screen" lineOverrides={snakeInfoLines} />
         )}

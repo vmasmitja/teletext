@@ -1,5 +1,5 @@
 import "./ArtPage320.css";
-import workshopPng from "../assets/art320-workshop.png";
+import artesanaGif from "../assets/art320-artesana.gif";
 
 export function ArtPage320({ className }: { className?: string }) {
   return (
@@ -31,7 +31,7 @@ export function ArtPage320({ className }: { className?: string }) {
         </div>
 
         <div className="art320-right">
-          <img src={workshopPng} alt="Taller artesanal pixelat animat" className="art320-artwork" />
+          <img src={artesanaGif} alt="Artesana treballant al taller en pixel art animat" className="art320-artwork" />
         </div>
       </div>
     </section>
