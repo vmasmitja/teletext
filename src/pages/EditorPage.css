@@ -45,6 +45,8 @@
 }
 .editor-section input,
 .editor-card input,
+.editor-static input,
+.editor-static select,
 .editor-login input {
   padding: 0.3rem;
   font-family: inherit;
@@ -59,6 +61,20 @@
   display: grid;
   grid-template-columns: 140px 1fr auto;
   gap: 0.6rem;
+}
+.editor-row.static-select {
+  grid-template-columns: 1fr 2fr;
+}
+.editor-static {
+  border: 1px solid #334;
+  background: rgba(0, 0, 0, 0.22);
+  padding: 0.8rem;
+  margin-bottom: 0.8rem;
+}
+.editor-static label {
+  display: grid;
+  gap: 0.2rem;
+  margin-bottom: 0.4rem;
 }
 .danger {
   background: #8f0000;

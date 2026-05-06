@@ -84,6 +84,7 @@ export const DEFAULT_EDITOR_CONTENT = {
       ],
     },
   ],
+  staticPages: [],
 };
 
 export function createEditorStore(rootDir) {
@@ -107,6 +108,13 @@ export function createEditorStore(rootDir) {
   function validate(content) {
     if (!content || !Array.isArray(content.sections)) return "Format invàlid";
     const pages = new Set();
+    const staticPages = Array.isArray(content.staticPages) ? content.staticPages : [];
+    for (const page of staticPages) {
+      if (!Number.isInteger(page.num) || page.num < 100 || page.num > 899) return `Pàgina fixa invàlida: ${page.num}`;
+      if (pages.has(page.num)) return `Pàgina duplicada: ${page.num}`;
+      pages.add(page.num);
+      if (!Array.isArray(page.lines)) return `Línies invàlides a pàgina ${page.num}`;
+    }
     for (const section of content.sections) {
       if (!VALID_SECTION_KEYS.includes(section.key)) return `Secció invàlida: ${section.key}`;
       if (!section.title || !section.title.trim()) return "Títol de secció buit";

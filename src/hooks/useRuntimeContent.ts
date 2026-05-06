@@ -33,12 +33,21 @@ export function useRuntimeContent(contentVersion: number) {
     return map;
   }, [editorContent]);
 
+  const residentByPage = useMemo(() => {
+    const map = new Map<number, { imagePath?: string }>();
+    (editorContent.sections ?? EMPTY_SECTIONS).forEach((s) => {
+      s.residents.forEach((r) => map.set(r.page, { imagePath: r.imagePath }));
+    });
+    return map;
+  }, [editorContent]);
+
   const getPage = (num: number): TeletextPageDef | undefined => built.map.get(num);
 
   return {
     editorContent,
     knownPageNums: built.knownPageNums,
     sectionByIndexPage,
+    residentByPage,
     getPage,
   };
 }

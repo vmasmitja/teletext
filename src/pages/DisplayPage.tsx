@@ -28,9 +28,11 @@ export function DisplayPage() {
 
   const { page, hasRemote, lastControl, startTick, highScore, highName, sendSnakeResult, setRemotePage, contentVersion } =
     useTeletextWs(room, "display");
-  const { getPage, sectionByIndexPage } = useRuntimeContent(contentVersion);
+  const { getPage, sectionByIndexPage, residentByPage } = useRuntimeContent(contentVersion);
   const currentPageDef = getPage(page);
   const currentSection = sectionByIndexPage.get(page);
+  const currentResident = residentByPage.get(page);
+  const residentImagePath = currentResident?.imagePath?.trim() || null;
 
   useEffect(() => {
     const prev = prevRemoteRef.current;
@@ -92,7 +94,7 @@ export function DisplayPage() {
   }, [room, remoteBaseUrl]);
 
   const websiteUrl = "https://espai42.org";
-  const hideBackdropLogo = page === 100 || Boolean(currentSection);
+  const hideBackdropLogo = page === 100 || Boolean(currentSection) || Boolean(residentImagePath);
 
   const snakeInfoLines = useMemo<TeletextLine[] | undefined>(() => {
     if (page !== 501) return undefined;
@@ -126,6 +128,9 @@ export function DisplayPage() {
             alt="Logo Espai42"
             className={`display-logo ${hasRemote ? "side" : "hero"}`}
           />
+        )}
+        {residentImagePath && (
+          <img src={residentImagePath} alt="Logo resident" className={`display-logo resident ${hasRemote ? "side" : "hero"}`} />
         )}
         {page === 100 ? (
           <TeletextTveHome className="display-screen display-tve-home-wrap" />

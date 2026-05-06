@@ -96,6 +96,14 @@ function mkHomeUpdate(base: TeletextPageDef, content: EditorContent): TeletextPa
 
 export function buildRuntimeContent(content: EditorContent) {
   const pages = TELETEXT_PAGES.filter((p) => !MANAGED_PAGES.has(p.num)).map((p) => ({ ...p, lines: [...p.lines] }));
+  const staticOverrides = new Map((content.staticPages ?? []).map((p) => [p.num, p]));
+  for (let i = 0; i < pages.length; i += 1) {
+    const p = pages[i];
+    const ov = staticOverrides.get(p.num);
+    if (!ov) continue;
+    const lines = p.lines.map((line, idx) => ({ ...line, text: ov.lines[idx] ?? line.text }));
+    pages[i] = { ...p, title: ov.title || p.title, lines };
+  }
   const home = pages.find((p) => p.num === 100);
   if (home) {
     const idx = pages.findIndex((p) => p.num === 100);

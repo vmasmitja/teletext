@@ -348,6 +348,18 @@
   animation: logoPulseSide 5s steps(10) infinite;
 }
 
+.display-logo.resident.side,
+.display-logo.resident.hero {
+  width: min(42vw, 540px);
+  right: 7vw;
+  top: 53%;
+  left: auto;
+  transform: translateY(-50%);
+  opacity: 0.92;
+  filter: contrast(1.08) saturate(1.08);
+  animation: none;
+}
+
 .teletext-accent {
   position: absolute;
   image-rendering: pixelated;

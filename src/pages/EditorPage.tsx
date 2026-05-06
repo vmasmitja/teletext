@@ -9,7 +9,16 @@ function cloneContent(content: EditorContent): EditorContent {
   return {
     ...content,
     sections: content.sections.map((s) => ({ ...s, residents: s.residents.map((r) => ({ ...r })) })),
+    staticPages: (content.staticPages ?? []).map((p) => ({ ...p, lines: [...p.lines] })),
   };
+}
+
+function mergeWithDefaults(content: EditorContent): EditorContent {
+  const base = cloneContent(content);
+  if (!base.staticPages?.length) {
+    base.staticPages = DEFAULT_EDITOR_CONTENT.staticPages ? [...DEFAULT_EDITOR_CONTENT.staticPages] : [];
+  }
+  return base;
 }
 
 export function EditorPage() {
@@ -18,6 +27,7 @@ export function EditorPage() {
   const [password, setPassword] = useState("");
   const [content, setContent] = useState<EditorContent>(DEFAULT_EDITOR_CONTENT);
   const [activeSection, setActiveSection] = useState(0);
+  const [selectedStaticPage, setSelectedStaticPage] = useState(0);
   const [status, setStatus] = useState<string>("");
 
   const usedPages = useMemo(() => {
@@ -45,7 +55,7 @@ export function EditorPage() {
     const loaded = await fetch("/api/editor/content", { headers: { Authorization: `Bearer ${data.token}` } });
     if (loaded.ok) {
       const c = (await loaded.json()) as EditorContent;
-      setContent(c);
+      setContent(mergeWithDefaults(c));
     }
   }
 
@@ -105,6 +115,42 @@ export function EditorPage() {
     updateSection(sectionIdx, (section) => ({ ...section, imagePath: data.path }));
   }
 
+  async function uploadResidentImage(sectionIdx: number, residentIdx: number, file: File) {
+    if (!auth.token) return;
+    const form = new FormData();
+    form.append("file", file);
+    const r = await fetch("/api/editor/upload", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${auth.token}` },
+      body: form,
+    });
+    if (!r.ok) return;
+    const data = (await r.json()) as { path: string };
+    updateResident(sectionIdx, residentIdx, (resident) => ({ ...resident, imagePath: data.path }));
+  }
+
+  function updateStaticPageText(pageNum: number, lineIdx: number, value: string) {
+    setContent((prev) => {
+      const next = cloneContent(prev);
+      const page = next.staticPages?.find((p) => p.num === pageNum);
+      if (!page) return prev;
+      page.lines[lineIdx] = value;
+      next.updatedAt = new Date().toISOString();
+      return next;
+    });
+  }
+
+  function updateStaticPageTitle(pageNum: number, title: string) {
+    setContent((prev) => {
+      const next = cloneContent(prev);
+      const page = next.staticPages?.find((p) => p.num === pageNum);
+      if (!page) return prev;
+      page.title = title;
+      next.updatedAt = new Date().toISOString();
+      return next;
+    });
+  }
+
   async function save() {
     if (!auth.token) return;
     setStatus("Guardant...");
@@ -139,6 +185,8 @@ export function EditorPage() {
   }
 
   const section = content.sections[activeSection];
+  const staticPages = content.staticPages ?? [];
+  const staticPage = staticPages[selectedStaticPage];
   return (
     <div className="editor-wrap">
       <header className="editor-header">
@@ -244,8 +292,59 @@ export function EditorPage() {
                 onChange={(e) => updateResident(activeSection, idx, (r) => ({ ...r, contact2: e.target.value }))}
               />
             </label>
+            <label>
+              Imatge/logo resident URL
+              <input
+                value={resident.imagePath ?? ""}
+                onChange={(e) => updateResident(activeSection, idx, (r) => ({ ...r, imagePath: e.target.value }))}
+                placeholder="(si buit, surt logo ESPai42)"
+              />
+            </label>
+            <label>
+              Pujar imatge resident
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => e.target.files?.[0] && uploadResidentImage(activeSection, idx, e.target.files[0])}
+              />
+            </label>
           </div>
         ))}
+      </section>
+      <section className="editor-static">
+        <h2>Altres textos teletext</h2>
+        <div className="editor-row static-select">
+          <label>
+            Pàgina
+            <select
+              value={staticPage?.num ?? 0}
+              onChange={(e) => {
+                const num = Number(e.target.value);
+                const idx = staticPages.findIndex((p) => p.num === num);
+                if (idx >= 0) setSelectedStaticPage(idx);
+              }}
+            >
+              {staticPages.map((p) => (
+                <option key={p.num} value={p.num}>
+                  {p.num} - {p.title}
+                </option>
+              ))}
+            </select>
+          </label>
+          {staticPage && (
+            <label>
+              Títol pàgina
+              <input value={staticPage.title} onChange={(e) => updateStaticPageTitle(staticPage.num, e.target.value)} />
+            </label>
+          )}
+        </div>
+        {staticPage &&
+          staticPage.lines.map((line, i) => (
+            <label key={`${staticPage.num}-${i}`}>
+              Línia {i + 1}
+              <input value={line} onChange={(e) => updateStaticPageText(staticPage.num, i, e.target.value.slice(0, 40))} />
+            </label>
+          ))}
       </section>
     </div>
   );

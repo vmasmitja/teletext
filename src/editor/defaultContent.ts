@@ -1,3 +1,4 @@
+import { TELETEXT_PAGES } from "../content";
 import type { EditorContent } from "./types";
 
 export const DEFAULT_EDITOR_CONTENT: EditorContent = {
@@ -86,4 +87,11 @@ export const DEFAULT_EDITOR_CONTENT: EditorContent = {
       ],
     },
   ],
+  staticPages: TELETEXT_PAGES.filter((p) => ![300, 310, 311, 312, 313, 314, 320, 321, 322, 323, 330, 331, 332, 333, 340, 341, 342, 343].includes(p.num)).map(
+    (p) => ({
+      num: p.num,
+      title: p.title,
+      lines: p.lines.map((l) => l.text),
+    }),
+  ),
 };

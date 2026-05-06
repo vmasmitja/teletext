@@ -9,6 +9,7 @@ export type EditorResident = {
   bio2: string;
   contact1: string;
   contact2: string;
+  imagePath?: string;
 };
 
 export type EditorSection = {
@@ -22,4 +23,9 @@ export type EditorSection = {
 export type EditorContent = {
   updatedAt: string;
   sections: EditorSection[];
+  staticPages?: Array<{
+    num: number;
+    title: string;
+    lines: string[];
+  }>;
 };
