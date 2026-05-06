@@ -84,7 +84,20 @@ export const DEFAULT_EDITOR_CONTENT = {
       ],
     },
   ],
-  staticPages: [],
+  staticPages: [
+    { num: 100, title: "INFO ESPAI42", lines: [] },
+    { num: 101, title: "QUI SOM", lines: [] },
+    { num: 102, title: "QUE FEM", lines: [] },
+    { num: 103, title: "SERVEIS", lines: [] },
+    { num: 104, title: "ESPAI42", lines: [] },
+    { num: 201, title: "AGENDA", lines: [] },
+    { num: 202, title: "ACTIVITATS", lines: [] },
+    { num: 203, title: "TALLERS", lines: [] },
+    { num: 204, title: "CONVOCATORIES", lines: [] },
+    { num: 401, title: "CONTACTE", lines: [] },
+    { num: 402, title: "XARXES", lines: [] },
+    { num: 403, title: "PARTNERS", lines: [] }
+  ],
 };
 
 export function createEditorStore(rootDir) {

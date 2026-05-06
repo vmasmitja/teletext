@@ -24,8 +24,18 @@
 }
 .editor-tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
   margin: 0.8rem 0;
+}
+.editor-mode-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.6rem 0;
+}
+.editor-mode-tabs button.active {
+  background: #00ffff;
 }
 .editor-tabs .active {
   background: #ffff00;

@@ -4,6 +4,7 @@ import { DEFAULT_EDITOR_CONTENT } from "../editor/defaultContent";
 import "./EditorPage.css";
 
 type AuthState = { token: string | null; error: string | null; loading: boolean };
+type EditorMode = "RESIDENTS" | "ESPAI42" | "AGENDA" | "CONTACTE";
 
 function cloneContent(content: EditorContent): EditorContent {
   return {
@@ -27,7 +28,8 @@ export function EditorPage() {
   const [password, setPassword] = useState("");
   const [content, setContent] = useState<EditorContent>(DEFAULT_EDITOR_CONTENT);
   const [activeSection, setActiveSection] = useState(0);
-  const [selectedStaticPage, setSelectedStaticPage] = useState(0);
+  const [mode, setMode] = useState<EditorMode>("RESIDENTS");
+  const [selectedStaticPage, setSelectedStaticPage] = useState<number>(101);
   const [status, setStatus] = useState<string>("");
 
   const usedPages = useMemo(() => {
@@ -186,7 +188,25 @@ export function EditorPage() {
 
   const section = content.sections[activeSection];
   const staticPages = content.staticPages ?? [];
-  const staticPage = staticPages[selectedStaticPage];
+  const staticPage = staticPages.find((p) => p.num === selectedStaticPage);
+
+  const staticGroups: Record<Exclude<EditorMode, "RESIDENTS">, number[]> = {
+    ESPAI42: [101, 102, 103, 104],
+    AGENDA: [201, 202, 203, 204],
+    CONTACTE: [401, 402, 403],
+  };
+
+  const currentStaticGroupPages = mode === "RESIDENTS" ? [] : staticGroups[mode];
+  const visibleStaticPages = staticPages.filter((p) => currentStaticGroupPages.includes(p.num));
+
+  function switchMode(nextMode: EditorMode) {
+    setMode(nextMode);
+    if (nextMode !== "RESIDENTS") {
+      const first = staticGroups[nextMode][0];
+      setSelectedStaticPage(first);
+    }
+  }
+
   return (
     <div className="editor-wrap">
       <header className="editor-header">
@@ -196,156 +216,167 @@ export function EditorPage() {
         </button>
       </header>
       <div className="editor-status">{status}</div>
-      <div className="editor-tabs">
-        {content.sections.map((s, i) => (
-          <button
-            key={s.key}
-            className={i === activeSection ? "active" : ""}
-            type="button"
-            onClick={() => setActiveSection(i)}
-          >
-            {s.title}
+      <div className="editor-mode-tabs">
+        {(["RESIDENTS", "ESPAI42", "AGENDA", "CONTACTE"] as EditorMode[]).map((m) => (
+          <button key={m} className={mode === m ? "active" : ""} type="button" onClick={() => switchMode(m)}>
+            {m}
           </button>
         ))}
       </div>
-      <section className="editor-section">
-        <label>
-          Títol secció
-          <input value={section.title} onChange={(e) => updateSection(activeSection, (s) => ({ ...s, title: e.target.value }))} />
-        </label>
-        <label>
-          Pàgina índex
-          <input
-            type="number"
-            value={section.indexPage}
-            onChange={(e) => updateSection(activeSection, (s) => ({ ...s, indexPage: Number(e.target.value) || s.indexPage }))}
-          />
-        </label>
-        <label>
-          Imatge/logo URL
-          <input
-            value={section.imagePath}
-            onChange={(e) => updateSection(activeSection, (s) => ({ ...s, imagePath: e.target.value }))}
-            placeholder="/editor-assets/imatge.png"
-          />
-        </label>
-        <label>
-          Pujar imatge
-          <input type="file" accept="image/*" onChange={(e) => e.target.files?.[0] && uploadImage(activeSection, e.target.files[0])} />
-        </label>
-      </section>
-      <section className="editor-residents">
-        <div className="editor-residents-head">
-          <h2>Residents</h2>
-          <button type="button" onClick={() => addResident(activeSection)}>
-            + Afegir resident
-          </button>
-        </div>
-        {section.residents.map((resident, idx) => (
-          <div key={resident.id} className="editor-card">
-            <div className="editor-row">
-              <label>
-                Pàgina
-                <input
-                  type="number"
-                  value={resident.page}
-                  onChange={(e) => updateResident(activeSection, idx, (r) => ({ ...r, page: Number(e.target.value) || r.page }))}
-                />
-              </label>
-              <label>
-                Nom
-                <input
-                  value={resident.name}
-                  onChange={(e) => updateResident(activeSection, idx, (r) => ({ ...r, name: e.target.value }))}
-                />
-              </label>
-              <button type="button" className="danger" onClick={() => deleteResident(activeSection, idx)}>
-                Eliminar
+
+      {mode === "RESIDENTS" ? (
+        <>
+          <div className="editor-tabs">
+            {content.sections.map((s, i) => (
+              <button
+                key={s.key}
+                className={i === activeSection ? "active" : ""}
+                type="button"
+                onClick={() => setActiveSection(i)}
+              >
+                {s.title}
               </button>
-            </div>
+            ))}
+          </div>
+          <section className="editor-section">
             <label>
-              Subtítol
+              Títol secció
+              <input value={section.title} onChange={(e) => updateSection(activeSection, (s) => ({ ...s, title: e.target.value }))} />
+            </label>
+            <label>
+              Pàgina índex
               <input
-                value={resident.subtitle}
-                onChange={(e) => updateResident(activeSection, idx, (r) => ({ ...r, subtitle: e.target.value }))}
+                type="number"
+                value={section.indexPage}
+                onChange={(e) => updateSection(activeSection, (s) => ({ ...s, indexPage: Number(e.target.value) || s.indexPage }))}
               />
             </label>
             <label>
-              Bio 1
-              <input value={resident.bio1} onChange={(e) => updateResident(activeSection, idx, (r) => ({ ...r, bio1: e.target.value }))} />
-            </label>
-            <label>
-              Bio 2
-              <input value={resident.bio2} onChange={(e) => updateResident(activeSection, idx, (r) => ({ ...r, bio2: e.target.value }))} />
-            </label>
-            <label>
-              Contacte 1
+              Imatge/logo URL
               <input
-                value={resident.contact1}
-                onChange={(e) => updateResident(activeSection, idx, (r) => ({ ...r, contact1: e.target.value }))}
+                value={section.imagePath}
+                onChange={(e) => updateSection(activeSection, (s) => ({ ...s, imagePath: e.target.value }))}
+                placeholder="/editor-assets/imatge.png"
               />
             </label>
             <label>
-              Contacte 2
-              <input
-                value={resident.contact2}
-                onChange={(e) => updateResident(activeSection, idx, (r) => ({ ...r, contact2: e.target.value }))}
-              />
-            </label>
-            <label>
-              Imatge/logo resident URL
-              <input
-                value={resident.imagePath ?? ""}
-                onChange={(e) => updateResident(activeSection, idx, (r) => ({ ...r, imagePath: e.target.value }))}
-                placeholder="(si buit, surt logo ESPai42)"
-              />
-            </label>
-            <label>
-              Pujar imatge resident
+              Pujar imatge
               <input
                 type="file"
                 accept="image/*"
-                onChange={(e) => e.target.files?.[0] && uploadResidentImage(activeSection, idx, e.target.files[0])}
+                onChange={(e) => e.target.files?.[0] && uploadImage(activeSection, e.target.files[0])}
               />
             </label>
+          </section>
+          <section className="editor-residents">
+            <div className="editor-residents-head">
+              <h2>Residents</h2>
+              <button type="button" onClick={() => addResident(activeSection)}>
+                + Afegir resident
+              </button>
+            </div>
+            {section.residents.map((resident, idx) => (
+              <div key={resident.id} className="editor-card">
+                <div className="editor-row">
+                  <label>
+                    Pàgina
+                    <input
+                      type="number"
+                      value={resident.page}
+                      onChange={(e) => updateResident(activeSection, idx, (r) => ({ ...r, page: Number(e.target.value) || r.page }))}
+                    />
+                  </label>
+                  <label>
+                    Nom
+                    <input
+                      value={resident.name}
+                      onChange={(e) => updateResident(activeSection, idx, (r) => ({ ...r, name: e.target.value }))}
+                    />
+                  </label>
+                  <button type="button" className="danger" onClick={() => deleteResident(activeSection, idx)}>
+                    Eliminar
+                  </button>
+                </div>
+                <label>
+                  Subtítol
+                  <input
+                    value={resident.subtitle}
+                    onChange={(e) => updateResident(activeSection, idx, (r) => ({ ...r, subtitle: e.target.value }))}
+                  />
+                </label>
+                <label>
+                  Bio 1
+                  <input value={resident.bio1} onChange={(e) => updateResident(activeSection, idx, (r) => ({ ...r, bio1: e.target.value }))} />
+                </label>
+                <label>
+                  Bio 2
+                  <input value={resident.bio2} onChange={(e) => updateResident(activeSection, idx, (r) => ({ ...r, bio2: e.target.value }))} />
+                </label>
+                <label>
+                  Contacte 1
+                  <input
+                    value={resident.contact1}
+                    onChange={(e) => updateResident(activeSection, idx, (r) => ({ ...r, contact1: e.target.value }))}
+                  />
+                </label>
+                <label>
+                  Contacte 2
+                  <input
+                    value={resident.contact2}
+                    onChange={(e) => updateResident(activeSection, idx, (r) => ({ ...r, contact2: e.target.value }))}
+                  />
+                </label>
+                <label>
+                  Imatge/logo resident URL
+                  <input
+                    value={resident.imagePath ?? ""}
+                    onChange={(e) => updateResident(activeSection, idx, (r) => ({ ...r, imagePath: e.target.value }))}
+                    placeholder="(si buit, surt logo ESPai42)"
+                  />
+                </label>
+                <label>
+                  Pujar imatge resident
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => e.target.files?.[0] && uploadResidentImage(activeSection, idx, e.target.files[0])}
+                  />
+                </label>
+              </div>
+            ))}
+          </section>
+        </>
+      ) : (
+        <section className="editor-static">
+          <h2>Editor de textos: {mode}</h2>
+          <div className="editor-tabs">
+            {visibleStaticPages.map((p) => (
+              <button
+                key={p.num}
+                className={selectedStaticPage === p.num ? "active" : ""}
+                type="button"
+                onClick={() => setSelectedStaticPage(p.num)}
+              >
+                {p.num} · {p.title}
+              </button>
+            ))}
           </div>
-        ))}
-      </section>
-      <section className="editor-static">
-        <h2>Altres textos teletext</h2>
-        <div className="editor-row static-select">
-          <label>
-            Pàgina
-            <select
-              value={staticPage?.num ?? 0}
-              onChange={(e) => {
-                const num = Number(e.target.value);
-                const idx = staticPages.findIndex((p) => p.num === num);
-                if (idx >= 0) setSelectedStaticPage(idx);
-              }}
-            >
-              {staticPages.map((p) => (
-                <option key={p.num} value={p.num}>
-                  {p.num} - {p.title}
-                </option>
-              ))}
-            </select>
-          </label>
           {staticPage && (
-            <label>
-              Títol pàgina
-              <input value={staticPage.title} onChange={(e) => updateStaticPageTitle(staticPage.num, e.target.value)} />
-            </label>
+            <>
+              <label>
+                Títol pàgina
+                <input value={staticPage.title} onChange={(e) => updateStaticPageTitle(staticPage.num, e.target.value)} />
+              </label>
+              {staticPage.lines.map((line, i) => (
+                <label key={`${staticPage.num}-${i}`}>
+                  Línia {i + 1}
+                  <input value={line} onChange={(e) => updateStaticPageText(staticPage.num, i, e.target.value.slice(0, 40))} />
+                </label>
+              ))}
+            </>
           )}
-        </div>
-        {staticPage &&
-          staticPage.lines.map((line, i) => (
-            <label key={`${staticPage.num}-${i}`}>
-              Línia {i + 1}
-              <input value={line} onChange={(e) => updateStaticPageText(staticPage.num, i, e.target.value.slice(0, 40))} />
-            </label>
-          ))}
-      </section>
+        </section>
+      )}
     </div>
   );
 }
