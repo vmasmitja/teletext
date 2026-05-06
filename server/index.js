@@ -16,6 +16,81 @@ const editorStore = createEditorStore(root);
 const editorTokens = new Map();
 const instagramCache = { expiresAt: 0, payload: null };
 
+const IG_MEDIA_FIELDS =
+  "id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,children{id,media_type,media_url,thumbnail_url}";
+
+/** @returns {Promise<Record<string, unknown>>} */
+async function fetchInstagramMediaJson(userId, accessToken) {
+  const qp = new URLSearchParams({
+    fields: IG_MEDIA_FIELDS,
+    access_token: accessToken,
+    limit: "24",
+  });
+  const urls = [
+    `https://graph.facebook.com/v21.0/${encodeURIComponent(userId)}/media?${qp}`,
+    `https://graph.instagram.com/${encodeURIComponent(userId)}/media?${qp}`,
+  ];
+  /** @type {unknown} */
+  let lastBody = null;
+  for (const url of urls) {
+    const r = await fetch(url);
+    lastBody = await r.json();
+    if (r.ok && Array.isArray(/** @type {{ data?: unknown[] }} */ (lastBody)?.data)) {
+      return /** @type {Record<string, unknown>} */ (lastBody);
+    }
+  }
+  const msg =
+    /** @type {{ error?: { message?: string }}} */ (lastBody)?.error?.message ||
+    JSON.stringify(lastBody)?.slice(0, 240) ||
+    "instagram_upstream_failed";
+  throw new Error(msg);
+}
+
+/** @param {Record<string, unknown>} p */
+function mapInstagramPost(p) {
+  const t = String(p.media_type || "");
+  if (!["IMAGE", "CAROUSEL_ALBUM", "VIDEO"].includes(t)) return null;
+
+  let mediaUrl = "";
+  if (t === "VIDEO") {
+    mediaUrl = String(p.thumbnail_url || p.media_url || "");
+  } else if (t === "CAROUSEL_ALBUM") {
+    const children = /** @type {{ data?: Record<string, unknown>[] }} */ (p.children)?.data;
+    if (Array.isArray(children) && children.length > 0) {
+      const first = children[0];
+      const ft = String(first.media_type || "");
+      mediaUrl =
+        ft === "VIDEO"
+          ? String(first.thumbnail_url || first.media_url || "")
+          : String(first.media_url || first.thumbnail_url || "");
+    }
+    if (!mediaUrl) mediaUrl = String(p.media_url || p.thumbnail_url || "");
+  } else {
+    mediaUrl = String(p.media_url || p.thumbnail_url || "");
+  }
+
+  if (!mediaUrl) return null;
+  return {
+    id: String(p.id || ""),
+    caption: String(p.caption || ""),
+    mediaUrl,
+    permalink: String(p.permalink || ""),
+    timestamp: String(p.timestamp || ""),
+  };
+}
+
+/** @param {string} hostname */
+function isAllowedInstagramCdnHost(hostname) {
+  const h = String(hostname).toLowerCase();
+  return (
+    h === "cdninstagram.com" ||
+    h.endsWith(".cdninstagram.com") ||
+    h.includes("fbcdn.net") ||
+    h === "instagram.com" ||
+    h.endsWith(".instagram.com")
+  );
+}
+
 /** @typedef {{ displays: import('ws').WebSocket[], remotes: import('ws').WebSocket[], page: number, highScore: number, highName: string, pendingScore: number }} Room */
 
 /** @type {Map<string, Room>} */
@@ -172,41 +247,67 @@ async function buildApp() {
       return;
     }
     try {
-      const fields = "id,caption,media_type,media_url,thumbnail_url,permalink,timestamp";
-      const url = `https://graph.instagram.com/${encodeURIComponent(userId)}/media?fields=${encodeURIComponent(fields)}&access_token=${encodeURIComponent(accessToken)}&limit=12`;
-      const r = await fetch(url);
-      if (!r.ok) throw new Error(`instagram http ${r.status}`);
-      const data = await r.json();
-      const posts = Array.isArray(data?.data)
-        ? data.data
-            .filter(
-              (p) =>
-                p &&
-                (p.media_type === "IMAGE" ||
-                  p.media_type === "CAROUSEL_ALBUM" ||
-                  p.media_type === "VIDEO")
-            )
-            .map((p) => {
-              const isVideo = p.media_type === "VIDEO";
-              const mediaUrl = isVideo
-                ? String(p.thumbnail_url || p.media_url || "")
-                : String(p.media_url || p.thumbnail_url || "");
-              return {
-                id: String(p.id || ""),
-                caption: String(p.caption || ""),
-                mediaUrl,
-                permalink: String(p.permalink || ""),
-                timestamp: String(p.timestamp || ""),
-              };
-            })
-            .filter((p) => p.mediaUrl)
-        : [];
+      const data = await fetchInstagramMediaJson(userId, accessToken);
+      const rows = Array.isArray(data?.data) ? data.data : [];
+      const posts = rows.map((entry) => mapInstagramPost(/** @type {Record<string, unknown>} */ (entry))).filter(Boolean);
       const payload = { enabled: true, posts };
       instagramCache.payload = payload;
       instagramCache.expiresAt = Date.now() + 5 * 60 * 1000;
       res.json(payload);
     } catch (e) {
-      res.status(200).json({ enabled: false, posts: [], error: "instagram_unavailable" });
+      console.warn("[instagram]", e instanceof Error ? e.message : e);
+      res.status(200).json({
+        enabled: false,
+        posts: [],
+        error: "instagram_unavailable",
+        message: req.query.debug != null ? (e instanceof Error ? e.message : String(e)) : undefined,
+      });
+    }
+  });
+
+  app.get("/api/instagram/media", async (req, res) => {
+    const raw = req.query.u;
+    if (typeof raw !== "string" || raw.length > 4096) {
+      res.status(400).end();
+      return;
+    }
+    let target;
+    try {
+      target = new URL(raw);
+    } catch {
+      res.status(400).end();
+      return;
+    }
+    if (target.protocol !== "https:" || !isAllowedInstagramCdnHost(target.hostname)) {
+      res.status(403).end();
+      return;
+    }
+    try {
+      const token = process.env.IG_ACCESS_TOKEN;
+      let upstream = await fetch(target.toString(), {
+        headers: { "User-Agent": "Mozilla/5.0 Espai42-Teletext/1" },
+        redirect: "follow",
+      });
+      if (!upstream.ok && token) {
+        const retry = new URL(target.toString());
+        if (!retry.searchParams.has("access_token")) {
+          retry.searchParams.set("access_token", token);
+        }
+        upstream = await fetch(retry.toString(), {
+          headers: { "User-Agent": "Mozilla/5.0 Espai42-Teletext/1" },
+          redirect: "follow",
+        });
+      }
+      if (!upstream.ok) {
+        res.status(502).end();
+        return;
+      }
+      const ct = upstream.headers.get("content-type") || "image/jpeg";
+      res.setHeader("Content-Type", ct);
+      res.setHeader("Cache-Control", "public, max-age=1800");
+      res.end(Buffer.from(await upstream.arrayBuffer()));
+    } catch {
+      res.status(502).end();
     }
   });
 

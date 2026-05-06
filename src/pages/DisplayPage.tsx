@@ -253,7 +253,12 @@ export function DisplayPage() {
               rel="noreferrer"
               className="display-instagram-link"
             >
-              <img src={igPosts[igIndex].mediaUrl} alt="Post Instagram Espai42" className="display-instagram-image" />
+              <img
+                src={`/api/instagram/media?u=${encodeURIComponent(igPosts[igIndex].mediaUrl)}`}
+                alt="Post Instagram Espai42"
+                className="display-instagram-image"
+                referrerPolicy="no-referrer"
+              />
             </a>
             <div className="display-instagram-caption">{(igPosts[igIndex].caption || "").slice(0, 84) || "Post d'Instagram"}</div>
             {igPosts.length > 1 && (
