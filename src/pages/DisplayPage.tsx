@@ -84,6 +84,7 @@ export function DisplayPage() {
   }, [room, remoteBaseUrl]);
 
   const websiteUrl = "https://espai42.org";
+  const hideBackdropLogo = page === 100 || page === 310;
 
   const snakeInfoLines = useMemo<TeletextLine[] | undefined>(() => {
     if (page !== 501) return undefined;
@@ -111,11 +112,13 @@ export function DisplayPage() {
         <div className="crt-overlay" aria-hidden />
         <div className="teletext-accent teletext-accent-a" aria-hidden />
         <div className="teletext-accent teletext-accent-b" aria-hidden />
-        <img
-          src={logoPng}
-          alt="Logo Espai42"
-          className={`display-logo ${hasRemote ? "side" : "hero"}`}
-        />
+        {!hideBackdropLogo && (
+          <img
+            src={logoPng}
+            alt="Logo Espai42"
+            className={`display-logo ${hasRemote ? "side" : "hero"}`}
+          />
+        )}
         {page === 100 ? (
           <TeletextTveHome className="display-screen display-tve-home-wrap" />
         ) : (
