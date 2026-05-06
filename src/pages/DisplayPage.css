@@ -321,6 +321,66 @@
   font-size: 1.05rem;
 }
 
+.display-instagram-carousel {
+  position: absolute;
+  right: 2.5vw;
+  bottom: 8vh;
+  width: min(36vw, 520px);
+  z-index: 7;
+  border: 2px solid #00ffff;
+  background: rgba(0, 18, 80, 0.72);
+  padding: 0.45rem;
+  box-shadow: inset 0 0 0 1px #00174f;
+}
+
+.display-instagram-title {
+  color: #ffff00;
+  font-family: "VT323", monospace;
+  font-size: clamp(1.2rem, 1.6vw, 1.7rem);
+  margin-bottom: 0.3rem;
+}
+
+.display-instagram-link {
+  display: block;
+  text-decoration: none;
+}
+
+.display-instagram-image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  filter: contrast(1.24) saturate(1.22);
+}
+
+.display-instagram-caption {
+  margin-top: 0.25rem;
+  color: #ffffff;
+  font-family: "VT323", monospace;
+  font-size: clamp(1rem, 1.2vw, 1.35rem);
+  line-height: 1.1;
+}
+
+.display-instagram-controls {
+  margin-top: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #00ffff;
+  font-family: "VT323", monospace;
+}
+
+.display-instagram-controls button {
+  font-family: inherit;
+  font-size: 1rem;
+  border: 1px solid #00ffff;
+  background: #00114f;
+  color: #00ffff;
+  padding: 0.05rem 0.3rem;
+}
+
 .display-logo {
   position: absolute;
   image-rendering: pixelated;

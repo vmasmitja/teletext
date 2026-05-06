@@ -210,7 +210,7 @@ export function EditorPage() {
   return (
     <div className="editor-wrap">
       <header className="editor-header">
-        <h1>Editor Teletext Residents</h1>
+        <h1>Editor Teletext</h1>
         <button type="button" onClick={save}>
           Guardar i publicar
         </button>

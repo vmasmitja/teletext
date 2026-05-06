@@ -23,6 +23,9 @@ export function DisplayPage() {
   const [audioUnlocked, setAudioUnlocked] = useState(() => isAudioUnlockedStored());
   const [audioRunning, setAudioRunning] = useState(() => getAudioState() === "running");
   const [showWelcome, setShowWelcome] = useState(false);
+  const [igPosts, setIgPosts] = useState<Array<{ id: string; mediaUrl: string; caption: string; permalink: string }>>([]);
+  const [igEnabled, setIgEnabled] = useState(false);
+  const [igIndex, setIgIndex] = useState(0);
   const prevRemoteRef = useRef(false);
   const welcomeTimerRef = useRef<number | null>(null);
 
@@ -116,6 +119,39 @@ export function DisplayPage() {
     ];
   }, [page, highName, highScore]);
 
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/instagram/latest")
+      .then((r) => r.json())
+      .then((data: { enabled?: boolean; posts?: Array<{ id: string; mediaUrl: string; caption: string; permalink: string }> }) => {
+        if (!alive) return;
+        setIgEnabled(Boolean(data?.enabled));
+        setIgPosts(Array.isArray(data?.posts) ? data.posts : []);
+      })
+      .catch(() => {
+        if (alive) {
+          setIgEnabled(false);
+          setIgPosts([]);
+        }
+      });
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (page !== 402 || igPosts.length <= 1) return;
+    const id = window.setInterval(() => {
+      setIgIndex((i) => (i + 1) % igPosts.length);
+    }, 4200);
+    return () => window.clearInterval(id);
+  }, [page, igPosts.length]);
+
+  useEffect(() => {
+    if (igPosts.length === 0) setIgIndex(0);
+    else setIgIndex((i) => i % igPosts.length);
+  }, [igPosts.length]);
+
   return (
     <div className="display-layout">
       <div className={`display-crt ${page === 100 ? "display-page-home" : ""}`.trim()}>
@@ -205,6 +241,33 @@ export function DisplayPage() {
               <QRCodeSVG value={websiteUrl} size={150} level="M" fgColor="#111" bgColor="#fff" />
             </div>
             <div className="display-contact-caption">WEB NORMAL: ESPAI42.ORG</div>
+          </div>
+        )}
+        {page === 402 && igEnabled && igPosts.length > 0 && (
+          <div className="display-instagram-carousel">
+            <div className="display-instagram-title">INSTAGRAM @ESPAI42</div>
+            <a
+              href={igPosts[igIndex].permalink || "https://instagram.com/espai42"}
+              target="_blank"
+              rel="noreferrer"
+              className="display-instagram-link"
+            >
+              <img src={igPosts[igIndex].mediaUrl} alt="Post Instagram Espai42" className="display-instagram-image" />
+            </a>
+            <div className="display-instagram-caption">{(igPosts[igIndex].caption || "").slice(0, 84) || "Post d'Instagram"}</div>
+            {igPosts.length > 1 && (
+              <div className="display-instagram-controls">
+                <button type="button" onClick={() => setIgIndex((i) => (i - 1 + igPosts.length) % igPosts.length)}>
+                  ◀
+                </button>
+                <span>
+                  {igIndex + 1}/{igPosts.length}
+                </span>
+                <button type="button" onClick={() => setIgIndex((i) => (i + 1) % igPosts.length)}>
+                  ▶
+                </button>
+              </div>
+            )}
           </div>
         )}
         {hasRemote && <div className="display-live-pill">TELETEXT EN DIRECTE</div>}

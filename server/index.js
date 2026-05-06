@@ -14,6 +14,7 @@ const root = path.join(__dirname, "..");
 const isProd = process.env.NODE_ENV === "production";
 const editorStore = createEditorStore(root);
 const editorTokens = new Map();
+const instagramCache = { expiresAt: 0, payload: null };
 
 /** @typedef {{ displays: import('ws').WebSocket[], remotes: import('ws').WebSocket[], page: number, highScore: number, highName: string, pendingScore: number }} Room */
 
@@ -156,6 +157,44 @@ async function buildApp() {
     const dest = path.join(editorStore.assetsDir, clean);
     fs.renameSync(file.path, dest);
     res.json({ path: `/editor-assets/${clean}` });
+  });
+
+  app.get("/api/instagram/latest", async (_req, res) => {
+    const userId = process.env.IG_USER_ID;
+    const accessToken = process.env.IG_ACCESS_TOKEN;
+    if (!userId || !accessToken) {
+      res.json({ enabled: false, posts: [] });
+      return;
+    }
+    if (instagramCache.payload && instagramCache.expiresAt > Date.now()) {
+      res.json(instagramCache.payload);
+      return;
+    }
+    try {
+      const fields = "id,caption,media_type,media_url,thumbnail_url,permalink,timestamp";
+      const url = `https://graph.instagram.com/${encodeURIComponent(userId)}/media?fields=${encodeURIComponent(fields)}&access_token=${encodeURIComponent(accessToken)}&limit=12`;
+      const r = await fetch(url);
+      if (!r.ok) throw new Error(`instagram http ${r.status}`);
+      const data = await r.json();
+      const posts = Array.isArray(data?.data)
+        ? data.data
+            .filter((p) => p && (p.media_type === "IMAGE" || p.media_type === "CAROUSEL_ALBUM"))
+            .map((p) => ({
+              id: String(p.id || ""),
+              caption: String(p.caption || ""),
+              mediaUrl: String(p.media_url || p.thumbnail_url || ""),
+              permalink: String(p.permalink || ""),
+              timestamp: String(p.timestamp || ""),
+            }))
+            .filter((p) => p.mediaUrl)
+        : [];
+      const payload = { enabled: true, posts };
+      instagramCache.payload = payload;
+      instagramCache.expiresAt = Date.now() + 5 * 60 * 1000;
+      res.json(payload);
+    } catch (e) {
+      res.status(200).json({ enabled: false, posts: [], error: "instagram_unavailable" });
+    }
   });
 
   app.get("/api/runtime", (req, res) => {

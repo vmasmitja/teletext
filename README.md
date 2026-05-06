@@ -16,6 +16,8 @@ npm run dev
 Variables:
 - `PORT` (default `5173`)
 - `PUBLIC_BASE_URL` (ex. `https://teletext.espai42.org`)
+- `IG_USER_ID` (opcional, per carrusel Instagram a pàg. 402)
+- `IG_ACCESS_TOKEN` (opcional, token Graph API lectura)
 
 ### Passos al VPS
 
