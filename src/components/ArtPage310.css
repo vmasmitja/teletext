@@ -41,7 +41,7 @@
   grid-template-columns: minmax(460px, 1fr) minmax(520px, 1.2fr);
   gap: 2rem;
   min-height: 0;
-  align-items: stretch;
+  align-items: center;
 }
 
 .art310-left,
@@ -86,14 +86,14 @@
 
 .art310-right {
   display: grid;
-  align-content: center;
-  justify-items: end;
+  align-content: start;
+  justify-items: center;
   gap: 0;
-  padding-right: clamp(0.4rem, 1.4vw, 1.2rem);
+  padding-top: clamp(0.2rem, 1vh, 0.7rem);
 }
 
 .art310-artwork {
-  width: min(92%, 760px);
+  width: min(90%, 740px);
   max-height: 66vh;
   object-fit: contain;
   image-rendering: pixelated;

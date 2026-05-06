@@ -41,7 +41,7 @@
   grid-template-columns: minmax(470px, 1fr) minmax(480px, 1.1fr);
   gap: 2rem;
   min-height: 0;
-  align-items: stretch;
+  align-items: center;
 }
 
 .art340-left,
@@ -86,12 +86,13 @@
 
 .art340-right {
   display: grid;
-  align-content: center;
+  align-content: start;
   justify-items: center;
+  padding-top: clamp(0.2rem, 1vh, 0.7rem);
 }
 
 .art340-artwork {
-  width: min(88%, 620px);
+  width: min(84%, 580px);
   max-height: 68vh;
   object-fit: contain;
   image-rendering: pixelated;
