@@ -96,7 +96,18 @@
   object-fit: contain;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
-  filter: saturate(1.03) contrast(1.02);
+  filter: saturate(1.02) contrast(1.02) brightness(1);
+  animation: art320ColorPulse 1.2s steps(2) infinite;
+}
+
+@keyframes art320ColorPulse {
+  0%,
+  100% {
+    filter: saturate(1.02) contrast(1.02) brightness(1);
+  }
+  50% {
+    filter: saturate(1.28) contrast(1.18) brightness(1.08) hue-rotate(-8deg);
+  }
 }
 
 @media (max-width: 1100px) {
