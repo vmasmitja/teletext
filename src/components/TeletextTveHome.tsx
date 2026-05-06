@@ -65,7 +65,7 @@ export function TeletextTveHome({ className }: { className?: string }) {
               <MenuLine left="Art" page="310" />
               <MenuLine left="Artesania" page="320" />
               <MenuLine left="Makers" page="330" />
-              <MenuLine left="Oficis" page="340" />
+              <MenuLine left="Sostenibilitat" page="340" />
             </div>
           </div>
         </section>

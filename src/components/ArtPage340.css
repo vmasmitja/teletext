@@ -1,0 +1,111 @@
+.art340-screen {
+  width: 100vw;
+  height: 100dvh;
+  box-sizing: border-box;
+  padding: 4.3rem 2.2rem 1.8rem;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 1.2rem;
+  color: #fff;
+  font-family: "VT323", ui-monospace, monospace;
+}
+
+.art340-headline-wrap {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.art340-kicker {
+  color: #ffff00;
+  font-size: clamp(2rem, 2.7vw, 3rem);
+}
+
+.art340-headline {
+  margin: 0;
+  font-size: clamp(3.5rem, 7.8vw, 7.6rem);
+  letter-spacing: 0.08em;
+  color: #ffff00;
+  text-shadow:
+    0.06em 0 #00ffff,
+    0.12em 0 #00ff88;
+  line-height: 0.9;
+}
+
+.art340-sub {
+  color: #b8ffdf;
+  font-size: clamp(1.5rem, 2vw, 2.2rem);
+}
+
+.art340-grid {
+  display: grid;
+  grid-template-columns: minmax(470px, 1fr) minmax(480px, 1.1fr);
+  gap: 2rem;
+  min-height: 0;
+  align-items: stretch;
+}
+
+.art340-left,
+.art340-right {
+  border: none;
+  background: transparent;
+  padding: 1rem 1.2rem;
+}
+
+.art340-block-title {
+  color: #ffff00;
+  font-size: clamp(1.9rem, 2.4vw, 2.8rem);
+  margin-bottom: 0.5rem;
+}
+
+.art340-copy {
+  margin: 0;
+  color: #ffffff;
+  font-size: clamp(1.35rem, 1.7vw, 1.95rem);
+  max-width: 38ch;
+}
+
+.art340-menu {
+  margin-top: 1.1rem;
+  display: grid;
+  gap: 0.42rem;
+  color: #00ffff;
+  font-size: clamp(1.9rem, 2.2vw, 2.8rem);
+}
+
+.art340-menu span {
+  color: #ffff00;
+  display: inline-block;
+  min-width: 3.3ch;
+}
+
+.art340-back {
+  margin-top: 1rem;
+  color: #ffffff;
+  font-size: clamp(1.5rem, 1.9vw, 2.2rem);
+}
+
+.art340-right {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+}
+
+.art340-artwork {
+  width: min(88%, 620px);
+  max-height: 68vh;
+  object-fit: contain;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  filter: saturate(1.03) contrast(1.02);
+}
+
+@media (max-width: 1100px) {
+  .art340-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .art340-artwork {
+    max-height: 45vh;
+    width: min(75%, 420px);
+  }
+}
