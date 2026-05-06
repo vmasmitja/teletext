@@ -321,13 +321,15 @@
   font-size: 1.05rem;
 }
 
+/* Columna dreta: no tapar el teletext de l’esquerra (~52vw / 42ch) */
 .display-instagram-carousel {
   position: absolute;
-  left: 50%;
-  bottom: clamp(4.5vh, 7vw, 9vh);
-  transform: translateX(-50%);
-  width: min(58vw, 720px);
-  max-width: min(92vw, 760px);
+  right: clamp(0.75rem, 2vw, 1.75rem);
+  left: auto;
+  bottom: clamp(5vh, 7vw, 10vh);
+  transform: none;
+  width: min(38vw, 480px);
+  max-width: min(42vw, calc(100vw - min(54vw, 44ch)));
   z-index: 28;
   border: none;
   background: transparent;
@@ -335,15 +337,15 @@
   box-shadow: none;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
+  align-items: stretch;
+  text-align: right;
   gap: 0.35rem;
 }
 
 .display-instagram-title {
   color: #ffff00;
   font-family: "VT323", monospace;
-  font-size: clamp(1.35rem, 1.85vw, 1.95rem);
+  font-size: clamp(1.2rem, 1.65vw, 1.75rem);
   margin: 0 0 0.15rem;
   text-shadow: 2px 2px 0 #00112f;
 }
@@ -352,7 +354,7 @@
   display: block;
   text-decoration: none;
   width: 100%;
-  max-width: min(52vw, 640px);
+  max-width: 100%;
 }
 
 /* Downsample then upscale so image-rendering: pixelated shows chunky blocks */
@@ -375,53 +377,55 @@
   background:
     repeating-linear-gradient(
       0deg,
-      rgba(0, 0, 0, 0.18),
-      rgba(0, 0, 0, 0.18) 1px,
+      rgba(0, 0, 0, 0.22),
+      rgba(0, 0, 0, 0.22) 1px,
       transparent 1px,
-      transparent 4px
+      transparent 3px
     ),
     repeating-linear-gradient(
       90deg,
-      rgba(255, 255, 255, 0.04),
-      rgba(255, 255, 255, 0.04) 1px,
+      rgba(255, 255, 255, 0.06),
+      rgba(255, 255, 255, 0.06) 1px,
       transparent 1px,
-      transparent 5px
+      transparent 4px
     );
   mix-blend-mode: multiply;
-  opacity: 0.85;
+  opacity: 0.65;
 }
 
+/* 6.25% × scale(16) = píxels molt més grossos que abans (12.5% × 8) */
 .display-instagram-image {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 12.5%;
-  height: 12.5%;
+  width: 6.25%;
+  height: 6.25%;
   object-fit: cover;
   object-position: center;
-  transform: translate(-50%, -50%) scale(8);
+  transform: translate(-50%, -50%) scale(16);
   transform-origin: center center;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
-  filter: contrast(1.48) saturate(1.32) brightness(1.02);
+  filter: contrast(1.62) saturate(1.38) brightness(1.03);
 }
 
 .display-instagram-caption {
   margin: 0;
-  max-width: min(56vw, 700px);
+  max-width: 100%;
   color: #ffffff;
   font-family: "VT323", monospace;
-  font-size: clamp(1.05rem, 1.35vw, 1.45rem);
+  font-size: clamp(0.98rem, 1.2vw, 1.25rem);
   line-height: 1.12;
   text-shadow: 1px 1px 0 #000044;
+  text-align: right;
 }
 
 .display-instagram-controls {
   margin-top: 0.1rem;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 1.25rem;
+  justify-content: flex-end;
+  gap: 1rem;
   color: #00ffff;
   font-family: "VT323", monospace;
 }
@@ -438,6 +442,14 @@
 
 .display-instagram-controls button:focus-visible {
   outline: 2px solid #ffff00;
+}
+
+@media (max-width: 900px) {
+  .display-instagram-carousel {
+    right: 0.5rem;
+    width: min(46vw, 300px);
+    max-width: 46vw;
+  }
 }
 
 /* Xarxes 402: neteja visual sense logo watermark de fons */
