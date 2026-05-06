@@ -99,7 +99,7 @@
   image-rendering: crisp-edges;
   filter: saturate(1.03) contrast(1.02);
   animation: art330Pulse 2.6s steps(2) infinite;
-  margin-top: clamp(-1.2rem, -2vh, -0.55rem);
+  margin-top: clamp(-5rem, -10vh, -2rem);
 }
 
 @keyframes art330Pulse {

@@ -100,7 +100,7 @@
   filter: saturate(1.03) contrast(1.02);
   transform-origin: 50% 50%;
   animation: art340Swing 5.2s ease-in-out infinite;
-  margin-top: clamp(-1.2rem, -2vh, -0.55rem);
+  margin-top: clamp(-5rem, -10vh, -2rem);
 }
 
 @keyframes art340Swing {
