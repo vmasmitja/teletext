@@ -4,12 +4,16 @@ import path from "path";
 import http from "http";
 import { fileURLToPath } from "url";
 import express from "express";
+import multer from "multer";
 import { WebSocketServer } from "ws";
 import { createServer as createViteServer } from "vite";
+import { createEditorStore } from "./editorStore.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, "..");
 const isProd = process.env.NODE_ENV === "production";
+const editorStore = createEditorStore(root);
+const editorTokens = new Map();
 
 /** @typedef {{ displays: import('ws').WebSocket[], remotes: import('ws').WebSocket[], page: number, highScore: number, highName: string, pendingScore: number }} Room */
 
@@ -77,8 +81,83 @@ function broadcastRemotes(roomId, obj) {
   }
 }
 
+function cleanupEditorTokens() {
+  const now = Date.now();
+  for (const [token, exp] of editorTokens.entries()) {
+    if (exp <= now) editorTokens.delete(token);
+  }
+}
+
+function isEditorTokenValid(token) {
+  cleanupEditorTokens();
+  if (!token) return false;
+  const exp = editorTokens.get(token);
+  return typeof exp === "number" && exp > Date.now();
+}
+
 async function buildApp() {
   const app = express();
+  const upload = multer({ dest: editorStore.assetsDir });
+  app.use(express.json({ limit: "2mb" }));
+  app.use("/editor-assets", express.static(editorStore.assetsDir));
+
+  app.get("/api/editor/public-content", (_req, res) => {
+    res.json(editorStore.read());
+  });
+
+  app.post("/api/editor/login", (req, res) => {
+    const { username, password } = req.body || {};
+    if (!editorStore.authenticate(String(username || ""), String(password || ""))) {
+      res.status(401).json({ error: "No autoritzat" });
+      return;
+    }
+    const token = `ed_${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`;
+    editorTokens.set(token, Date.now() + 1000 * 60 * 60 * 8);
+    res.json({ token });
+  });
+
+  app.use("/api/editor", (req, res, next) => {
+    if (req.path === "/login" || req.path === "/public-content") return next();
+    const auth = req.headers.authorization || "";
+    const token = auth.startsWith("Bearer ") ? auth.slice(7) : "";
+    if (!isEditorTokenValid(token)) {
+      res.status(401).json({ error: "Sessió expirada o invàlida" });
+      return;
+    }
+    next();
+  });
+
+  app.get("/api/editor/content", (_req, res) => {
+    res.json(editorStore.read());
+  });
+
+  app.put("/api/editor/content", (req, res) => {
+    const result = editorStore.write(req.body);
+    if (!result.ok) {
+      res.status(400).json({ error: result.error });
+      return;
+    }
+    const payload = JSON.stringify({ type: "contentUpdated" });
+    for (const room of rooms.values()) {
+      for (const ws of room.displays) if (ws.readyState === 1) ws.send(payload);
+      for (const ws of room.remotes) if (ws.readyState === 1) ws.send(payload);
+    }
+    res.json(result.content);
+  });
+
+  app.post("/api/editor/upload", upload.single("file"), (req, res) => {
+    const file = req.file;
+    if (!file) {
+      res.status(400).json({ error: "No file" });
+      return;
+    }
+    const ext = path.extname(file.originalname || "").toLowerCase() || ".png";
+    const clean = `${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`;
+    const dest = path.join(editorStore.assetsDir, clean);
+    fs.renameSync(file.path, dest);
+    res.json({ path: `/editor-assets/${clean}` });
+  });
+
   app.get("/api/runtime", (req, res) => {
     const host = req.headers.host || "";
     const port = host.includes(":") ? host.split(":").pop() : "5173";

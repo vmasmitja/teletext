@@ -1,4 +1,4 @@
-import { getTeletextPage, type TeletextColor, type TeletextLine } from "../content";
+import { getTeletextPage, type TeletextColor, type TeletextLine, type TeletextPageDef } from "../content";
 import "./TeletextScreen.css";
 
 const COLORS: Record<string, string> = {
@@ -25,6 +25,7 @@ type Props = {
   className?: string;
   lineOverrides?: TeletextLine[];
   titleOverride?: string;
+  pageDefOverride?: TeletextPageDef;
 };
 
 function padLine(text: string, width: number): string {
@@ -39,8 +40,9 @@ export function TeletextScreen({
   className,
   lineOverrides,
   titleOverride,
+  pageDefOverride,
 }: Props) {
-  const def = getTeletextPage(pageNum);
+  const def = pageDefOverride ?? getTeletextPage(pageNum);
   const lines = lineOverrides ?? def?.lines ?? [];
   const title = titleOverride ?? def?.title ?? "???";
   const headerLeft = pageNum === 100 ? "INFO ESPAI42" : `Pàg ${String(pageNum).padStart(3, "0")}`;

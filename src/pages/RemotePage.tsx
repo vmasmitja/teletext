@@ -1,17 +1,18 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { DEFAULT_SESSION } from "../config";
-import { KNOWN_PAGE_NUMS } from "../content";
+import { useRuntimeContent } from "../hooks/useRuntimeContent";
 import { useTeletextWs } from "../hooks/useTeletextWs";
 import "./RemotePage.css";
 
 export function RemotePage() {
   const [params] = useSearchParams();
   const room = params.get("r") ?? DEFAULT_SESSION;
-  const { page, recordPromptScore, saveRecord, sendControl, sendStart, setRemotePage } = useTeletextWs(
+  const { page, recordPromptScore, saveRecord, sendControl, sendStart, setRemotePage, contentVersion } = useTeletextWs(
     room,
     "remote",
   );
+  const { knownPageNums } = useRuntimeContent(contentVersion);
 
   const [buffer, setBuffer] = useState("");
   const [playerName, setPlayerName] = useState("");
@@ -52,7 +53,7 @@ export function RemotePage() {
 
   const prevNext = useCallback(
     (dir: -1 | 1) => {
-      const nums = KNOWN_PAGE_NUMS;
+      const nums = knownPageNums;
       const idx = nums.indexOf(page);
       const nextIdx =
         idx < 0 ? 0 : (idx + dir + nums.length) % nums.length;

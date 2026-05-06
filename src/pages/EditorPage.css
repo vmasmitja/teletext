@@ -1,0 +1,78 @@
+.editor-wrap {
+  min-height: 100dvh;
+  padding: 1rem;
+  background: #0d0d4c;
+  color: #fff;
+  font-family: "VT323", monospace;
+}
+.editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.editor-header button,
+.editor-tabs button,
+.editor-residents-head button,
+.editor-login button {
+  font-family: inherit;
+  font-size: 1.2rem;
+  padding: 0.35rem 0.7rem;
+}
+.editor-status {
+  min-height: 1.5rem;
+  color: #00ffff;
+}
+.editor-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin: 0.8rem 0;
+}
+.editor-tabs .active {
+  background: #ffff00;
+}
+.editor-section,
+.editor-card {
+  border: 1px solid #334;
+  background: rgba(0, 0, 0, 0.22);
+  padding: 0.8rem;
+  margin-bottom: 0.8rem;
+}
+.editor-section label,
+.editor-card label {
+  display: grid;
+  gap: 0.2rem;
+  margin-bottom: 0.5rem;
+}
+.editor-section input,
+.editor-card input,
+.editor-login input {
+  padding: 0.3rem;
+  font-family: inherit;
+  font-size: 1.1rem;
+}
+.editor-residents-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.editor-row {
+  display: grid;
+  grid-template-columns: 140px 1fr auto;
+  gap: 0.6rem;
+}
+.danger {
+  background: #8f0000;
+  color: #fff;
+}
+.editor-login {
+  min-height: 100dvh;
+  display: grid;
+  place-content: center;
+  gap: 0.5rem;
+  background: #05053e;
+  color: #fff;
+  font-family: "VT323", monospace;
+}
+.editor-error {
+  color: #ff7f7f;
+}

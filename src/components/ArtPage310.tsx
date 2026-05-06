@@ -1,12 +1,16 @@
 import "./ArtPage310.css";
 import neoPopGif from "../assets/art310-neopop.gif";
+import type { EditorSection } from "../editor/types";
 
-export function ArtPage310({ className }: { className?: string }) {
+export function ArtPage310({ className, section }: { className?: string; section?: EditorSection }) {
+  const title = section?.title ?? "ART";
+  const residents = section?.residents ?? [];
+  const imagePath = section?.imagePath || neoPopGif;
   return (
     <section className={`art310-screen ${className ?? ""}`.trim()} aria-label="Pàgina 310 Art">
       <div className="art310-headline-wrap">
-        <div className="art310-kicker">ART / INDEX</div>
-        <h1 className="art310-headline">ART</h1>
+        <div className="art310-kicker">{title} / INDEX</div>
+        <h1 className="art310-headline">{title}</h1>
         <div className="art310-sub">Residents artistes · directori creatiu ESPai42</div>
       </div>
 
@@ -17,24 +21,17 @@ export function ArtPage310({ className }: { className?: string }) {
             Projectes residents en art visual, il·lustracio i pintura. Selecciona una pàgina per veure el perfil.
           </p>
           <div className="art310-menu">
-            <div>
-              <span>311</span> ONA VILARO
-            </div>
-            <div>
-              <span>312</span> BIEL CARRANZA
-            </div>
-            <div>
-              <span>313</span> RITA SOLANS
-            </div>
-            <div>
-              <span>314</span> MARC ELIES
-            </div>
+            {residents.map((r) => (
+              <div key={r.id}>
+                <span>{r.page}</span> {r.name.toUpperCase()}
+              </div>
+            ))}
           </div>
           <div className="art310-back">TORNAR A RESIDENTS: PAG 300</div>
         </div>
 
         <div className="art310-right">
-          <img src={neoPopGif} alt="Collage pop art pixelat animat" className="art310-artwork" />
+          <img src={imagePath} alt="Collage pop art pixelat animat" className="art310-artwork" />
         </div>
       </div>
     </section>

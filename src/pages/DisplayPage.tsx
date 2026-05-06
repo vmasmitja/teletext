@@ -12,6 +12,7 @@ import { ArtPage340 } from "../components/ArtPage340";
 import { SnakeGame } from "../components/SnakeGame";
 import { TeletextTveHome } from "../components/TeletextTveHome";
 import { TeletextScreen } from "../components/TeletextScreen";
+import { useRuntimeContent } from "../hooks/useRuntimeContent";
 import { useTeletextWs } from "../hooks/useTeletextWs";
 import "./DisplayPage.css";
 
@@ -25,8 +26,11 @@ export function DisplayPage() {
   const prevRemoteRef = useRef(false);
   const welcomeTimerRef = useRef<number | null>(null);
 
-  const { page, hasRemote, lastControl, startTick, highScore, highName, sendSnakeResult, setRemotePage } =
+  const { page, hasRemote, lastControl, startTick, highScore, highName, sendSnakeResult, setRemotePage, contentVersion } =
     useTeletextWs(room, "display");
+  const { getPage, sectionByIndexPage } = useRuntimeContent(contentVersion);
+  const currentPageDef = getPage(page);
+  const currentSection = sectionByIndexPage.get(page);
 
   useEffect(() => {
     const prev = prevRemoteRef.current;
@@ -88,7 +92,7 @@ export function DisplayPage() {
   }, [room, remoteBaseUrl]);
 
   const websiteUrl = "https://espai42.org";
-  const hideBackdropLogo = page === 100 || page === 310 || page === 320 || page === 330 || page === 340;
+  const hideBackdropLogo = page === 100 || Boolean(currentSection);
 
   const snakeInfoLines = useMemo<TeletextLine[] | undefined>(() => {
     if (page !== 501) return undefined;
@@ -125,16 +129,21 @@ export function DisplayPage() {
         )}
         {page === 100 ? (
           <TeletextTveHome className="display-screen display-tve-home-wrap" />
-        ) : page === 310 ? (
-          <ArtPage310 className="display-screen" />
-        ) : page === 320 ? (
-          <ArtPage320 className="display-screen" />
-        ) : page === 330 ? (
-          <ArtPage330 className="display-screen" />
-        ) : page === 340 ? (
-          <ArtPage340 className="display-screen" />
+        ) : currentSection?.key === "ART" ? (
+          <ArtPage310 className="display-screen" section={currentSection} />
+        ) : currentSection?.key === "ARTESANIA" ? (
+          <ArtPage320 className="display-screen" section={currentSection} />
+        ) : currentSection?.key === "MAKERS" ? (
+          <ArtPage330 className="display-screen" section={currentSection} />
+        ) : currentSection?.key === "SOSTENIBILITAT" ? (
+          <ArtPage340 className="display-screen" section={currentSection} />
         ) : (
-          <TeletextScreen pageNum={page} className="display-screen" lineOverrides={snakeInfoLines} />
+          <TeletextScreen
+            pageNum={page}
+            className="display-screen"
+            lineOverrides={snakeInfoLines}
+            pageDefOverride={currentPageDef}
+          />
         )}
         {page === 501 && (
           <SnakeGame

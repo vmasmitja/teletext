@@ -12,6 +12,7 @@ export function useTeletextWs(room: string, role: Role) {
   const [highScore, setHighScore] = useState(0);
   const [highName, setHighName] = useState("ANONIM");
   const [recordPromptScore, setRecordPromptScore] = useState<number | null>(null);
+  const [contentVersion, setContentVersion] = useState(0);
   const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
@@ -53,6 +54,9 @@ export function useTeletextWs(room: string, role: Role) {
         }
         if (msg.type === "recordPrompt" && typeof msg.score === "number") {
           setRecordPromptScore(msg.score);
+        }
+        if (msg.type === "contentUpdated") {
+          setContentVersion((v) => v + 1);
         }
       } catch {
         /* ignore */
@@ -129,5 +133,6 @@ export function useTeletextWs(room: string, role: Role) {
     sendStart,
     sendSnakeResult,
     saveRecord,
+    contentVersion,
   };
 }
