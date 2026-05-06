@@ -323,6 +323,23 @@ async function buildApp() {
 
   if (isProd) {
     app.use(express.static(path.join(root, "dist"), { index: false }));
+    const distIndexPath = path.join(root, "dist/index.html");
+    app.use((req, res, next) => {
+      if (req.method !== "GET" && req.method !== "HEAD") return next();
+      const p = req.path;
+      if (p.startsWith("/api") || p.startsWith("/editor-assets") || p.startsWith("/ws")) {
+        return next();
+      }
+      const html = fs.readFileSync(distIndexPath, "utf-8");
+      res.status(200).set({ "Content-Type": "text/html" }).end(html);
+    });
+    app.use((req, res) => {
+      if (req.path.startsWith("/api")) {
+        res.status(404).json({ error: "unknown_api_route" });
+        return;
+      }
+      res.sendStatus(404);
+    });
   } else {
     const vite = await createViteServer({
       root,
@@ -330,7 +347,12 @@ async function buildApp() {
       appType: "spa",
     });
     app.use(vite.middlewares);
-    app.get(/^(?!\/ws).*/, async (req, res, next) => {
+    app.use(async (req, res, next) => {
+      if (req.method !== "GET" && req.method !== "HEAD") return next();
+      const p = req.path;
+      if (p.startsWith("/api") || p.startsWith("/editor-assets") || p.startsWith("/ws")) {
+        return next();
+      }
       try {
         let html = fs.readFileSync(path.join(root, "index.html"), "utf-8");
         html = await vite.transformIndexHtml(req.originalUrl, html);
@@ -340,12 +362,12 @@ async function buildApp() {
         next(e);
       }
     });
-  }
-
-  if (isProd) {
-    app.get(/^(?!\/ws).*/, (_req, res) => {
-      const html = fs.readFileSync(path.join(root, "dist/index.html"), "utf-8");
-      res.status(200).set({ "Content-Type": "text/html" }).end(html);
+    app.use((req, res, next) => {
+      if (req.path.startsWith("/api")) {
+        res.status(404).json({ error: "unknown_api_route" });
+        return;
+      }
+      next();
     });
   }
 
