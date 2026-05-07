@@ -82,9 +82,13 @@ export function TeletextTveHome({ className }: { className?: string }) {
       </div>
 
       <footer className="tve-banner-footer">
-        <span className="tve-foot-left">Joc de la serp</span>
+        <span className="tve-foot-label">Joc de la serp</span>
         <span className="tve-foot-dots" aria-hidden />
         <span className="tve-foot-page">501</span>
+        <span className="tve-foot-gap" aria-hidden />
+        <span className="tve-foot-label">Paraulogic</span>
+        <span className="tve-foot-dots" aria-hidden />
+        <span className="tve-foot-page">502</span>
       </footer>
     </div>
   );
