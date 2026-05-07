@@ -3,6 +3,7 @@ import { playTone } from "../audio";
 import "./ParaulogicGame.css";
 
 type Control = "up" | "down" | "left" | "right" | "submit" | "backspace" | "shuffle" | null;
+type StatusTone = "neutral" | "ok" | "warn" | "error";
 
 const CENTER = "A";
 const OUTER_BASE = ["R", "T", "E", "L", "O", "C"];
@@ -14,23 +15,39 @@ const VALID_WORDS = new Set([
   "ara",
   "ala",
   "are",
+  "arca",
+  "arrel",
+  "orar",
   "oral",
-  "coral",
-  "local",
+  "oracle",
   "cala",
-  "cara",
-  "carta",
-  "cartel",
-  "taca",
-  "talar",
   "calar",
+  "calat",
   "calor",
-  "relat",
+  "cara",
+  "careta",
+  "carta",
+  "carter",
+  "carrer",
+  "taca",
+  "tacar",
+  "talar",
   "tecla",
-  "cerca",
-  "taller",
-  "alerta",
+  "teatre",
   "teatral",
+  "taller",
+  "coral",
+  "corral",
+  "colera",
+  "local",
+  "retol",
+  "retoca",
+  "retocar",
+  "relat",
+  "relata",
+  "alerta",
+  "altera",
+  "cerca",
   "correlat",
 ]);
 
@@ -54,6 +71,14 @@ function shuffleArray<T>(arr: T[]): T[] {
   return out;
 }
 
+function normalizeWord(word: string): string {
+  return word
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z]/g, "");
+}
+
 export function ParaulogicGame({
   control,
   startTick,
@@ -74,6 +99,7 @@ export function ParaulogicGame({
   const [timeLeft, setTimeLeft] = useState(ROUND_SECONDS);
   const [running, setRunning] = useState(false);
   const [status, setStatus] = useState("PREM COMENCA PER INICIAR");
+  const [statusTone, setStatusTone] = useState<StatusTone>("neutral");
   const [lastPoints, setLastPoints] = useState<number | null>(null);
   const sentOverRef = useRef(false);
 
@@ -89,6 +115,7 @@ export function ParaulogicGame({
     setTimeLeft(ROUND_SECONDS);
     setRunning(true);
     setStatus("PARTIDA EN CURS");
+    setStatusTone("neutral");
     setLastPoints(null);
     sentOverRef.current = false;
     playTone(540, 110, "square", 0.14);
@@ -113,6 +140,7 @@ export function ParaulogicGame({
     if (running || sentOverRef.current || timeLeft > 0) return;
     sentOverRef.current = true;
     setStatus("TEMPS ESGOTAT");
+    setStatusTone("warn");
     playTone(220, 260, "sawtooth", 0.18);
     onGameOver?.(score);
   }, [onGameOver, running, score, timeLeft]);
@@ -130,6 +158,7 @@ export function ParaulogicGame({
     if (control === "shuffle") {
       setOuter((prev) => shuffleArray(prev));
       setStatus("LLETRES BARREJADES");
+      setStatusTone("neutral");
       playTone(520, 65, "triangle", 0.08);
       return;
     }
@@ -139,35 +168,40 @@ export function ParaulogicGame({
       return;
     }
     if (control === "submit") {
-      const word = currentWord.toLowerCase();
+      const word = normalizeWord(currentWord);
       if (!word) return;
       if (word.length < MIN_LEN) {
-        setStatus("MÍNIM 3 LLETRES");
+        setStatus("MASSA CURTA · MÍNIM 3");
+        setStatusTone("warn");
         setLastPoints(null);
         playTone(180, 70, "square", 0.1);
         return;
       }
       if (!word.includes(CENTER.toLowerCase())) {
-        setStatus("FALTA LLETRA CENTRAL");
+        setStatus(`FALTA LLETRA CENTRAL (${CENTER})`);
+        setStatusTone("warn");
         setLastPoints(null);
         playTone(180, 70, "square", 0.1);
         return;
       }
       const onlyAllowed = [...word].every((ch) => allowedLetters.has(ch.toUpperCase()));
       if (!onlyAllowed) {
-        setStatus("LLETRES NO VÀLIDES");
+        setStatus("HI HA LLETRES FORA DEL RUSC");
+        setStatusTone("error");
         setLastPoints(null);
         playTone(180, 70, "square", 0.1);
         return;
       }
       if (found.includes(word)) {
         setStatus("JA TROBADA");
+        setStatusTone("warn");
         setLastPoints(null);
         playTone(180, 70, "square", 0.1);
         return;
       }
       if (!VALID_WORDS.has(word)) {
-        setStatus("NO ÉS AL DICCIONARI MVP");
+        setStatus("NO ÉS AL DICCIONARI MVP (PROVA RELAT/CARTA/CARETA)");
+        setStatusTone("error");
         setLastPoints(null);
         playTone(180, 70, "square", 0.1);
         return;
@@ -179,6 +213,7 @@ export function ParaulogicGame({
       setScore((s) => s + pts);
       setCurrentWord("");
       setStatus(pangram ? "PANGRAMA! BONUS +7" : "PARAULA ACCEPTADA");
+      setStatusTone("ok");
       setLastPoints(pts);
       playTone(980, 90, "square", 0.14);
       return;
@@ -203,7 +238,7 @@ export function ParaulogicGame({
       </div>
       <div className="para-word">{currentWord || "···"}</div>
       <div className="para-actions">START=Afegir · ENVIAR · ESBORRAR · BARREJAR</div>
-      <div className="para-status">{status}</div>
+      <div className={`para-status ${statusTone}`.trim()}>{status}</div>
       {lastPoints !== null && <div className="para-points">+{lastPoints}</div>}
       <div className="para-found">
         {found.length ? found.join(" · ").toUpperCase() : "Encara no hi ha paraules"}

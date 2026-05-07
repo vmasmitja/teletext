@@ -72,6 +72,18 @@
   font-size: clamp(0.95rem, 1.3vw, 1.2rem);
 }
 
+.para-status.ok {
+  color: #6bff90;
+}
+
+.para-status.warn {
+  color: #ffe36e;
+}
+
+.para-status.error {
+  color: #ff8cbf;
+}
+
 .para-points {
   color: #00ff66;
   font-size: clamp(1rem, 1.5vw, 1.3rem);
