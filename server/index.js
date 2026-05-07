@@ -15,6 +15,47 @@ const isProd = process.env.NODE_ENV === "production";
 const editorStore = createEditorStore(root);
 const editorTokens = new Map();
 const instagramCache = { expiresAt: 0, payload: null };
+const gameScoresFile = path.join(root, "game-scores.json");
+
+/** @typedef {"snake" | "paraulogic"} GameKey */
+
+const defaultGameScores = {
+  snake: { score: 0, name: "ANONIM" },
+  paraulogic: { score: 0, name: "ANONIM" },
+};
+
+/** @returns {{ snake: { score: number, name: string }, paraulogic: { score: number, name: string } }} */
+function loadGameScores() {
+  try {
+    if (!fs.existsSync(gameScoresFile)) return { ...defaultGameScores };
+    const raw = JSON.parse(fs.readFileSync(gameScoresFile, "utf-8"));
+    const snakeScore = Number(raw?.snake?.score || 0);
+    const paraScore = Number(raw?.paraulogic?.score || 0);
+    return {
+      snake: {
+        score: Number.isFinite(snakeScore) ? Math.max(0, Math.floor(snakeScore)) : 0,
+        name: String(raw?.snake?.name || "ANONIM").slice(0, 12).toUpperCase(),
+      },
+      paraulogic: {
+        score: Number.isFinite(paraScore) ? Math.max(0, Math.floor(paraScore)) : 0,
+        name: String(raw?.paraulogic?.name || "ANONIM").slice(0, 12).toUpperCase(),
+      },
+    };
+  } catch {
+    return { ...defaultGameScores };
+  }
+}
+
+/** @param {{ snake: { score: number, name: string }, paraulogic: { score: number, name: string } }} data */
+function saveGameScores(data) {
+  try {
+    fs.writeFileSync(gameScoresFile, JSON.stringify(data, null, 2));
+  } catch (err) {
+    console.warn("[games] could not persist scores", err);
+  }
+}
+
+let persistedScores = loadGameScores();
 
 const IG_MEDIA_FIELDS =
   "id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,children{id,media_type,media_url,thumbnail_url}";
@@ -91,7 +132,7 @@ function isAllowedInstagramCdnHost(hostname) {
   );
 }
 
-/** @typedef {{ displays: import('ws').WebSocket[], remotes: import('ws').WebSocket[], page: number, highScore: number, highName: string, pendingScore: number }} Room */
+/** @typedef {{ displays: import('ws').WebSocket[], remotes: import('ws').WebSocket[], page: number, snakeHighScore: number, snakeHighName: string, snakePendingScore: number, paraHighScore: number, paraHighName: string, paraPendingScore: number }} Room */
 
 /** @type {Map<string, Room>} */
 const rooms = new Map();
@@ -111,7 +152,17 @@ function getRoom(roomId) {
   const id = roomId || "teletext";
   let r = rooms.get(id);
   if (!r) {
-    r = { displays: [], remotes: [], page: DEFAULT_PAGE, highScore: 0, highName: "ANONIM", pendingScore: 0 };
+    r = {
+      displays: [],
+      remotes: [],
+      page: DEFAULT_PAGE,
+      snakeHighScore: persistedScores.snake.score,
+      snakeHighName: persistedScores.snake.name,
+      snakePendingScore: 0,
+      paraHighScore: persistedScores.paraulogic.score,
+      paraHighName: persistedScores.paraulogic.name,
+      paraPendingScore: 0,
+    };
     rooms.set(id, r);
   }
   return r;
@@ -412,7 +463,8 @@ async function main() {
         if (role === "display") r.displays.push(ws);
         else r.remotes.push(ws);
         send(ws, { type: "state", page: r.page });
-        send(ws, { type: "record", score: r.highScore, name: r.highName });
+        send(ws, { type: "record", game: "snake", score: r.snakeHighScore, name: r.snakeHighName });
+        send(ws, { type: "record", game: "paraulogic", score: r.paraHighScore, name: r.paraHighName });
         if (role === "display") {
           send(ws, { type: "presence", hasRemote: r.remotes.length > 0 });
         } else {
@@ -439,31 +491,52 @@ async function main() {
 
       if (msg.type === "control" && role === "remote") {
         const action = String(msg.action || "");
-        if (!["up", "down", "left", "right", "start"].includes(action)) return;
+        if (!["up", "down", "left", "right", "start", "submit", "backspace", "shuffle"].includes(action)) return;
         broadcastDisplays(roomId, { type: "control", action });
         broadcastPresence(roomId);
       }
 
-      if (msg.type === "snakeResult" && role === "display") {
+      if ((msg.type === "snakeResult" || msg.type === "gameResult") && role === "display") {
         const r = getRoom(roomId);
         const score = Number(msg.score);
         if (!Number.isFinite(score) || score < 0) return;
+        const game = msg.type === "snakeResult" ? "snake" : (String(msg.game || "snake") === "paraulogic" ? "paraulogic" : "snake");
         const s = Math.floor(score);
-        if (s > r.highScore) {
-          r.pendingScore = s;
-          broadcastRemotes(roomId, { type: "recordPrompt", score: s });
+        if (game === "paraulogic") {
+          if (s > r.paraHighScore) {
+            r.paraPendingScore = s;
+            broadcastRemotes(roomId, { type: "recordPrompt", game, score: s });
+          }
+        } else if (s > r.snakeHighScore) {
+          r.snakePendingScore = s;
+          broadcastRemotes(roomId, { type: "recordPrompt", game, score: s });
         }
       }
 
       if (msg.type === "saveRecord" && role === "remote") {
         const r = getRoom(roomId);
         const name = String(msg.name || "").trim().slice(0, 12);
-        if (!name || r.pendingScore <= r.highScore) return;
-        r.highScore = r.pendingScore;
-        r.pendingScore = 0;
-        r.highName = name.toUpperCase();
-        broadcastDisplays(roomId, { type: "record", score: r.highScore, name: r.highName });
-        broadcastRemotes(roomId, { type: "record", score: r.highScore, name: r.highName });
+        if (!name) return;
+        const game = String(msg.game || "snake") === "paraulogic" ? "paraulogic" : "snake";
+        if (game === "paraulogic") {
+          if (r.paraPendingScore <= r.paraHighScore) return;
+          r.paraHighScore = r.paraPendingScore;
+          r.paraPendingScore = 0;
+          r.paraHighName = name.toUpperCase();
+          persistedScores.paraulogic = { score: r.paraHighScore, name: r.paraHighName };
+          saveGameScores(persistedScores);
+          broadcastDisplays(roomId, { type: "record", game, score: r.paraHighScore, name: r.paraHighName });
+          broadcastRemotes(roomId, { type: "record", game, score: r.paraHighScore, name: r.paraHighName });
+          return;
+        }
+        if (r.snakePendingScore <= r.snakeHighScore) return;
+        r.snakeHighScore = r.snakePendingScore;
+        r.snakePendingScore = 0;
+        r.snakeHighName = name.toUpperCase();
+        persistedScores.snake = { score: r.snakeHighScore, name: r.snakeHighName };
+        saveGameScores(persistedScores);
+        broadcastDisplays(roomId, { type: "record", game, score: r.snakeHighScore, name: r.snakeHighName });
+        broadcastRemotes(roomId, { type: "record", game, score: r.snakeHighScore, name: r.snakeHighName });
       }
     });
 

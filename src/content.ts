@@ -268,6 +268,25 @@ export const TELETEXT_PAGES: TeletextPageDef[] = [
     ],
   },
   {
+    num: 502,
+    title: "PARAULÒGIC",
+    lines: [
+      { text: "                              ", color: "w" },
+      { text: "  PARAULÒGIC COMUNITARI        ", color: "y" },
+      { text: "                              ", color: "w" },
+      { text: "  Control: COMENCA + fletxes   ", color: "w" },
+      { text: "  I botons ENVIAR/ESBORRAR     ", color: "w" },
+      { text: "                              ", color: "w" },
+      { text: "  LLETRA CENTRAL obligatòria   ", color: "c" },
+      { text: "  Mínim 3 lletres per paraula  ", color: "c" },
+      { text: "                              ", color: "w" },
+      { text: "  Partides ràpides de 90s      ", color: "m" },
+      { text: "  estil comunitari Espai42     ", color: "m" },
+      { text: "                              ", color: "w" },
+      { text: "  Pàg 502       ESPai42        ", color: "g" },
+    ],
+  },
+  {
     num: 300,
     title: "RESIDENTS",
     lines: [

@@ -8,7 +8,7 @@ import "./RemotePage.css";
 export function RemotePage() {
   const [params] = useSearchParams();
   const room = params.get("r") ?? DEFAULT_SESSION;
-  const { page, recordPromptScore, saveRecord, sendControl, sendStart, setRemotePage, contentVersion } = useTeletextWs(
+  const { page, recordPromptScore, recordPromptGame, saveRecord, sendControl, sendStart, setRemotePage, contentVersion } = useTeletextWs(
     room,
     "remote",
   );
@@ -41,6 +41,8 @@ export function RemotePage() {
   }, [setRemotePage]);
 
   const clearBuffer = useCallback(() => setBuffer(""), []);
+  const isGamePage = page === 501 || page === 502;
+  const promptGame = recordPromptGame ?? (page === 502 ? "paraulogic" : "snake");
 
   const go = useCallback(() => {
     if (buffer.length !== 3) return;
@@ -75,7 +77,7 @@ export function RemotePage() {
           ))}
         </div>
         <div className="remote-pad">
-          {page === 501 && (
+          {isGamePage && (
             <div className="remote-gamepad">
               <button type="button" className="remote-btn game start" onClick={sendStart}>
                 COMENÇA
@@ -94,9 +96,24 @@ export function RemotePage() {
               </button>
             </div>
           )}
-          {page === 501 && recordPromptScore !== null && (
+          {page === 502 && (
+            <div className="remote-word-actions">
+              <button type="button" className="remote-btn nav" onClick={() => sendControl("submit")}>
+                Enviar
+              </button>
+              <button type="button" className="remote-btn nav" onClick={() => sendControl("backspace")}>
+                Esborrar lletra
+              </button>
+              <button type="button" className="remote-btn nav" onClick={() => sendControl("shuffle")}>
+                Barrejar
+              </button>
+            </div>
+          )}
+          {(page === 501 || page === 502) && recordPromptScore !== null && (
             <div className="remote-record">
-              <div className="remote-record-title">NOU RECORD: {recordPromptScore} PUNTS</div>
+              <div className="remote-record-title">
+                NOU RECORD {promptGame === "paraulogic" ? "PARAULÒGIC" : "SERP"}: {recordPromptScore} PUNTS
+              </div>
               <input
                 className="remote-record-input"
                 maxLength={12}
@@ -109,7 +126,7 @@ export function RemotePage() {
                 className="remote-btn wide primary"
                 onClick={() => {
                   if (!playerName.trim()) return;
-                  saveRecord(playerName.trim());
+                  saveRecord(playerName.trim(), promptGame);
                   setPlayerName("");
                 }}
               >

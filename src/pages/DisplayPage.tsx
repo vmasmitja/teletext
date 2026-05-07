@@ -9,6 +9,7 @@ import { ArtPage310 } from "../components/ArtPage310";
 import { ArtPage320 } from "../components/ArtPage320";
 import { ArtPage330 } from "../components/ArtPage330";
 import { ArtPage340 } from "../components/ArtPage340";
+import { ParaulogicGame } from "../components/ParaulogicGame";
 import { SnakeGame } from "../components/SnakeGame";
 import { TeletextTveHome } from "../components/TeletextTveHome";
 import { TeletextScreen } from "../components/TeletextScreen";
@@ -29,8 +30,20 @@ export function DisplayPage() {
   const prevRemoteRef = useRef(false);
   const welcomeTimerRef = useRef<number | null>(null);
 
-  const { page, hasRemote, lastControl, startTick, highScore, highName, sendSnakeResult, setRemotePage, contentVersion } =
-    useTeletextWs(room, "display");
+  const {
+    page,
+    hasRemote,
+    lastControl,
+    startTick,
+    snakeHighScore,
+    snakeHighName,
+    paraHighScore,
+    paraHighName,
+    sendSnakeResult,
+    sendParaulogicResult,
+    setRemotePage,
+    contentVersion,
+  } = useTeletextWs(room, "display");
   const { getPage, sectionByIndexPage, residentByPage } = useRuntimeContent(contentVersion);
   const currentPageDef = getPage(page);
   const currentSection = sectionByIndexPage.get(page);
@@ -102,7 +115,7 @@ export function DisplayPage() {
 
   const snakeInfoLines = useMemo<TeletextLine[] | undefined>(() => {
     if (page !== 501) return undefined;
-    const scoreText = String(highScore).padStart(2, "0");
+    const scoreText = String(snakeHighScore).padStart(2, "0");
     return [
       { text: "                              ", color: "w" },
       { text: "  JOC DE LA SERP              ", color: "y" },
@@ -111,14 +124,34 @@ export function DisplayPage() {
       { text: "  del comandament mobil.      ", color: "w" },
       { text: "                              ", color: "w" },
       { text: "  Record actual:              ", color: "c" },
-      { text: `  ${scoreText} punts - ${highName}`.padEnd(30, " "), color: "c" },
+      { text: `  ${scoreText} punts - ${snakeHighName}`.padEnd(30, " "), color: "c" },
       { text: "                              ", color: "w" },
       { text: "  En morir, si fas record,    ", color: "m" },
       { text: "  posa el teu nom al mobil.   ", color: "m" },
       { text: "                              ", color: "w" },
       { text: "  Pàg 501       ESPai42       ", color: "g" },
     ];
-  }, [page, highName, highScore]);
+  }, [page, snakeHighName, snakeHighScore]);
+
+  const paraInfoLines = useMemo<TeletextLine[] | undefined>(() => {
+    if (page !== 502) return undefined;
+    const scoreText = String(paraHighScore).padStart(2, "0");
+    return [
+      { text: "                              ", color: "w" },
+      { text: "  PARAULÒGIC COMUNITARI       ", color: "y" },
+      { text: "                              ", color: "w" },
+      { text: "  Control: COMENCA per jugar  ", color: "w" },
+      { text: "  fletxes per canviar lletra  ", color: "w" },
+      { text: "                              ", color: "w" },
+      { text: "  LLETRA CENTRAL OBLIGATORIA  ", color: "c" },
+      { text: "  Mínim 3 lletres per paraula ", color: "c" },
+      { text: "                              ", color: "w" },
+      { text: "  Rècord actual:              ", color: "m" },
+      { text: `  ${scoreText} punts - ${paraHighName}`.padEnd(30, " "), color: "m" },
+      { text: "                              ", color: "w" },
+      { text: "  Pàg 502       ESPai42       ", color: "g" },
+    ];
+  }, [page, paraHighName, paraHighScore]);
 
   useEffect(() => {
     if (page !== 402) return;
@@ -186,16 +219,24 @@ export function DisplayPage() {
           <TeletextScreen
             pageNum={page}
             className="display-screen"
-            lineOverrides={snakeInfoLines}
+            lineOverrides={snakeInfoLines ?? paraInfoLines}
             pageDefOverride={currentPageDef}
           />
         )}
         {page === 501 && (
           <SnakeGame
-            control={lastControl}
+            control={lastControl === "up" || lastControl === "down" || lastControl === "left" || lastControl === "right" ? lastControl : null}
             startTick={startTick}
             active={hasRemote}
             onGameOver={(score) => sendSnakeResult(score)}
+          />
+        )}
+        {page === 502 && (
+          <ParaulogicGame
+            control={lastControl}
+            startTick={startTick}
+            active={hasRemote}
+            onGameOver={(score) => sendParaulogicResult(score)}
           />
         )}
         {showWelcome && (

@@ -1,0 +1,91 @@
+.para-wrap {
+  position: absolute;
+  right: 3vw;
+  top: 18vh;
+  width: min(44vw, 620px);
+  z-index: 4;
+  font-family: "VT323", monospace;
+}
+
+.para-headline {
+  color: #ffff00;
+  font-size: clamp(1.1rem, 1.7vw, 1.6rem);
+  margin-bottom: 0.4rem;
+  text-align: center;
+}
+
+.para-letters {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.35rem;
+  background: rgba(0, 0, 80, 0.8);
+  border: 2px solid #00ffff;
+  padding: 0.55rem;
+}
+
+.para-letter {
+  display: grid;
+  place-items: center;
+  min-height: 2.5rem;
+  background: #0a2a66;
+  color: #ffffff;
+  font-size: clamp(1.4rem, 2.2vw, 2rem);
+}
+
+.para-letter.center {
+  background: #7a2b10;
+  color: #ffff00;
+}
+
+.para-letter.selected {
+  outline: 2px solid #ffff00;
+}
+
+.para-word {
+  margin-top: 0.4rem;
+  background: rgba(0, 20, 70, 0.88);
+  border: 2px solid #2ec7ff;
+  color: #ffffff;
+  text-align: center;
+  font-size: clamp(1.4rem, 2.1vw, 2rem);
+  min-height: 2.2rem;
+  letter-spacing: 0.06em;
+}
+
+.para-actions,
+.para-status,
+.para-found,
+.para-dead,
+.para-points {
+  text-align: center;
+}
+
+.para-actions {
+  margin-top: 0.25rem;
+  color: #9fe2ff;
+  font-size: clamp(0.9rem, 1.2vw, 1.1rem);
+}
+
+.para-status {
+  margin-top: 0.2rem;
+  color: #ff9bdb;
+  font-size: clamp(0.95rem, 1.3vw, 1.2rem);
+}
+
+.para-points {
+  color: #00ff66;
+  font-size: clamp(1rem, 1.5vw, 1.3rem);
+}
+
+.para-found {
+  margin-top: 0.2rem;
+  color: #ffffff;
+  font-size: clamp(0.9rem, 1.2vw, 1.1rem);
+  min-height: 2rem;
+}
+
+.para-dead {
+  margin-top: 0.3rem;
+  color: #ff5f5f;
+  font-size: clamp(1rem, 1.4vw, 1.25rem);
+}
