@@ -11,6 +11,7 @@ export function useTeletextWs(room: string, role: Role) {
   const [lastControl, setLastControl] = useState<
     "up" | "down" | "left" | "right" | "submit" | "backspace" | "shuffle" | null
   >(null);
+  const [controlSeq, setControlSeq] = useState(0);
   const [startTick, setStartTick] = useState(0);
   const [snakeHighScore, setSnakeHighScore] = useState(0);
   const [snakeHighName, setSnakeHighName] = useState("ANONIM");
@@ -50,6 +51,7 @@ export function useTeletextWs(room: string, role: Role) {
         }
         if (msg.type === "control" && msg.action && ["up", "down", "left", "right", "submit", "backspace", "shuffle"].includes(msg.action)) {
           setLastControl(msg.action);
+          setControlSeq((s) => s + 1);
         }
         if (msg.type === "control" && msg.action === "start") {
           setStartTick((t) => t + 1);
@@ -147,6 +149,7 @@ export function useTeletextWs(room: string, role: Role) {
     connected,
     hasRemote,
     lastControl,
+    controlSeq,
     startTick,
     highScore: snakeHighScore,
     highName: snakeHighName,

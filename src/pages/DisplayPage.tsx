@@ -24,7 +24,8 @@ export function DisplayPage() {
   const [audioUnlocked, setAudioUnlocked] = useState(() => isAudioUnlockedStored());
   const [audioRunning, setAudioRunning] = useState(() => getAudioState() === "running");
   const [showWelcome, setShowWelcome] = useState(false);
-  const [igPosts, setIgPosts] = useState<Array<{ id: string; mediaUrl: string; caption: string; permalink: string }>>([]);
+  const [igPosts, setIgPosts] = useState<Array<{ id: string; mediaType?: string; mediaUrl: string; caption: string; permalink: string }>>([]);
+  const [igDirectMediaById, setIgDirectMediaById] = useState<Record<string, boolean>>({});
   const [igEnabled, setIgEnabled] = useState(false);
   const [igIndex, setIgIndex] = useState(0);
   const prevRemoteRef = useRef(false);
@@ -34,6 +35,7 @@ export function DisplayPage() {
     page,
     hasRemote,
     lastControl,
+    controlSeq,
     startTick,
     snakeHighScore,
     snakeHighName,
@@ -158,15 +160,17 @@ export function DisplayPage() {
     let alive = true;
     fetch("/api/instagram/latest?refresh=1")
       .then((r) => r.json())
-      .then((data: { enabled?: boolean; posts?: Array<{ id: string; mediaUrl: string; caption: string; permalink: string }> }) => {
+      .then((data: { enabled?: boolean; posts?: Array<{ id: string; mediaType?: string; mediaUrl: string; caption: string; permalink: string }> }) => {
         if (!alive) return;
         setIgEnabled(Boolean(data?.enabled));
         setIgPosts(Array.isArray(data?.posts) ? data.posts : []);
+        setIgDirectMediaById({});
       })
       .catch(() => {
         if (alive) {
           setIgEnabled(false);
           setIgPosts([]);
+          setIgDirectMediaById({});
         }
       });
     return () => {
@@ -234,6 +238,7 @@ export function DisplayPage() {
         {page === 502 && (
           <ParaulogicGame
             control={lastControl}
+            controlSeq={controlSeq}
             startTick={startTick}
             active={hasRemote}
             onGameOver={(score) => sendParaulogicResult(score)}
@@ -298,12 +303,43 @@ export function DisplayPage() {
               className="display-instagram-link"
             >
               <div className="display-instagram-pixel-shell">
-                <img
-                  src={`/api/instagram/media?u=${encodeURIComponent(igPosts[igIndex].mediaUrl)}`}
-                  alt="Post Instagram Espai42"
-                  className="display-instagram-image"
-                  referrerPolicy="no-referrer"
-                />
+                {(igPosts[igIndex].mediaType || "").toUpperCase() === "VIDEO" ? (
+                  <video
+                    src={
+                      igDirectMediaById[igPosts[igIndex].id]
+                        ? igPosts[igIndex].mediaUrl
+                        : `/api/instagram/media?u=${encodeURIComponent(igPosts[igIndex].mediaUrl)}`
+                    }
+                    className="display-instagram-image"
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    onError={() =>
+                      setIgDirectMediaById((prev) => ({
+                        ...prev,
+                        [igPosts[igIndex].id]: true,
+                      }))
+                    }
+                  />
+                ) : (
+                  <img
+                    src={
+                      igDirectMediaById[igPosts[igIndex].id]
+                        ? igPosts[igIndex].mediaUrl
+                        : `/api/instagram/media?u=${encodeURIComponent(igPosts[igIndex].mediaUrl)}`
+                    }
+                    alt="Post Instagram Espai42"
+                    className="display-instagram-image"
+                    referrerPolicy="no-referrer"
+                    onError={() =>
+                      setIgDirectMediaById((prev) => ({
+                        ...prev,
+                        [igPosts[igIndex].id]: true,
+                      }))
+                    }
+                  />
+                )}
               </div>
             </a>
             <div className="display-instagram-caption">{(igPosts[igIndex].caption || "").slice(0, 84) || "Post d'Instagram"}</div>

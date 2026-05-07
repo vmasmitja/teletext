@@ -179,6 +179,7 @@ function mapInstagramPost(p) {
   if (!mediaUrl) return null;
   return {
     id: String(p.id || ""),
+    mediaType: t,
     caption: String(p.caption || ""),
     mediaUrl,
     permalink: String(p.permalink || ""),
@@ -192,6 +193,10 @@ function isAllowedInstagramCdnHost(hostname) {
   return (
     h === "cdninstagram.com" ||
     h.endsWith(".cdninstagram.com") ||
+    h === "fbsbx.com" ||
+    h.endsWith(".fbsbx.com") ||
+    h === "facebook.com" ||
+    h.endsWith(".facebook.com") ||
     h.includes("fbcdn.net") ||
     h === "instagram.com" ||
     h.endsWith(".instagram.com")

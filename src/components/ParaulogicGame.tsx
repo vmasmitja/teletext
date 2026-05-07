@@ -9,6 +9,15 @@ const CENTER = "A";
 const OUTER_BASE = ["R", "T", "E", "L", "O", "C"];
 const MIN_LEN = 3;
 const ROUND_SECONDS = 90;
+const HONEYCOMB_CLASS_BY_INDEX = [
+  "center",
+  "top",
+  "top-right",
+  "bottom-right",
+  "bottom",
+  "bottom-left",
+  "top-left",
+];
 
 const FALLBACK_WORDS = [
   "art",
@@ -81,11 +90,13 @@ function normalizeWord(word: string): string {
 
 export function ParaulogicGame({
   control,
+  controlSeq,
   startTick,
   active,
   onGameOver,
 }: {
   control: Control;
+  controlSeq: number;
   startTick: number;
   active: boolean;
   onGameOver?: (score: number) => void;
@@ -103,6 +114,7 @@ export function ParaulogicGame({
   const [lastPoints, setLastPoints] = useState<number | null>(null);
   const [validWords, setValidWords] = useState<Set<string>>(() => new Set(FALLBACK_WORDS));
   const sentOverRef = useRef(false);
+  const handledControlSeqRef = useRef(-1);
 
   const allowedLetters = useMemo(() => new Set(letters), [letters]);
 
@@ -166,6 +178,8 @@ export function ParaulogicGame({
   }, [onGameOver, running, score, timeLeft]);
 
   useEffect(() => {
+    if (handledControlSeqRef.current === controlSeq) return;
+    handledControlSeqRef.current = controlSeq;
     if (!running || !control) return;
     if (control === "left" || control === "up") {
       setSelected((s) => (s - 1 + letters.length) % letters.length);
@@ -239,7 +253,7 @@ export function ParaulogicGame({
       return;
     }
     setCurrentWord((w) => (w + letters[selected]).slice(0, 16));
-  }, [allowedLetters, control, currentWord, found, letters, running, selected, validWords]);
+  }, [allowedLetters, control, controlSeq, currentWord, found, letters, running, selected, validWords]);
 
   return (
     <div className="para-wrap">
@@ -250,7 +264,7 @@ export function ParaulogicGame({
         {letters.map((l, i) => (
           <span
             key={`${l}-${i}`}
-            className={`para-letter ${i === 0 ? "center" : ""} ${i === selected ? "selected" : ""}`.trim()}
+            className={`para-letter ${HONEYCOMB_CLASS_BY_INDEX[i] || ""} ${i === selected ? "selected" : ""}`.trim()}
           >
             {l}
           </span>
