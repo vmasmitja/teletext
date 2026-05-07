@@ -10,7 +10,7 @@ const OUTER_BASE = ["R", "T", "E", "L", "O", "C"];
 const MIN_LEN = 3;
 const ROUND_SECONDS = 90;
 
-const VALID_WORDS = new Set([
+const FALLBACK_WORDS = [
   "art",
   "ara",
   "ala",
@@ -49,7 +49,7 @@ const VALID_WORDS = new Set([
   "altera",
   "cerca",
   "correlat",
-]);
+];
 
 function scoreWord(word: string, pangram: boolean): number {
   const l = word.length;
@@ -101,9 +101,29 @@ export function ParaulogicGame({
   const [status, setStatus] = useState("PREM COMENCA PER INICIAR");
   const [statusTone, setStatusTone] = useState<StatusTone>("neutral");
   const [lastPoints, setLastPoints] = useState<number | null>(null);
+  const [validWords, setValidWords] = useState<Set<string>>(() => new Set(FALLBACK_WORDS));
   const sentOverRef = useRef(false);
 
   const allowedLetters = useMemo(() => new Set(letters), [letters]);
+
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/games/paraulogic-dictionary")
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error("dictionary fetch failed"))))
+      .then((data: { words?: string[] }) => {
+        if (!alive) return;
+        if (Array.isArray(data.words) && data.words.length > 0) {
+          setValidWords(new Set(data.words.map(normalizeWord).filter(Boolean)));
+        }
+      })
+      .catch(() => {
+        if (!alive) return;
+        setValidWords(new Set(FALLBACK_WORDS));
+      });
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (startTick <= 0) return;
@@ -199,7 +219,7 @@ export function ParaulogicGame({
         playTone(180, 70, "square", 0.1);
         return;
       }
-      if (!VALID_WORDS.has(word)) {
+      if (!validWords.has(word)) {
         setStatus("NO ÉS AL DICCIONARI MVP (PROVA RELAT/CARTA/CARETA)");
         setStatusTone("error");
         setLastPoints(null);
@@ -219,7 +239,7 @@ export function ParaulogicGame({
       return;
     }
     setCurrentWord((w) => (w + letters[selected]).slice(0, 16));
-  }, [allowedLetters, control, currentWord, found, letters, running, selected]);
+  }, [allowedLetters, control, currentWord, found, letters, running, selected, validWords]);
 
   return (
     <div className="para-wrap">

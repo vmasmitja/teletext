@@ -16,6 +16,7 @@ const editorStore = createEditorStore(root);
 const editorTokens = new Map();
 const instagramCache = { expiresAt: 0, payload: null };
 const gameScoresFile = path.join(root, "game-scores.json");
+const paraulogicWordsFile = path.join(root, "paraulogic-words.json");
 
 /** @typedef {"snake" | "paraulogic"} GameKey */
 
@@ -23,6 +24,70 @@ const defaultGameScores = {
   snake: { score: 0, name: "ANONIM" },
   paraulogic: { score: 0, name: "ANONIM" },
 };
+
+const defaultParaulogicWords = [
+  "art",
+  "ara",
+  "ala",
+  "are",
+  "arca",
+  "arrel",
+  "orar",
+  "oral",
+  "oracle",
+  "cala",
+  "calar",
+  "calat",
+  "calor",
+  "cara",
+  "careta",
+  "carta",
+  "carter",
+  "carrer",
+  "taca",
+  "tacar",
+  "talar",
+  "tecla",
+  "teatre",
+  "teatral",
+  "taller",
+  "coral",
+  "corral",
+  "colera",
+  "local",
+  "retol",
+  "retoca",
+  "retocar",
+  "relat",
+  "relata",
+  "alerta",
+  "altera",
+  "cerca",
+  "correlat",
+];
+
+function ensureParaulogicWordsFile() {
+  try {
+    if (fs.existsSync(paraulogicWordsFile)) return;
+    fs.writeFileSync(paraulogicWordsFile, JSON.stringify(defaultParaulogicWords, null, 2));
+  } catch (err) {
+    console.warn("[paraulogic] could not initialize dictionary file", err);
+  }
+}
+
+/** @returns {string[]} */
+function loadParaulogicWords() {
+  try {
+    ensureParaulogicWordsFile();
+    const raw = JSON.parse(fs.readFileSync(paraulogicWordsFile, "utf-8"));
+    if (!Array.isArray(raw)) return defaultParaulogicWords;
+    return raw
+      .map((w) => String(w || "").trim().toLowerCase())
+      .filter(Boolean);
+  } catch {
+    return defaultParaulogicWords;
+  }
+}
 
 /** @returns {{ snake: { score: number, name: string }, paraulogic: { score: number, name: string } }} */
 function loadGameScores() {
@@ -56,6 +121,7 @@ function saveGameScores(data) {
 }
 
 let persistedScores = loadGameScores();
+ensureParaulogicWordsFile();
 
 const IG_MEDIA_FIELDS =
   "id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,children{id,media_type,media_url,thumbnail_url}";
@@ -283,6 +349,11 @@ async function buildApp() {
     const dest = path.join(editorStore.assetsDir, clean);
     fs.renameSync(file.path, dest);
     res.json({ path: `/editor-assets/${clean}` });
+  });
+
+  app.get("/api/games/paraulogic-dictionary", (_req, res) => {
+    const words = loadParaulogicWords();
+    res.json({ words });
   });
 
   app.get("/api/instagram/latest", async (req, res) => {

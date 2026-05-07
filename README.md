@@ -19,6 +19,11 @@ Variables:
 - `IG_USER_ID` (opcional, per carrusel Instagram a pàg. 402)
 - `IG_ACCESS_TOKEN` (opcional, token Graph API lectura)
 
+## Contingut separable de codi
+
+- Diccionari del joc Paraulògic: `paraulogic-words.json`
+- Es carrega via API (`/api/games/paraulogic-dictionary`) i es pot editar sense tocar codi.
+
 ### Passos al VPS
 
 ```bash
