@@ -19,7 +19,18 @@ import "./DisplayPage.css";
 
 type LayoutRect = { x: number; y: number; w: number; h: number };
 type LayoutConfig = Record<string, LayoutRect>;
-type EditableSlot = "residentImage" | "mainLogo" | "instagramCarousel" | "mainContent" | "snakeGame" | "paraulogicGame";
+type EditableSlot =
+  | "residentImage"
+  | "mainLogo"
+  | "instagramCarousel"
+  | "mainContent"
+  | "snakeGame"
+  | "paraulogicGame"
+  | "sectionHeader"
+  | "sectionInfo"
+  | "sectionImage"
+  | "teletextHeader"
+  | "teletextBody";
 
 type DisplayPageProps = {
   layoutMode?: boolean;
@@ -330,6 +341,19 @@ export function DisplayPage({ layoutMode = false, layoutToken = null }: DisplayP
     return Boolean(layoutConfig[getLayoutKey(page, slot)] || layoutDraft[getLayoutKey(page, slot)]);
   }
 
+  function slotAreaStyle(slot: EditableSlot, fallback: LayoutRect) {
+    const rect = currentRect(slot, fallback);
+    return {
+      position: "absolute" as const,
+      left: `${rect.x}%`,
+      top: `${rect.y}%`,
+      width: `${rect.w}%`,
+      height: `${rect.h}%`,
+      right: "auto",
+      bottom: "auto",
+    };
+  }
+
   function startDrag(e: { preventDefault: () => void; stopPropagation: () => void; clientX: number; clientY: number }, key: string, mode: "move" | "resize", rect: LayoutRect) {
     e.preventDefault();
     e.stopPropagation();
@@ -371,6 +395,11 @@ export function DisplayPage({ layoutMode = false, layoutToken = null }: DisplayP
       delete next[getLayoutKey(page, "mainContent")];
       delete next[getLayoutKey(page, "snakeGame")];
       delete next[getLayoutKey(page, "paraulogicGame")];
+      delete next[getLayoutKey(page, "sectionHeader")];
+      delete next[getLayoutKey(page, "sectionInfo")];
+      delete next[getLayoutKey(page, "sectionImage")];
+      delete next[getLayoutKey(page, "teletextHeader")];
+      delete next[getLayoutKey(page, "teletextBody")];
       return next;
     });
     setLayoutDirty(true);
@@ -381,15 +410,46 @@ export function DisplayPage({ layoutMode = false, layoutToken = null }: DisplayP
     page === 100 ? (
       <TeletextTveHome className="display-screen display-tve-home-wrap" />
     ) : currentSection?.key === "ART" ? (
-      <ArtPage310 className="display-screen" section={currentSection} />
+      <ArtPage310
+        className="display-screen"
+        section={currentSection}
+        headerStyle={layoutMode || hasCustomRect("sectionHeader") ? slotAreaStyle("sectionHeader", { x: 2, y: 4, w: 94, h: 15 }) : undefined}
+        leftStyle={layoutMode || hasCustomRect("sectionInfo") ? slotAreaStyle("sectionInfo", { x: 3, y: 23, w: 45, h: 68 }) : undefined}
+        rightStyle={layoutMode || hasCustomRect("sectionImage") ? slotAreaStyle("sectionImage", { x: 49, y: 19, w: 48, h: 72 }) : undefined}
+      />
     ) : currentSection?.key === "ARTESANIA" ? (
-      <ArtPage320 className="display-screen" section={currentSection} />
+      <ArtPage320
+        className="display-screen"
+        section={currentSection}
+        headerStyle={layoutMode || hasCustomRect("sectionHeader") ? slotAreaStyle("sectionHeader", { x: 2, y: 4, w: 94, h: 15 }) : undefined}
+        leftStyle={layoutMode || hasCustomRect("sectionInfo") ? slotAreaStyle("sectionInfo", { x: 3, y: 23, w: 45, h: 68 }) : undefined}
+        rightStyle={layoutMode || hasCustomRect("sectionImage") ? slotAreaStyle("sectionImage", { x: 49, y: 19, w: 48, h: 72 }) : undefined}
+      />
     ) : currentSection?.key === "MAKERS" ? (
-      <ArtPage330 className="display-screen" section={currentSection} />
+      <ArtPage330
+        className="display-screen"
+        section={currentSection}
+        headerStyle={layoutMode || hasCustomRect("sectionHeader") ? slotAreaStyle("sectionHeader", { x: 2, y: 4, w: 94, h: 15 }) : undefined}
+        leftStyle={layoutMode || hasCustomRect("sectionInfo") ? slotAreaStyle("sectionInfo", { x: 3, y: 23, w: 45, h: 68 }) : undefined}
+        rightStyle={layoutMode || hasCustomRect("sectionImage") ? slotAreaStyle("sectionImage", { x: 49, y: 19, w: 48, h: 72 }) : undefined}
+      />
     ) : currentSection?.key === "SOSTENIBILITAT" ? (
-      <ArtPage340 className="display-screen" section={currentSection} />
+      <ArtPage340
+        className="display-screen"
+        section={currentSection}
+        headerStyle={layoutMode || hasCustomRect("sectionHeader") ? slotAreaStyle("sectionHeader", { x: 2, y: 4, w: 94, h: 15 }) : undefined}
+        leftStyle={layoutMode || hasCustomRect("sectionInfo") ? slotAreaStyle("sectionInfo", { x: 3, y: 23, w: 45, h: 68 }) : undefined}
+        rightStyle={layoutMode || hasCustomRect("sectionImage") ? slotAreaStyle("sectionImage", { x: 49, y: 19, w: 48, h: 72 }) : undefined}
+      />
     ) : (
-      <TeletextScreen pageNum={page} className="display-screen" lineOverrides={snakeInfoLines ?? paraInfoLines} pageDefOverride={currentPageDef} />
+      <TeletextScreen
+        pageNum={page}
+        className="display-screen"
+        lineOverrides={snakeInfoLines ?? paraInfoLines}
+        pageDefOverride={currentPageDef}
+        headerStyle={layoutMode || hasCustomRect("teletextHeader") ? slotAreaStyle("teletextHeader", { x: 2, y: 2, w: 48, h: 6 }) : undefined}
+        bodyStyle={layoutMode || hasCustomRect("teletextBody") ? slotAreaStyle("teletextBody", { x: 2, y: 9, w: 50, h: 85 }) : undefined}
+      />
     );
 
   return (
@@ -508,6 +568,84 @@ export function DisplayPage({ layoutMode = false, layoutToken = null }: DisplayP
           </div>
         ) : (
           mainContent
+        )}
+        {layoutMode && currentSection && (
+          <>
+            <div
+              className="layout-box layout-guide"
+              style={wrapperStyle("sectionHeader", { x: 2, y: 4, w: 94, h: 15 })}
+              onPointerDown={(e) => startDrag(e, getLayoutKey(page, "sectionHeader"), "move", currentRect("sectionHeader", { x: 2, y: 4, w: 94, h: 15 }))}
+            >
+              <span className="layout-label">Capçalera seccio</span>
+              <button
+                type="button"
+                className="layout-resize"
+                onPointerDown={(e) => startDrag(e, getLayoutKey(page, "sectionHeader"), "resize", currentRect("sectionHeader", { x: 2, y: 4, w: 94, h: 15 }))}
+              >
+                ↘
+              </button>
+            </div>
+            <div
+              className="layout-box layout-guide"
+              style={wrapperStyle("sectionInfo", { x: 3, y: 23, w: 45, h: 68 })}
+              onPointerDown={(e) => startDrag(e, getLayoutKey(page, "sectionInfo"), "move", currentRect("sectionInfo", { x: 3, y: 23, w: 45, h: 68 }))}
+            >
+              <span className="layout-label">Bloc informatiu esquerra</span>
+              <button
+                type="button"
+                className="layout-resize"
+                onPointerDown={(e) => startDrag(e, getLayoutKey(page, "sectionInfo"), "resize", currentRect("sectionInfo", { x: 3, y: 23, w: 45, h: 68 }))}
+              >
+                ↘
+              </button>
+            </div>
+            <div
+              className="layout-box layout-guide"
+              style={wrapperStyle("sectionImage", { x: 49, y: 19, w: 48, h: 72 })}
+              onPointerDown={(e) => startDrag(e, getLayoutKey(page, "sectionImage"), "move", currentRect("sectionImage", { x: 49, y: 19, w: 48, h: 72 }))}
+            >
+              <span className="layout-label">Bloc visual dreta</span>
+              <button
+                type="button"
+                className="layout-resize"
+                onPointerDown={(e) => startDrag(e, getLayoutKey(page, "sectionImage"), "resize", currentRect("sectionImage", { x: 49, y: 19, w: 48, h: 72 }))}
+              >
+                ↘
+              </button>
+            </div>
+          </>
+        )}
+        {layoutMode && !currentSection && page !== 100 && (
+          <>
+            <div
+              className="layout-box layout-guide"
+              style={wrapperStyle("teletextHeader", { x: 2, y: 2, w: 48, h: 6 })}
+              onPointerDown={(e) => startDrag(e, getLayoutKey(page, "teletextHeader"), "move", currentRect("teletextHeader", { x: 2, y: 2, w: 48, h: 6 }))}
+            >
+              <span className="layout-label">Capçalera teletext</span>
+              <button
+                type="button"
+                className="layout-resize"
+                onPointerDown={(e) => startDrag(e, getLayoutKey(page, "teletextHeader"), "resize", currentRect("teletextHeader", { x: 2, y: 2, w: 48, h: 6 }))}
+              >
+                ↘
+              </button>
+            </div>
+            <div
+              className="layout-box layout-guide"
+              style={wrapperStyle("teletextBody", { x: 2, y: 9, w: 50, h: 85 })}
+              onPointerDown={(e) => startDrag(e, getLayoutKey(page, "teletextBody"), "move", currentRect("teletextBody", { x: 2, y: 9, w: 50, h: 85 }))}
+            >
+              <span className="layout-label">Bloc text esquerra</span>
+              <button
+                type="button"
+                className="layout-resize"
+                onPointerDown={(e) => startDrag(e, getLayoutKey(page, "teletextBody"), "resize", currentRect("teletextBody", { x: 2, y: 9, w: 50, h: 85 }))}
+              >
+                ↘
+              </button>
+            </div>
+          </>
         )}
         {page === 501 &&
           ((layoutMode || hasCustomRect("snakeGame")) ? (

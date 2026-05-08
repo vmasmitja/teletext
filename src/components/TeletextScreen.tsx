@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import { getTeletextPage, type TeletextColor, type TeletextLine, type TeletextPageDef } from "../content";
 import "./TeletextScreen.css";
 
@@ -26,6 +27,8 @@ type Props = {
   lineOverrides?: TeletextLine[];
   titleOverride?: string;
   pageDefOverride?: TeletextPageDef;
+  headerStyle?: CSSProperties;
+  bodyStyle?: CSSProperties;
 };
 
 function padLine(text: string, width: number): string {
@@ -41,6 +44,8 @@ export function TeletextScreen({
   lineOverrides,
   titleOverride,
   pageDefOverride,
+  headerStyle,
+  bodyStyle,
 }: Props) {
   const def = pageDefOverride ?? getTeletextPage(pageNum);
   const lines = lineOverrides ?? def?.lines ?? [];
@@ -51,12 +56,12 @@ export function TeletextScreen({
   return (
     <div className={`tt-screen ${className ?? ""}`.trim()}>
       {showHeader && (
-        <div className="tt-header">
+        <div className="tt-header" style={headerStyle}>
           <span className="tt-header-pno">{headerLeft}</span>
           <span className="tt-header-title">{headerRight}</span>
         </div>
       )}
-      <div className="tt-body" aria-live="polite">
+      <div className="tt-body" aria-live="polite" style={bodyStyle}>
         {!def && (
           <div className="tt-row">
             <span style={{ color: COLORS.r }}>

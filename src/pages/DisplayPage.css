@@ -56,6 +56,21 @@
   touch-action: none;
 }
 
+.layout-guide {
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.layout-label {
+  position: absolute;
+  top: -1.1rem;
+  left: 0;
+  font-family: "VT323", monospace;
+  font-size: 0.95rem;
+  background: rgba(0, 0, 0, 0.8);
+  color: #00ffff;
+  padding: 0 0.25rem;
+}
+
 .layout-resize {
   position: absolute;
   right: -0.6rem;

@@ -1,6 +1,7 @@
 .tt-screen {
   --tt-blue: #0000aa;
   --tt-cell: 1ch;
+  position: relative;
   background: var(--tt-blue);
   color: #fff;
   font-family: "VT323", ui-monospace, monospace;
