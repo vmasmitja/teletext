@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-05-06T00:00:00.000Z",
+  "updatedAt": "2026-05-08T10:55:35.021Z",
   "sections": [
     {
       "key": "ART",
@@ -10,12 +10,13 @@
         {
           "id": "art-311",
           "page": 311,
-          "name": "Ona Vilaro",
+          "name": "Sara Villamora",
           "subtitle": "Artista visual resident",
-          "bio1": "Bio: explora memòria i",
-          "bio2": "paisatge amb collage i tinta.",
-          "contact1": "Contacte: ona@espai42.art",
-          "contact2": "IG: @ona.vilaro.studio"
+          "bio1": "Bio: exploradora de tècniques de",
+          "bio2": "fotografia analògica i cianotipia.",
+          "contact1": "Contacte: sara.vifer@gmail.com",
+          "contact2": "IG: @euterpedesara",
+          "imagePath": "/editor-assets/1778236452552-bpayvszdsvt.png"
         }
       ]
     },
@@ -28,12 +29,13 @@
         {
           "id": "artes-321",
           "page": 321,
-          "name": "Laia Pons",
-          "subtitle": "Ceramista resident",
-          "bio1": "Bio: peces utilitàries",
-          "bio2": "esmaltades i cocció lenta.",
-          "contact1": "Contacte: laia@espai42.art",
-          "contact2": "IG: @laiapons.ceramica"
+          "name": "Belén Vassallo",
+          "subtitle": "Joiera resident",
+          "bio1": "Bio: Dissenyadora i artesana joiera",
+          "bio2": "amb marca propia Vassa Jewels.",
+          "contact1": "Contacte: belen.vassallo@vassajewels.com",
+          "contact2": "IG: @vassajewlls",
+          "imagePath": "/editor-assets/1778237335127-vfzzrdm6sx.png"
         }
       ]
     },
@@ -46,12 +48,13 @@
         {
           "id": "makers-331",
           "page": 331,
-          "name": "Ada Prat",
-          "subtitle": "Electrònica resident",
-          "bio1": "Bio: sintetitzadors DIY i",
-          "bio2": "sensors per instal·lacions.",
-          "contact1": "Contacte: ada@espai42.art",
-          "contact2": "IG: @adaprat.makes"
+          "name": "Víctor Masmitjà",
+          "subtitle": "Maker resident",
+          "bio1": "Bio: Electrónica i DIY,",
+          "bio2": "sensors i robótica.",
+          "contact1": "Contacte: masmitja@proton.me",
+          "contact2": "IG: @masmitja",
+          "imagePath": "/editor-assets/1778237732336-tqs3v50fs4m.png"
         }
       ]
     },
@@ -71,6 +74,285 @@
           "contact1": "Contacte: joana@espai42.art",
           "contact2": "IG: @joanaclot.glass"
         }
+      ]
+    }
+  ],
+  "staticPages": [
+    {
+      "num": 100,
+      "title": "INFO ESPAI42",
+      "lines": [
+        " INFO ESPAI42      ESPAI42 LOGO",
+        "                               ",
+        " SECCIO VERMELLA               ",
+        " 101 Qui som   102 Que fem     ",
+        " 103 Serveis  104 Espai42      ",
+        "                               ",
+        " SECCIO VERDA                  ",
+        " 201 Agenda    202 Activitats  ",
+        " 203 Tallers   204 Convocat.   ",
+        "                               ",
+        " SECCIO GROGA                  ",
+        " 300 Residents 310 Art         ",
+        " 320 Artesania 330 Makers      ",
+        " 340 Sostenibilitat            ",
+        " SECCIO BLAVA                  ",
+        " 401 Contacte 402 Xarxes       ",
+        " 403 Partners                  ",
+        " Pàg 100    ESPAI42 EN DIRECTE "
+      ]
+    },
+    {
+      "num": 101,
+      "title": "QUI SOM",
+      "lines": [
+        "                              ",
+        "  QUI SOM                      ",
+        "                              ",
+        "  Espai42 és una associació    ",
+        "  sense ànim de lucre que      ",
+        "  acull oficis creatius i      ",
+        "  tallers d’artesania i art.   ",
+        "                              ",
+        "  Volem un espai obert on      ",
+        "  compartir eines, idees i     ",
+        "  projectes amb el barri.      ",
+        "                              ",
+        "  Tornada a l’index: pàg 100   ",
+        "                              ",
+        "  Pàg 101       ESPai42        "
+      ]
+    },
+    {
+      "num": 102,
+      "title": "QUE FEM",
+      "lines": [
+        "                              ",
+        "  QUE FEM                      ",
+        "                              ",
+        "  Impulsem creacio local:      ",
+        "  art, artesania i tecnologia. ",
+        "  Fem exposicions, xarxa       ",
+        "  i suport entre residents.    ",
+        "                              ",
+        "  Veure agenda ampliada:       ",
+        "  pàgines 201 a 204.           ",
+        "                              ",
+        "  Contacte i xarxes: secció     ",
+        "  blava del teletext.          ",
+        "                              ",
+        "  Pàg 102       ESPai42        "
+      ]
+    },
+    {
+      "num": 103,
+      "title": "SERVEIS",
+      "lines": [
+        "                              ",
+        "  SERVEIS                      ",
+        "                              ",
+        "  * Coworking creatiu          ",
+        "  * Tallers equipats           ",
+        "  * Assessorament projectes    ",
+        "  * Produccio i prototipat     ",
+        "                              ",
+        "  * Activitats i formacions    ",
+        "  * Mostres i esdeveniments    ",
+        "                              ",
+        "  Per col·laborar: pàg 403     ",
+        "  Per contactar: pàg 401       ",
+        "                              ",
+        "  Pàg 103       ESPai42        "
+      ]
+    },
+    {
+      "num": 104,
+      "title": "ESPAI42",
+      "lines": [
+        "                              ",
+        "  ESPAI42                      ",
+        "                              ",
+        "  Associacio coworking         ",
+        "  creatiu per artesans         ",
+        "  i artistes de proximitat.    ",
+        "                              ",
+        "  Navega per colors: vermell   ",
+        "  espai · verd agenda · groc   ",
+        "  residents · blau contacte.   ",
+        "                              ",
+        "  Joc de la serp: pàg 501      ",
+        "  al banner verd inferior.     ",
+        "                              ",
+        "  Pàg 104       ESPai42        "
+      ]
+    },
+    {
+      "num": 201,
+      "title": "AGENDA",
+      "lines": [
+        "                              ",
+        "  AGENDA GENERAL               ",
+        "                              ",
+        "  DM  10:00  Portes obertes    ",
+        "  DC  18:30  Sessio coworking  ",
+        "  DV  19:00  Mostra resident   ",
+        "                              ",
+        "  Altres seccions agenda:      ",
+        "  202 Activitats               ",
+        "  203 Tallers                  ",
+        "  204 Convocatories            ",
+        "                              ",
+        "  Tornar al home: pàg 100      ",
+        "                              ",
+        "  Pàg 201       ESPai42        "
+      ]
+    },
+    {
+      "num": 202,
+      "title": "ACTIVITATS",
+      "lines": [
+        "                              ",
+        "  ACTIVITATS                   ",
+        "                              ",
+        "  Clubs creatius setmanals     ",
+        "  sessions critiques obertes   ",
+        "  i laboratoris col·laboratius ",
+        "                              ",
+        "  Calendari complet: pàg 201   ",
+        "  Tallers: pàg 203             ",
+        "                              ",
+        "  Convocatories: pàg 204       ",
+        "                              ",
+        "  Pàg 202       ESPai42        "
+      ]
+    },
+    {
+      "num": 203,
+      "title": "TALLERS",
+      "lines": [
+        "                              ",
+        "  TALLERS                      ",
+        "                              ",
+        "  Ceramica, vidre, textil      ",
+        "  maker basics i prototipat    ",
+        "  de projectes personals.      ",
+        "                              ",
+        "  Places i dates a agenda:     ",
+        "  pàg 201 i activitats 202.    ",
+        "                              ",
+        "  Convocatories: pàg 204       ",
+        "                              ",
+        "  Pàg 203       ESPai42        "
+      ]
+    },
+    {
+      "num": 204,
+      "title": "CONVOCATORIES",
+      "lines": [
+        "                              ",
+        "  CONVOCATORIES                ",
+        "                              ",
+        "  Obertura places residents    ",
+        "  i ajuts a produccio local.   ",
+        "                              ",
+        "  Consulta requisits per       ",
+        "  categories a secció groga.  ",
+        "                              ",
+        "  Contacte directe: pàg 401    ",
+        "                              ",
+        "  Pàg 204       ESPai42        "
+      ]
+    },
+    {
+      "num": 401,
+      "title": "CONTACTE",
+      "lines": [
+        "                              ",
+        "  CONTACTE                     ",
+        "                              ",
+        "  Correu: info@espai42.cat     ",
+        "  Web: https://espai42.org     ",
+        "                              ",
+        "  Horari secretaria:           ",
+        "  DM i DJ 17:00 - 20:00        ",
+        "                              ",
+        "  QR control + QR web oficial  ",
+        "  visibles en aquesta pàgina.  ",
+        "                              ",
+        "  Pàg 401       ESPai42        "
+      ]
+    },
+    {
+      "num": 402,
+      "title": "XARXES",
+      "lines": [
+        "                              ",
+        "  XARXES SOCIALS               ",
+        "                              ",
+        "  Instagram: @espai42          ",
+        "  Feed pixelat en preparacio   ",
+        "                              ",
+        "  Proper pas: ultimes imatges  ",
+        "  en miniatura estil teletext. ",
+        "                              ",
+        "  Web i contacte: pàg 401      ",
+        "                              ",
+        "  Pàg 402       ESPai42        "
+      ]
+    },
+    {
+      "num": 403,
+      "title": "PARTNERS",
+      "lines": [
+        "                              ",
+        "  PARTNERS I COLLABORACIONS    ",
+        "                              ",
+        "  Xarxa local de tallers,      ",
+        "  escoles i entitats culturals.",
+        "                              ",
+        "  Si vols col·laborar:         ",
+        "  partners@espai42.cat         ",
+        "                              ",
+        "  Tornar contacte: pàg 401     ",
+        "                              ",
+        "  Pàg 403       ESPai42        "
+      ]
+    },
+    {
+      "num": 501,
+      "title": "JOC SERP",
+      "lines": [
+        "                              ",
+        "  JOC DE LA SERP               ",
+        "                              ",
+        "  Control: COMENCA + fletxes   ",
+        "  al comandament mobil.        ",
+        "                              ",
+        "  El tauler apareix a la       ",
+        "  dreta de la pantalla TV.     ",
+        "                              ",
+        "  Tornar a inici: pàg 100      ",
+        "                              ",
+        "  Pàg 501       ESPai42        "
+      ]
+    },
+    {
+      "num": 502,
+      "title": "PARAULÒGIC",
+      "lines": [
+        "                              ",
+        "  PARAULÒGIC COMUNITARI        ",
+        "                              ",
+        "  Control: COMENCA + fletxes   ",
+        "  I botons ENVIAR/ESBORRAR     ",
+        "                              ",
+        "  LLETRA CENTRAL obligatòria   ",
+        "  Mínim 3 lletres per paraula  ",
+        "                              ",
+        "  Partides ràpides de 90s      ",
+        "  estil comunitari Espai42     ",
+        "                              ",
+        "  Pàg 502       ESPai42        "
       ]
     }
   ]

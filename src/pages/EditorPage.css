@@ -113,12 +113,14 @@
 }
 
 .pixel-modal {
-  width: min(92vw, 560px);
+  width: min(94vw, 640px);
   background: #111257;
   border: 1px solid #00ffff;
   padding: 0.9rem;
   display: grid;
   gap: 0.6rem;
+  max-height: 92vh;
+  overflow: auto;
 }
 
 .pixel-modal label {
@@ -133,7 +135,7 @@
 
 .pixel-preview {
   width: 100%;
-  max-height: 56vh;
+  max-height: 44vh;
   image-rendering: pixelated;
   border: 1px solid #334;
   background: #000;

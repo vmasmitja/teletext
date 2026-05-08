@@ -6,6 +6,7 @@ import "./EditorPage.css";
 type AuthState = { token: string | null; error: string | null; loading: boolean };
 type EditorMode = "RESIDENTS" | "ESPAI42" | "AGENDA" | "CONTACTE";
 type PixelEditorTarget = { sectionIdx: number; residentIdx: number } | null;
+type PixelPalette = "NONE" | "TELETEXT" | "GAMEBOY";
 
 function cloneContent(content: EditorContent): EditorContent {
   return {
@@ -36,9 +37,17 @@ export function EditorPage() {
   const [pixelSourceDataUrl, setPixelSourceDataUrl] = useState<string | null>(null);
   const [pixelScale, setPixelScale] = useState(8);
   const [pixelGray, setPixelGray] = useState(false);
+  const [pixelPalette, setPixelPalette] = useState<PixelPalette>("TELETEXT");
+  const [pixelOutputWidth, setPixelOutputWidth] = useState(420);
+  const [pixelCropZoom, setPixelCropZoom] = useState(1);
+  const [pixelCropX, setPixelCropX] = useState(0);
+  const [pixelCropY, setPixelCropY] = useState(0);
+  const [pixelBrightness, setPixelBrightness] = useState(0);
+  const [pixelInvert, setPixelInvert] = useState(false);
   const [pixelUploading, setPixelUploading] = useState(false);
   const sourceCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const previewCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const exportCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const usedPages = useMemo(() => {
     const set = new Set<number>();
@@ -146,6 +155,13 @@ export function EditorPage() {
       setPixelEditorTarget({ sectionIdx, residentIdx });
       setPixelScale(8);
       setPixelGray(false);
+      setPixelPalette("TELETEXT");
+      setPixelOutputWidth(420);
+      setPixelCropZoom(1);
+      setPixelCropX(0);
+      setPixelCropY(0);
+      setPixelBrightness(0);
+      setPixelInvert(false);
     };
     reader.readAsDataURL(file);
   }
@@ -177,49 +193,130 @@ export function EditorPage() {
   useEffect(() => {
     if (!pixelEditorTarget) return;
     renderPixelPreview();
-  }, [pixelScale, pixelGray, pixelEditorTarget]);
+  }, [pixelScale, pixelGray, pixelEditorTarget, pixelPalette, pixelOutputWidth, pixelCropZoom, pixelCropX, pixelCropY, pixelBrightness, pixelInvert]);
 
   function renderPixelPreview() {
     const srcCanvas = sourceCanvasRef.current;
     const dstCanvas = previewCanvasRef.current;
-    if (!srcCanvas || !dstCanvas || !srcCanvas.width || !srcCanvas.height) return;
-    const dw = Math.min(420, srcCanvas.width);
+    const outCanvas = exportCanvasRef.current;
+    if (!srcCanvas || !dstCanvas || !outCanvas || !srcCanvas.width || !srcCanvas.height) return;
+    const dw = Math.max(160, Math.min(1200, pixelOutputWidth));
     const ratio = srcCanvas.height / srcCanvas.width;
     const dh = Math.max(1, Math.round(dw * ratio));
-    dstCanvas.width = dw;
-    dstCanvas.height = dh;
-    const dctx = dstCanvas.getContext("2d");
-    if (!dctx) return;
-    dctx.imageSmoothingEnabled = false;
+    const previewW = Math.min(520, dw);
+    const previewH = Math.max(1, Math.round(previewW * ratio));
+    renderProcessedCanvas(srcCanvas, outCanvas, dw, dh);
+    renderProcessedCanvas(srcCanvas, dstCanvas, previewW, previewH);
+  }
+
+  function renderProcessedCanvas(srcCanvas: HTMLCanvasElement, targetCanvas: HTMLCanvasElement, targetW: number, targetH: number) {
+    const srcW = srcCanvas.width;
+    const srcH = srcCanvas.height;
+    const zoom = Math.max(1, pixelCropZoom);
+    const cropW = srcW / zoom;
+    const cropH = srcH / zoom;
+    const maxOffsetX = (srcW - cropW) / 2;
+    const maxOffsetY = (srcH - cropH) / 2;
+    const centerX = srcW / 2 + (pixelCropX / 100) * maxOffsetX;
+    const centerY = srcH / 2 + (pixelCropY / 100) * maxOffsetY;
+    const sx = Math.max(0, Math.min(srcW - cropW, centerX - cropW / 2));
+    const sy = Math.max(0, Math.min(srcH - cropH, centerY - cropH / 2));
+    const work = document.createElement("canvas");
+    work.width = targetW;
+    work.height = targetH;
+    const wctx = work.getContext("2d");
+    if (!wctx) return;
+    wctx.imageSmoothingEnabled = false;
+    wctx.clearRect(0, 0, targetW, targetH);
+    wctx.drawImage(srcCanvas, sx, sy, cropW, cropH, 0, 0, targetW, targetH);
     const scale = Math.max(2, pixelScale);
-    const tinyW = Math.max(1, Math.floor(dw / scale));
-    const tinyH = Math.max(1, Math.floor(dh / scale));
+    const tinyW = Math.max(1, Math.floor(targetW / scale));
+    const tinyH = Math.max(1, Math.floor(targetH / scale));
     const tiny = document.createElement("canvas");
     tiny.width = tinyW;
     tiny.height = tinyH;
     const tctx = tiny.getContext("2d");
     if (!tctx) return;
     tctx.imageSmoothingEnabled = false;
-    tctx.drawImage(srcCanvas, 0, 0, tinyW, tinyH);
-    if (pixelGray) {
-      const imgData = tctx.getImageData(0, 0, tinyW, tinyH);
-      const data = imgData.data;
-      for (let i = 0; i < data.length; i += 4) {
-        const gray = Math.round(data[i] * 0.3 + data[i + 1] * 0.59 + data[i + 2] * 0.11);
-        data[i] = gray;
-        data[i + 1] = gray;
-        data[i + 2] = gray;
+    tctx.drawImage(work, 0, 0, tinyW, tinyH);
+    const imgData = tctx.getImageData(0, 0, tinyW, tinyH);
+    applyPixelFilters(imgData.data);
+    tctx.putImageData(imgData, 0, 0);
+    targetCanvas.width = targetW;
+    targetCanvas.height = targetH;
+    const dctx = targetCanvas.getContext("2d");
+    if (!dctx) return;
+    dctx.imageSmoothingEnabled = false;
+    dctx.clearRect(0, 0, targetW, targetH);
+    dctx.drawImage(tiny, 0, 0, targetW, targetH);
+  }
+
+  function applyPixelFilters(data: Uint8ClampedArray) {
+    const paletteMap: Record<Exclude<PixelPalette, "NONE">, number[][]> = {
+      TELETEXT: [
+        [0, 0, 0],
+        [255, 255, 255],
+        [255, 0, 0],
+        [0, 255, 255],
+        [255, 0, 255],
+        [0, 255, 0],
+        [0, 0, 255],
+        [255, 255, 0],
+      ],
+      GAMEBOY: [
+        [15, 56, 15],
+        [48, 98, 48],
+        [139, 172, 15],
+        [155, 188, 15],
+      ],
+    };
+    const palette = pixelPalette === "NONE" ? null : paletteMap[pixelPalette];
+    const brightnessOffset = Math.round((pixelBrightness / 100) * 70);
+    for (let i = 0; i < data.length; i += 4) {
+      let r = data[i] + brightnessOffset;
+      let g = data[i + 1] + brightnessOffset;
+      let b = data[i + 2] + brightnessOffset;
+      if (pixelGray) {
+        const gray = Math.round(r * 0.3 + g * 0.59 + b * 0.11);
+        r = gray;
+        g = gray;
+        b = gray;
       }
-      tctx.putImageData(imgData, 0, 0);
+      if (pixelInvert) {
+        r = 255 - r;
+        g = 255 - g;
+        b = 255 - b;
+      }
+      r = Math.max(0, Math.min(255, r));
+      g = Math.max(0, Math.min(255, g));
+      b = Math.max(0, Math.min(255, b));
+      if (palette) {
+        let best = palette[0];
+        let bestDist = Number.POSITIVE_INFINITY;
+        for (const color of palette) {
+          const dr = r - color[0];
+          const dg = g - color[1];
+          const db = b - color[2];
+          const dist = dr * dr + dg * dg + db * db;
+          if (dist < bestDist) {
+            bestDist = dist;
+            best = color;
+          }
+        }
+        r = best[0];
+        g = best[1];
+        b = best[2];
+      }
+      data[i] = r;
+      data[i + 1] = g;
+      data[i + 2] = b;
     }
-    dctx.clearRect(0, 0, dw, dh);
-    dctx.drawImage(tiny, 0, 0, dw, dh);
   }
 
   async function uploadPixelEditedResidentImage() {
-    if (!auth.token || !pixelEditorTarget || !previewCanvasRef.current) return;
+    if (!auth.token || !pixelEditorTarget || !exportCanvasRef.current) return;
     setPixelUploading(true);
-    const blob = await new Promise<Blob | null>((resolve) => previewCanvasRef.current!.toBlob(resolve, "image/png"));
+    const blob = await new Promise<Blob | null>((resolve) => exportCanvasRef.current!.toBlob(resolve, "image/png"));
     if (!blob) {
       setPixelUploading(false);
       return;
@@ -509,15 +606,48 @@ export function EditorPage() {
               Intensitat pixelat: {pixelScale}
               <input type="range" min={2} max={24} value={pixelScale} onChange={(e) => setPixelScale(Number(e.target.value))} />
             </label>
+            <label>
+              Mida eixida (ample): {pixelOutputWidth}px
+              <input type="range" min={220} max={900} step={10} value={pixelOutputWidth} onChange={(e) => setPixelOutputWidth(Number(e.target.value))} />
+            </label>
+            <label>
+              Zoom retall: {pixelCropZoom.toFixed(2)}x
+              <input type="range" min={1} max={3} step={0.05} value={pixelCropZoom} onChange={(e) => setPixelCropZoom(Number(e.target.value))} />
+            </label>
+            <label>
+              Retall horitzontal: {pixelCropX}
+              <input type="range" min={-100} max={100} value={pixelCropX} onChange={(e) => setPixelCropX(Number(e.target.value))} />
+            </label>
+            <label>
+              Retall vertical: {pixelCropY}
+              <input type="range" min={-100} max={100} value={pixelCropY} onChange={(e) => setPixelCropY(Number(e.target.value))} />
+            </label>
+            <label>
+              Brillantor: {pixelBrightness}
+              <input type="range" min={-100} max={100} value={pixelBrightness} onChange={(e) => setPixelBrightness(Number(e.target.value))} />
+            </label>
+            <label>
+              Paleta
+              <select value={pixelPalette} onChange={(e) => setPixelPalette(e.target.value as PixelPalette)}>
+                <option value="TELETEXT">Teletext (8 colors)</option>
+                <option value="GAMEBOY">Game Boy (4 colors)</option>
+                <option value="NONE">Sense paleta</option>
+              </select>
+            </label>
             <label className="pixel-check">
               <input type="checkbox" checked={pixelGray} onChange={(e) => setPixelGray(e.target.checked)} />
               Escala de grisos
             </label>
+            <label className="pixel-check">
+              <input type="checkbox" checked={pixelInvert} onChange={(e) => setPixelInvert(e.target.checked)} />
+              Invertir colors
+            </label>
             <canvas ref={previewCanvasRef} className="pixel-preview" />
+            <canvas ref={exportCanvasRef} style={{ display: "none" }} />
             <canvas ref={sourceCanvasRef} style={{ display: "none" }} />
             <div className="pixel-actions">
               <button type="button" onClick={closePixelEditor} disabled={pixelUploading}>
-                Cancel lar
+                Cancelar edicio
               </button>
               <button type="button" onClick={uploadPixelEditedResidentImage} disabled={pixelUploading}>
                 {pixelUploading ? "Pujant..." : "Aplicar i pujar"}
