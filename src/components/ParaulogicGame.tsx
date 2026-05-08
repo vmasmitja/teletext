@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { playTone } from "../audio";
 import "./ParaulogicGame.css";
 
-type Control = "up" | "down" | "left" | "right" | "submit" | "backspace" | "shuffle" | null;
+type Control = "up" | "down" | "left" | "right" | "start" | "submit" | "backspace" | "shuffle" | null;
 type StatusTone = "neutral" | "ok" | "warn" | "error";
 
 const CENTER = "A";
@@ -18,6 +18,15 @@ const HONEYCOMB_CLASS_BY_INDEX = [
   "bottom-left",
   "top-left",
 ];
+const HONEYCOMB_NAV: Record<number, Record<"up" | "down" | "left" | "right", number>> = {
+  0: { up: 1, down: 4, left: 6, right: 2 },
+  1: { up: 1, down: 0, left: 6, right: 2 },
+  2: { up: 2, down: 3, left: 1, right: 2 },
+  3: { up: 2, down: 4, left: 0, right: 3 },
+  4: { up: 0, down: 4, left: 5, right: 3 },
+  5: { up: 6, down: 5, left: 5, right: 0 },
+  6: { up: 6, down: 5, left: 6, right: 1 },
+};
 
 const FALLBACK_WORDS = [
   "art",
@@ -139,6 +148,7 @@ export function ParaulogicGame({
 
   useEffect(() => {
     if (startTick <= 0) return;
+    if (running && timeLeft > 0) return;
     setOuter(shuffleArray(OUTER_BASE));
     setSelected(0);
     setCurrentWord("");
@@ -152,7 +162,7 @@ export function ParaulogicGame({
     sentOverRef.current = false;
     playTone(540, 110, "square", 0.14);
     window.setTimeout(() => playTone(760, 130, "square", 0.14), 110);
-  }, [startTick]);
+  }, [running, startTick, timeLeft]);
 
   useEffect(() => {
     if (!running || !active) return;
@@ -181,12 +191,13 @@ export function ParaulogicGame({
     if (handledControlSeqRef.current === controlSeq) return;
     handledControlSeqRef.current = controlSeq;
     if (!running || !control) return;
-    if (control === "left" || control === "up") {
-      setSelected((s) => (s - 1 + letters.length) % letters.length);
+    if (control === "left" || control === "up" || control === "right" || control === "down") {
+      setSelected((s) => HONEYCOMB_NAV[s]?.[control] ?? s);
       return;
     }
-    if (control === "right" || control === "down") {
-      setSelected((s) => (s + 1) % letters.length);
+    if (control === "start") {
+      setCurrentWord((w) => (w + letters[selected]).slice(0, 16));
+      setLastPoints(null);
       return;
     }
     if (control === "shuffle") {
@@ -252,7 +263,6 @@ export function ParaulogicGame({
       playTone(980, 90, "square", 0.14);
       return;
     }
-    setCurrentWord((w) => (w + letters[selected]).slice(0, 16));
   }, [allowedLetters, control, controlSeq, currentWord, found, letters, running, selected, validWords]);
 
   return (

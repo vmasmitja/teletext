@@ -24,7 +24,18 @@ export function DisplayPage() {
   const [audioUnlocked, setAudioUnlocked] = useState(() => isAudioUnlockedStored());
   const [audioRunning, setAudioRunning] = useState(() => getAudioState() === "running");
   const [showWelcome, setShowWelcome] = useState(false);
-  const [igPosts, setIgPosts] = useState<Array<{ id: string; mediaType?: string; mediaUrl: string; caption: string; permalink: string }>>([]);
+  const [igPosts, setIgPosts] = useState<
+    Array<{
+      id: string;
+      mediaType?: string;
+      mediaUrl: string;
+      caption: string;
+      permalink: string;
+      likeCount?: number;
+      commentCount?: number;
+      timestamp?: string;
+    }>
+  >([]);
   const [igDirectMediaById, setIgDirectMediaById] = useState<Record<string, boolean>>({});
   const [igEnabled, setIgEnabled] = useState(false);
   const [igIndex, setIgIndex] = useState(0);
@@ -160,7 +171,20 @@ export function DisplayPage() {
     let alive = true;
     fetch("/api/instagram/latest?refresh=1")
       .then((r) => r.json())
-      .then((data: { enabled?: boolean; posts?: Array<{ id: string; mediaType?: string; mediaUrl: string; caption: string; permalink: string }> }) => {
+      .then(
+        (data: {
+          enabled?: boolean;
+          posts?: Array<{
+            id: string;
+            mediaType?: string;
+            mediaUrl: string;
+            caption: string;
+            permalink: string;
+            likeCount?: number;
+            commentCount?: number;
+            timestamp?: string;
+          }>;
+        }) => {
         if (!alive) return;
         setIgEnabled(Boolean(data?.enabled));
         setIgPosts(Array.isArray(data?.posts) ? data.posts : []);
@@ -342,7 +366,11 @@ export function DisplayPage() {
                 )}
               </div>
             </a>
-            <div className="display-instagram-caption">{(igPosts[igIndex].caption || "").slice(0, 84) || "Post d'Instagram"}</div>
+            <div className="display-instagram-caption">{igPosts[igIndex].caption || "Post d'Instagram"}</div>
+            <div className="display-instagram-meta">
+              ♥ {typeof igPosts[igIndex].likeCount === "number" ? igPosts[igIndex].likeCount : "n/d"} ·
+              🗨 {typeof igPosts[igIndex].commentCount === "number" ? igPosts[igIndex].commentCount : "n/d"}
+            </div>
             {igPosts.length > 1 && (
               <div className="display-instagram-controls">
                 <button type="button" onClick={() => setIgIndex((i) => (i - 1 + igPosts.length) % igPosts.length)}>

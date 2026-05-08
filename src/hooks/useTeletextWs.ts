@@ -9,7 +9,7 @@ export function useTeletextWs(room: string, role: Role) {
   const [connected, setConnected] = useState(false);
   const [hasRemote, setHasRemote] = useState(false);
   const [lastControl, setLastControl] = useState<
-    "up" | "down" | "left" | "right" | "submit" | "backspace" | "shuffle" | null
+    "up" | "down" | "left" | "right" | "start" | "submit" | "backspace" | "shuffle" | null
   >(null);
   const [controlSeq, setControlSeq] = useState(0);
   const [startTick, setStartTick] = useState(0);
@@ -49,7 +49,7 @@ export function useTeletextWs(room: string, role: Role) {
         if (msg.type === "presence" && typeof msg.hasRemote === "boolean") {
           setHasRemote(msg.hasRemote);
         }
-        if (msg.type === "control" && msg.action && ["up", "down", "left", "right", "submit", "backspace", "shuffle"].includes(msg.action)) {
+        if (msg.type === "control" && msg.action && ["up", "down", "left", "right", "start", "submit", "backspace", "shuffle"].includes(msg.action)) {
           setLastControl(msg.action);
           setControlSeq((s) => s + 1);
         }

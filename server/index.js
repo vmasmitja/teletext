@@ -17,6 +17,7 @@ const editorTokens = new Map();
 const instagramCache = { expiresAt: 0, payload: null };
 const gameScoresFile = path.join(root, "game-scores.json");
 const paraulogicWordsFile = path.join(root, "paraulogic-words.json");
+const instagramManualCacheFile = path.join(root, "server", "data", "instagram-manual-cache.json");
 
 /** @typedef {"snake" | "paraulogic"} GameKey */
 
@@ -153,6 +154,155 @@ async function fetchInstagramMediaJson(userId, accessToken) {
   throw new Error(msg);
 }
 
+function decodeHtmlAttr(value) {
+  return String(value || "").replace(/&amp;/g, "&").trim();
+}
+
+function parseMetaContent(html, property) {
+  const esc = property.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const re = new RegExp(`<meta[^>]+property=["']${esc}["'][^>]*content=["']([^"']+)["']`, "i");
+  const m = html.match(re);
+  return m ? decodeHtmlAttr(m[1]) : "";
+}
+
+async function fetchInstagramPublicFallback(username) {
+  const clean = String(username || "").trim().replace(/^@/, "") || "espai42";
+  const profileApiUrl = `https://www.instagram.com/api/v1/users/web_profile_info/?username=${encodeURIComponent(clean)}`;
+  const profileApiRes = await fetch(profileApiUrl, {
+    headers: {
+      "User-Agent":
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1",
+      "x-ig-app-id": "936619743392459",
+      "x-requested-with": "XMLHttpRequest",
+      Referer: `https://www.instagram.com/${encodeURIComponent(clean)}/`,
+      Accept: "application/json",
+      "Accept-Language": "en-US,en;q=0.9",
+    },
+    redirect: "follow",
+  });
+  if (profileApiRes.ok) {
+    const payload = await profileApiRes.json().catch(() => null);
+    const edges = payload?.data?.user?.edge_owner_to_timeline_media?.edges;
+    if (Array.isArray(edges) && edges.length > 0) {
+      const node = edges[0]?.node || {};
+      const shortcode = String(node.shortcode || "").trim();
+      const mediaUrl = String(node.video_url || node.display_url || "").trim();
+      if (shortcode && mediaUrl) {
+        const likeCountRaw = node?.edge_liked_by?.count ?? node?.edge_media_preview_like?.count;
+        const likeCount = Number(likeCountRaw);
+        const commentCountRaw = node?.edge_media_to_comment?.count;
+        const commentCount = Number(commentCountRaw);
+        return [
+          {
+            id: `fallback_${shortcode}`,
+            mediaType: node.is_video ? "VIDEO" : "IMAGE",
+            caption: String(node.edge_media_to_caption?.edges?.[0]?.node?.text || ""),
+            mediaUrl,
+            permalink: `https://www.instagram.com/p/${shortcode}/`,
+            likeCount: Number.isFinite(likeCount) ? Math.max(0, Math.floor(likeCount)) : undefined,
+            commentCount: Number.isFinite(commentCount) ? Math.max(0, Math.floor(commentCount)) : undefined,
+            timestamp: "",
+          },
+        ];
+      }
+    }
+  }
+
+  const profileUrl = `https://www.instagram.com/${encodeURIComponent(clean)}/`;
+  const profileRes = await fetch(profileUrl, {
+    headers: { "User-Agent": "Mozilla/5.0 Espai42-Teletext/1" },
+    redirect: "follow",
+  });
+  if (!profileRes.ok) throw new Error(`instagram_profile_unavailable_${profileRes.status}`);
+  const profileHtml = await profileRes.text();
+  const postMatch =
+    profileHtml.match(/https?:\/\/www\.instagram\.com\/(p|reel)\/([A-Za-z0-9_-]+)\//i) ||
+    profileHtml.match(/https?:\\\/\\\/www\.instagram\.com\\\/(p|reel)\\\/([A-Za-z0-9_-]+)\\\//i) ||
+    profileHtml.match(/href=["']\/(p|reel)\/([A-Za-z0-9_-]+)\//i);
+  if (!postMatch) throw new Error("instagram_public_post_not_found");
+  const kind = postMatch[1] === "reel" ? "reel" : "p";
+  const shortcode = postMatch[2];
+  const permalink = `https://www.instagram.com/${kind}/${shortcode}/`;
+  const postRes = await fetch(permalink, {
+    headers: { "User-Agent": "Mozilla/5.0 Espai42-Teletext/1" },
+    redirect: "follow",
+  });
+  if (!postRes.ok) throw new Error(`instagram_post_unavailable_${postRes.status}`);
+  const postHtml = await postRes.text();
+  const videoUrl = parseMetaContent(postHtml, "og:video") || parseMetaContent(postHtml, "og:video:secure_url");
+  const imageUrl = parseMetaContent(postHtml, "og:image");
+  const caption = parseMetaContent(postHtml, "og:description");
+  const mediaUrl = videoUrl || imageUrl;
+  if (!mediaUrl) throw new Error("instagram_public_media_not_found");
+  return [
+    {
+      id: `fallback_${shortcode}`,
+      mediaType: videoUrl ? "VIDEO" : "IMAGE",
+      caption,
+      mediaUrl,
+      permalink,
+      timestamp: "",
+    },
+  ];
+}
+
+async function fetchInstagramGuestFeed(url) {
+  const endpoint = String(url || "").trim();
+  if (!endpoint) return [];
+  const r = await fetch(endpoint, {
+    headers: { Accept: "application/json", "User-Agent": "Mozilla/5.0 Espai42-Teletext/1" },
+    redirect: "follow",
+  });
+  if (!r.ok) throw new Error(`instagram_guest_feed_http_${r.status}`);
+  const payload = await r.json().catch(() => null);
+  const rawPosts = Array.isArray(payload) ? payload : Array.isArray(payload?.posts) ? payload.posts : [];
+  const posts = rawPosts
+    .map((p, idx) => {
+      const mediaUrl = String(p?.mediaUrl || p?.media_url || p?.url || p?.image || p?.thumbnail || "").trim();
+      if (!mediaUrl) return null;
+      const permalink = String(p?.permalink || p?.link || p?.postUrl || p?.post_url || "").trim();
+      const mediaType = String(p?.mediaType || p?.media_type || p?.type || "").toUpperCase();
+      return {
+        id: String(p?.id || `guest_${idx}`),
+        mediaType: mediaType === "VIDEO" || mediaType === "REEL" ? "VIDEO" : "IMAGE",
+        caption: String(p?.caption || p?.title || ""),
+        mediaUrl,
+        permalink: permalink || "https://instagram.com/espai42",
+        likeCount: Number.isFinite(Number(p?.likeCount ?? p?.like_count ?? p?.likes)) ? Math.max(0, Math.floor(Number(p?.likeCount ?? p?.like_count ?? p?.likes))) : undefined,
+        commentCount: Number.isFinite(Number(p?.commentCount ?? p?.comment_count ?? p?.comments)) ? Math.max(0, Math.floor(Number(p?.commentCount ?? p?.comment_count ?? p?.comments))) : undefined,
+        timestamp: String(p?.timestamp || ""),
+      };
+    })
+    .filter(Boolean);
+  return posts;
+}
+
+function loadInstagramManualCache() {
+  try {
+    if (!fs.existsSync(instagramManualCacheFile)) return [];
+    const raw = JSON.parse(fs.readFileSync(instagramManualCacheFile, "utf-8"));
+    const posts = Array.isArray(raw?.posts) ? raw.posts : [];
+    return posts
+      .map((p, idx) => {
+        const mediaUrl = String(p?.mediaUrl || p?.media_url || "").trim();
+        if (!mediaUrl) return null;
+        return {
+          id: String(p?.id || `manual_${idx}`),
+          mediaType: String(p?.mediaType || p?.media_type || "IMAGE").toUpperCase() === "VIDEO" ? "VIDEO" : "IMAGE",
+          caption: String(p?.caption || ""),
+          mediaUrl,
+          permalink: String(p?.permalink || "https://instagram.com/espai42"),
+          likeCount: Number.isFinite(Number(p?.likeCount ?? p?.like_count ?? p?.likes)) ? Math.max(0, Math.floor(Number(p?.likeCount ?? p?.like_count ?? p?.likes))) : undefined,
+          commentCount: Number.isFinite(Number(p?.commentCount ?? p?.comment_count ?? p?.comments)) ? Math.max(0, Math.floor(Number(p?.commentCount ?? p?.comment_count ?? p?.comments))) : undefined,
+          timestamp: String(p?.timestamp || ""),
+        };
+      })
+      .filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+
 /** @param {Record<string, unknown>} p */
 function mapInstagramPost(p) {
   const t = String(p.media_type || "");
@@ -183,6 +333,8 @@ function mapInstagramPost(p) {
     caption: String(p.caption || ""),
     mediaUrl,
     permalink: String(p.permalink || ""),
+    likeCount: Number.isFinite(Number(p.like_count)) ? Math.max(0, Math.floor(Number(p.like_count))) : undefined,
+    commentCount: Number.isFinite(Number(p.comment_count)) ? Math.max(0, Math.floor(Number(p.comment_count))) : undefined,
     timestamp: String(p.timestamp || ""),
   };
 }
@@ -364,14 +516,50 @@ async function buildApp() {
   app.get("/api/instagram/latest", async (req, res) => {
     const userId = process.env.IG_USER_ID;
     const accessToken = process.env.IG_ACCESS_TOKEN;
-    if (!userId || !accessToken) {
-      res.json({ enabled: false, posts: [] });
-      return;
-    }
+    const igUsername = process.env.IG_USERNAME || "espai42";
+    const guestFeedUrl = process.env.IG_GUEST_FEED_URL || "";
     const skipCache = req.query?.refresh != null || req.query?.fresh != null;
     if (!skipCache && instagramCache.payload && instagramCache.expiresAt > Date.now()) {
       res.json(instagramCache.payload);
       return;
+    }
+    if (!userId || !accessToken) {
+      try {
+        const posts = await fetchInstagramPublicFallback(igUsername);
+        const payload = { enabled: true, source: "public_fallback", posts };
+        instagramCache.payload = payload;
+        instagramCache.expiresAt = Date.now() + 5 * 60 * 1000;
+        res.json(payload);
+        return;
+      } catch (e) {
+        try {
+          const posts = await fetchInstagramGuestFeed(guestFeedUrl);
+          if (posts.length > 0) {
+            const payload = { enabled: true, source: "guest_feed", posts };
+            instagramCache.payload = payload;
+            instagramCache.expiresAt = Date.now() + 5 * 60 * 1000;
+            res.json(payload);
+            return;
+          }
+        } catch {
+          // ignore and continue returning unavailable
+        }
+        const manualPosts = loadInstagramManualCache();
+        if (manualPosts.length > 0) {
+          const payload = { enabled: true, source: "manual_cache", posts: manualPosts };
+          instagramCache.payload = payload;
+          instagramCache.expiresAt = Date.now() + 30 * 60 * 1000;
+          res.json(payload);
+          return;
+        }
+        res.json({
+          enabled: false,
+          posts: [],
+          error: "instagram_unavailable",
+          message: req.query.debug != null ? (e instanceof Error ? e.message : String(e)) : undefined,
+        });
+        return;
+      }
     }
     try {
       const data = await fetchInstagramMediaJson(userId, accessToken);
@@ -382,13 +570,46 @@ async function buildApp() {
       instagramCache.expiresAt = Date.now() + 5 * 60 * 1000;
       res.json(payload);
     } catch (e) {
-      console.warn("[instagram]", e instanceof Error ? e.message : e);
-      res.status(200).json({
-        enabled: false,
-        posts: [],
-        error: "instagram_unavailable",
-        message: req.query.debug != null ? (e instanceof Error ? e.message : String(e)) : undefined,
-      });
+      const graphErr = e instanceof Error ? e.message : String(e);
+      console.warn("[instagram] graph failed:", graphErr);
+      try {
+        const posts = await fetchInstagramPublicFallback(igUsername);
+        const payload = { enabled: true, source: "public_fallback", posts };
+        instagramCache.payload = payload;
+        instagramCache.expiresAt = Date.now() + 5 * 60 * 1000;
+        res.json(payload);
+      } catch (fallbackErr) {
+        try {
+          const posts = await fetchInstagramGuestFeed(guestFeedUrl);
+          if (posts.length > 0) {
+            const payload = { enabled: true, source: "guest_feed", posts };
+            instagramCache.payload = payload;
+            instagramCache.expiresAt = Date.now() + 5 * 60 * 1000;
+            res.json(payload);
+            return;
+          }
+        } catch {
+          // ignore and continue returning unavailable
+        }
+        const manualPosts = loadInstagramManualCache();
+        if (manualPosts.length > 0) {
+          const payload = { enabled: true, source: "manual_cache", posts: manualPosts };
+          instagramCache.payload = payload;
+          instagramCache.expiresAt = Date.now() + 30 * 60 * 1000;
+          res.json(payload);
+          return;
+        }
+        console.warn("[instagram] fallback failed:", fallbackErr instanceof Error ? fallbackErr.message : fallbackErr);
+        res.status(200).json({
+          enabled: false,
+          posts: [],
+          error: "instagram_unavailable",
+          message:
+            req.query.debug != null
+              ? `graph: ${graphErr}; fallback: ${fallbackErr instanceof Error ? fallbackErr.message : String(fallbackErr)}`
+              : undefined,
+        });
+      }
     }
   });
 

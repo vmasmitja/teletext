@@ -89,7 +89,7 @@
 .display-waiting {
   position: absolute;
   inset: 0;
-  z-index: 25;
+  z-index: 35;
   display: grid;
   place-content: center;
   gap: 0.8rem;
@@ -324,12 +324,13 @@
 /* Columna dreta: no tapar el teletext de l’esquerra (~52vw / 42ch) */
 .display-instagram-carousel {
   position: absolute;
-  right: clamp(0.75rem, 2vw, 1.75rem);
-  left: auto;
-  bottom: clamp(5vh, 7vw, 10vh);
-  transform: none;
-  width: min(38vw, 480px);
-  max-width: min(42vw, calc(100vw - min(54vw, 44ch)));
+  left: min(54vw, 44ch);
+  right: clamp(1.2rem, 2.6vw, 2.2rem);
+  top: clamp(19vh, 21vh, 23vh);
+  bottom: clamp(8.5vh, 10vh, 11vh);
+  transform: translateX(clamp(1.2rem, 2.4vw, 2rem));
+  width: auto;
+  max-width: none;
   z-index: 28;
   border: none;
   background: transparent;
@@ -337,9 +338,10 @@
   box-shadow: none;
   display: flex;
   flex-direction: column;
-  align-items: stretch;
-  text-align: right;
-  gap: 0.35rem;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: center;
+  gap: 0.2rem;
 }
 
 .display-instagram-title {
@@ -353,8 +355,8 @@
 .display-instagram-link {
   display: block;
   text-decoration: none;
-  width: 100%;
-  max-width: 100%;
+  width: min(100%, 540px);
+  max-width: min(100%, 540px);
 }
 
 /* Downsample then upscale so image-rendering: pixelated shows chunky blocks */
@@ -410,21 +412,32 @@
 }
 
 .display-instagram-caption {
-  margin: 0;
-  max-width: 100%;
+  margin: 0.08rem 0 0;
+  max-width: min(100%, 540px);
   color: #ffffff;
   font-family: "VT323", monospace;
-  font-size: clamp(0.98rem, 1.2vw, 1.25rem);
+  font-size: clamp(0.98rem, 1.2vw, 1.2rem);
   line-height: 1.12;
   text-shadow: 1px 1px 0 #000044;
-  text-align: right;
+  text-align: center;
+  max-height: 2.35em;
+  overflow: hidden;
+}
+
+.display-instagram-meta {
+  color: #00ffff;
+  font-family: "VT323", monospace;
+  font-size: clamp(0.98rem, 1.15vw, 1.2rem);
+  text-align: center;
+  margin-top: 0.08rem;
+  text-shadow: 1px 1px 0 #000044;
 }
 
 .display-instagram-controls {
-  margin-top: 0.1rem;
+  margin-top: 0;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
   gap: 1rem;
   color: #00ffff;
   font-family: "VT323", monospace;
@@ -446,9 +459,15 @@
 
 @media (max-width: 900px) {
   .display-instagram-carousel {
-    right: 0.5rem;
-    width: min(46vw, 300px);
-    max-width: 46vw;
+    left: min(58vw, 43ch);
+    right: 0.55rem;
+    top: 17vh;
+    bottom: 10vh;
+  }
+
+  .display-instagram-link,
+  .display-instagram-caption {
+    max-width: 100%;
   }
 }
 
