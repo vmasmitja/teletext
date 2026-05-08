@@ -428,6 +428,9 @@ export function EditorPage() {
         </div>
       </header>
       <div className="editor-status">{status}</div>
+      <div className="editor-layout-help">
+        <strong>Tip maquetacio:</strong> Snap ON/OFF i pas snap en %. Durant arrossegar: <strong>Alt</strong> desactiva snap temporalment i <strong>Shift</strong> aplica pas x2.
+      </div>
       <div className="editor-mode-tabs">
         {(["RESIDENTS", "ESPAI42", "AGENDA", "CONTACTE"] as EditorMode[]).map((m) => (
           <button key={m} className={mode === m ? "active" : ""} type="button" onClick={() => switchMode(m)}>

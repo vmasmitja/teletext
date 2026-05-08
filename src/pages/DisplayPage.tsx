@@ -321,17 +321,19 @@ export function DisplayPage({ layoutMode = false, layoutToken = null }: DisplayP
       const vh = Math.max(1, window.innerHeight);
       const dx = ((e.clientX - drag.startX) / vw) * 100;
       const dy = ((e.clientY - drag.startY) / vh) * 100;
+      const snapStepEffective = e.shiftKey ? layoutSnapStep * 2 : layoutSnapStep;
+      const snapActive = layoutSnapEnabled && !e.altKey;
       const next = { ...drag.rect };
       if (drag.mode === "move") {
         const rawX = clamp(drag.rect.x + dx, 0, 100 - next.w);
         const rawY = clamp(drag.rect.y + dy, 0, 100 - next.h);
-        next.x = layoutSnapEnabled ? clamp(snapValue(rawX, layoutSnapStep), 0, 100 - next.w) : rawX;
-        next.y = layoutSnapEnabled ? clamp(snapValue(rawY, layoutSnapStep), 0, 100 - next.h) : rawY;
+        next.x = snapActive ? clamp(snapValue(rawX, snapStepEffective), 0, 100 - next.w) : rawX;
+        next.y = snapActive ? clamp(snapValue(rawY, snapStepEffective), 0, 100 - next.h) : rawY;
       } else {
         const rawW = clamp(drag.rect.w + dx, 6, 100 - drag.rect.x);
         const rawH = clamp(drag.rect.h + dy, 6, 100 - drag.rect.y);
-        next.w = layoutSnapEnabled ? clamp(snapValue(rawW, layoutSnapStep), 6, 100 - drag.rect.x) : rawW;
-        next.h = layoutSnapEnabled ? clamp(snapValue(rawH, layoutSnapStep), 6, 100 - drag.rect.y) : rawH;
+        next.w = snapActive ? clamp(snapValue(rawW, snapStepEffective), 6, 100 - drag.rect.x) : rawW;
+        next.h = snapActive ? clamp(snapValue(rawH, snapStepEffective), 6, 100 - drag.rect.y) : rawH;
       }
       setLayoutDraft((prev) => ({ ...prev, [drag.key]: next }));
       setLayoutDirty(true);
@@ -591,6 +593,7 @@ export function DisplayPage({ layoutMode = false, layoutToken = null }: DisplayP
                 }}
               />
             </label>
+            <span>Alt: snap temporal OFF · Shift: pas x2</span>
             <label>
               Copiar des de
               <input value={layoutCopyFromPage} onChange={(e) => setLayoutCopyFromPage(e.target.value)} />

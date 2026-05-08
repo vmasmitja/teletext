@@ -75,6 +75,7 @@ Mode visual protegit (mateixa sessió d'editor) per composar la pàgina TV amb r
 - moure i redimensionar blocs amb persistència a `server/data/layout-config.json`
 - mostrar/ocultar guies de maquetació
 - snap a graella configurable (pas de snap en %)
+- dreceres de precisió: `Alt` desactiva snap temporalment, `Shift` aplica pas x2
 - bloquejar/desbloquejar slots per evitar moviments accidentals
 - copiar layout entre pàgines (`copiar des de`)
 
@@ -246,6 +247,7 @@ Modo visual protegido (misma sesión de editor) para componer la página TV con 
 - mover y redimensionar bloques con persistencia en `server/data/layout-config.json`
 - mostrar/ocultar guías de maquetación
 - snap a rejilla configurable (paso de snap en %)
+- atajos de precisión: `Alt` desactiva snap temporalmente, `Shift` aplica paso x2
 - bloquear/desbloquear slots para evitar movimientos accidentales
 - copiar layout entre páginas (`copiar desde`)
 
