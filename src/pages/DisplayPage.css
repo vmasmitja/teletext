@@ -32,6 +32,12 @@
   font-family: inherit;
 }
 
+.layout-toolbar label {
+  display: inline-flex;
+  gap: 0.25rem;
+  align-items: center;
+}
+
 .layout-page-pills {
   display: flex;
   flex-wrap: wrap;
@@ -83,6 +89,23 @@
   font-size: 0.8rem;
   line-height: 1;
   cursor: se-resize;
+}
+
+.layout-lock {
+  position: absolute;
+  right: 0.55rem;
+  top: 0.35rem;
+  width: 1.2rem;
+  height: 1.2rem;
+  border: 1px solid #fff;
+  background: #00354e;
+  color: #fff;
+  font-size: 0.8rem;
+  line-height: 1;
+}
+
+.layout-lock.locked {
+  background: #8b0000;
 }
 
 .display-logo.layout-managed {

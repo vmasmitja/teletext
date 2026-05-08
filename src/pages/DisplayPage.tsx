@@ -46,6 +46,19 @@ function getLayoutKey(pageNum: number, slot: EditableSlot) {
 }
 
 const QUICK_LAYOUT_PAGES = [100, 101, 102, 103, 104, 201, 202, 203, 204, 300, 310, 320, 330, 340, 401, 402, 403, 501, 502];
+const ALL_LAYOUT_SLOTS: EditableSlot[] = [
+  "residentImage",
+  "mainLogo",
+  "instagramCarousel",
+  "mainContent",
+  "snakeGame",
+  "paraulogicGame",
+  "sectionHeader",
+  "sectionInfo",
+  "sectionImage",
+  "teletextHeader",
+  "teletextBody",
+];
 
 export function DisplayPage({ layoutMode = false, layoutToken = null }: DisplayPageProps) {
   const [params] = useSearchParams();
@@ -74,6 +87,9 @@ export function DisplayPage({ layoutMode = false, layoutToken = null }: DisplayP
   const [layoutDirty, setLayoutDirty] = useState(false);
   const [layoutStatus, setLayoutStatus] = useState("");
   const [layoutPageInput, setLayoutPageInput] = useState("100");
+  const [layoutCopyFromPage, setLayoutCopyFromPage] = useState("100");
+  const [layoutShowGuides, setLayoutShowGuides] = useState(true);
+  const [lockedSlots, setLockedSlots] = useState<Record<string, boolean>>({});
   const prevRemoteRef = useRef(false);
   const welcomeTimerRef = useRef<number | null>(null);
   const dragRef = useRef<{ key: string; mode: "move" | "resize"; startX: number; startY: number; rect: LayoutRect } | null>(null);
@@ -286,6 +302,7 @@ export function DisplayPage({ layoutMode = false, layoutToken = null }: DisplayP
 
   useEffect(() => {
     setLayoutPageInput(String(page));
+    setLayoutCopyFromPage(String(page));
   }, [page]);
 
   useEffect(() => {
@@ -354,9 +371,14 @@ export function DisplayPage({ layoutMode = false, layoutToken = null }: DisplayP
     };
   }
 
+  function isLocked(slot: EditableSlot) {
+    return Boolean(lockedSlots[getLayoutKey(page, slot)]);
+  }
+
   function startDrag(e: { preventDefault: () => void; stopPropagation: () => void; clientX: number; clientY: number }, key: string, mode: "move" | "resize", rect: LayoutRect) {
     e.preventDefault();
     e.stopPropagation();
+    if (lockedSlots[key]) return;
     dragRef.current = {
       key,
       mode,
@@ -384,6 +406,38 @@ export function DisplayPage({ layoutMode = false, layoutToken = null }: DisplayP
     setLayoutConfig(layoutDraft);
     setLayoutDirty(false);
     setLayoutStatus("Maquetacio guardada");
+  }
+
+  function toggleLock(slot: EditableSlot) {
+    const key = getLayoutKey(page, slot);
+    setLockedSlots((prev) => ({ ...prev, [key]: !prev[key] }));
+  }
+
+  function copyLayoutFromPage() {
+    const from = Number(layoutCopyFromPage);
+    if (!Number.isFinite(from) || from < 100 || from > 899) {
+      setLayoutStatus("Pagina origen no valida");
+      return;
+    }
+    let copied = 0;
+    setLayoutDraft((prev) => {
+      const next = { ...prev };
+      for (const slot of ALL_LAYOUT_SLOTS) {
+        const fromKey = getLayoutKey(from, slot);
+        const toKey = getLayoutKey(page, slot);
+        const rect = prev[fromKey] || layoutConfig[fromKey];
+        if (!rect) continue;
+        next[toKey] = { ...rect };
+        copied += 1;
+      }
+      return next;
+    });
+    if (copied === 0) {
+      setLayoutStatus(`No hi ha maquetacio a la pagina ${from}`);
+      return;
+    }
+    setLayoutDirty(true);
+    setLayoutStatus(`Copiats ${copied} blocs des de la pagina ${from}`);
   }
 
   function resetCurrentPageLayout() {
@@ -452,6 +506,33 @@ export function DisplayPage({ layoutMode = false, layoutToken = null }: DisplayP
       />
     );
 
+  function renderSlotTools(slot: EditableSlot, fallback: LayoutRect) {
+    if (!layoutMode) return null;
+    const locked = isLocked(slot);
+    return (
+      <>
+        <button
+          type="button"
+          className={`layout-lock ${locked ? "locked" : ""}`.trim()}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleLock(slot);
+          }}
+        >
+          {locked ? "🔒" : "🔓"}
+        </button>
+        <button
+          type="button"
+          className="layout-resize"
+          onPointerDown={(e) => startDrag(e, getLayoutKey(page, slot), "resize", currentRect(slot, fallback))}
+        >
+          ↘
+        </button>
+      </>
+    );
+  }
+
   return (
     <div className={`display-layout ${layoutMode ? "display-layout-mode" : ""}`}>
       <div
@@ -483,6 +564,16 @@ export function DisplayPage({ layoutMode = false, layoutToken = null }: DisplayP
             <button type="button" onClick={resetCurrentPageLayout}>
               Reiniciar pagina
             </button>
+            <button type="button" onClick={() => setLayoutShowGuides((v) => !v)}>
+              {layoutShowGuides ? "Ocultar guies" : "Mostrar guies"}
+            </button>
+            <label>
+              Copiar des de
+              <input value={layoutCopyFromPage} onChange={(e) => setLayoutCopyFromPage(e.target.value)} />
+            </label>
+            <button type="button" onClick={copyLayoutFromPage}>
+              Copiar layout
+            </button>
             <span>{layoutStatus}</span>
             <div className="layout-page-pills">
               {quickPages.map((p) => (
@@ -502,21 +593,13 @@ export function DisplayPage({ layoutMode = false, layoutToken = null }: DisplayP
               className="layout-box"
               style={wrapperStyle("mainLogo", { x: 56, y: 29, w: 34, h: 44 })}
               onPointerDown={
-                layoutMode
+                layoutMode && !isLocked("mainLogo")
                   ? (e) => startDrag(e, getLayoutKey(page, "mainLogo"), "move", currentRect("mainLogo", { x: 56, y: 29, w: 34, h: 44 }))
                   : undefined
               }
             >
               <img src={logoPng} alt="Logo Espai42" className={`display-logo layout-managed ${hasRemote ? "side" : "hero"}`} />
-              {layoutMode && (
-                <button
-                  type="button"
-                  className="layout-resize"
-                  onPointerDown={(e) => startDrag(e, getLayoutKey(page, "mainLogo"), "resize", currentRect("mainLogo", { x: 56, y: 29, w: 34, h: 44 }))}
-                >
-                  ↘
-                </button>
-              )}
+              {renderSlotTools("mainLogo", { x: 56, y: 29, w: 34, h: 44 })}
             </div>
           ) : (
             <img src={logoPng} alt="Logo Espai42" className={`display-logo ${hasRemote ? "side" : "hero"}`} />
@@ -527,24 +610,14 @@ export function DisplayPage({ layoutMode = false, layoutToken = null }: DisplayP
               className="layout-box"
               style={wrapperStyle("residentImage", { x: 56, y: 30, w: 32, h: 42 })}
               onPointerDown={
-                layoutMode
+                layoutMode && !isLocked("residentImage")
                   ? (e) =>
                       startDrag(e, getLayoutKey(page, "residentImage"), "move", currentRect("residentImage", { x: 56, y: 30, w: 32, h: 42 }))
                   : undefined
               }
             >
               <img src={residentImagePath} alt="Logo resident" className={`display-logo resident layout-managed ${hasRemote ? "side" : "hero"}`} />
-              {layoutMode && (
-                <button
-                  type="button"
-                  className="layout-resize"
-                  onPointerDown={(e) =>
-                    startDrag(e, getLayoutKey(page, "residentImage"), "resize", currentRect("residentImage", { x: 56, y: 30, w: 32, h: 42 }))
-                  }
-                >
-                  ↘
-                </button>
-              )}
+              {renderSlotTools("residentImage", { x: 56, y: 30, w: 32, h: 42 })}
             </div>
           ) : (
             <img src={residentImagePath} alt="Logo resident" className={`display-logo resident ${hasRemote ? "side" : "hero"}`} />
@@ -553,97 +626,59 @@ export function DisplayPage({ layoutMode = false, layoutToken = null }: DisplayP
           <div
             className="layout-box layout-main-content"
             style={wrapperStyle("mainContent", { x: 0, y: 0, w: 100, h: 100 })}
-            onPointerDown={layoutMode ? (e) => startDrag(e, getLayoutKey(page, "mainContent"), "move", currentRect("mainContent", { x: 0, y: 0, w: 100, h: 100 })) : undefined}
+            onPointerDown={layoutMode && !isLocked("mainContent") ? (e) => startDrag(e, getLayoutKey(page, "mainContent"), "move", currentRect("mainContent", { x: 0, y: 0, w: 100, h: 100 })) : undefined}
           >
             <div className="layout-managed-screen">{mainContent}</div>
-            {layoutMode && (
-              <button
-                type="button"
-                className="layout-resize"
-                onPointerDown={(e) => startDrag(e, getLayoutKey(page, "mainContent"), "resize", currentRect("mainContent", { x: 0, y: 0, w: 100, h: 100 }))}
-              >
-                ↘
-              </button>
-            )}
+            {renderSlotTools("mainContent", { x: 0, y: 0, w: 100, h: 100 })}
           </div>
         ) : (
           mainContent
         )}
-        {layoutMode && currentSection && (
+        {layoutMode && layoutShowGuides && currentSection && (
           <>
             <div
               className="layout-box layout-guide"
               style={wrapperStyle("sectionHeader", { x: 2, y: 4, w: 94, h: 15 })}
-              onPointerDown={(e) => startDrag(e, getLayoutKey(page, "sectionHeader"), "move", currentRect("sectionHeader", { x: 2, y: 4, w: 94, h: 15 }))}
+              onPointerDown={!isLocked("sectionHeader") ? (e) => startDrag(e, getLayoutKey(page, "sectionHeader"), "move", currentRect("sectionHeader", { x: 2, y: 4, w: 94, h: 15 })) : undefined}
             >
               <span className="layout-label">Capçalera seccio</span>
-              <button
-                type="button"
-                className="layout-resize"
-                onPointerDown={(e) => startDrag(e, getLayoutKey(page, "sectionHeader"), "resize", currentRect("sectionHeader", { x: 2, y: 4, w: 94, h: 15 }))}
-              >
-                ↘
-              </button>
+              {renderSlotTools("sectionHeader", { x: 2, y: 4, w: 94, h: 15 })}
             </div>
             <div
               className="layout-box layout-guide"
               style={wrapperStyle("sectionInfo", { x: 3, y: 23, w: 45, h: 68 })}
-              onPointerDown={(e) => startDrag(e, getLayoutKey(page, "sectionInfo"), "move", currentRect("sectionInfo", { x: 3, y: 23, w: 45, h: 68 }))}
+              onPointerDown={!isLocked("sectionInfo") ? (e) => startDrag(e, getLayoutKey(page, "sectionInfo"), "move", currentRect("sectionInfo", { x: 3, y: 23, w: 45, h: 68 })) : undefined}
             >
               <span className="layout-label">Bloc informatiu esquerra</span>
-              <button
-                type="button"
-                className="layout-resize"
-                onPointerDown={(e) => startDrag(e, getLayoutKey(page, "sectionInfo"), "resize", currentRect("sectionInfo", { x: 3, y: 23, w: 45, h: 68 }))}
-              >
-                ↘
-              </button>
+              {renderSlotTools("sectionInfo", { x: 3, y: 23, w: 45, h: 68 })}
             </div>
             <div
               className="layout-box layout-guide"
               style={wrapperStyle("sectionImage", { x: 49, y: 19, w: 48, h: 72 })}
-              onPointerDown={(e) => startDrag(e, getLayoutKey(page, "sectionImage"), "move", currentRect("sectionImage", { x: 49, y: 19, w: 48, h: 72 }))}
+              onPointerDown={!isLocked("sectionImage") ? (e) => startDrag(e, getLayoutKey(page, "sectionImage"), "move", currentRect("sectionImage", { x: 49, y: 19, w: 48, h: 72 })) : undefined}
             >
               <span className="layout-label">Bloc visual dreta</span>
-              <button
-                type="button"
-                className="layout-resize"
-                onPointerDown={(e) => startDrag(e, getLayoutKey(page, "sectionImage"), "resize", currentRect("sectionImage", { x: 49, y: 19, w: 48, h: 72 }))}
-              >
-                ↘
-              </button>
+              {renderSlotTools("sectionImage", { x: 49, y: 19, w: 48, h: 72 })}
             </div>
           </>
         )}
-        {layoutMode && !currentSection && page !== 100 && (
+        {layoutMode && layoutShowGuides && !currentSection && page !== 100 && (
           <>
             <div
               className="layout-box layout-guide"
               style={wrapperStyle("teletextHeader", { x: 2, y: 2, w: 48, h: 6 })}
-              onPointerDown={(e) => startDrag(e, getLayoutKey(page, "teletextHeader"), "move", currentRect("teletextHeader", { x: 2, y: 2, w: 48, h: 6 }))}
+              onPointerDown={!isLocked("teletextHeader") ? (e) => startDrag(e, getLayoutKey(page, "teletextHeader"), "move", currentRect("teletextHeader", { x: 2, y: 2, w: 48, h: 6 })) : undefined}
             >
               <span className="layout-label">Capçalera teletext</span>
-              <button
-                type="button"
-                className="layout-resize"
-                onPointerDown={(e) => startDrag(e, getLayoutKey(page, "teletextHeader"), "resize", currentRect("teletextHeader", { x: 2, y: 2, w: 48, h: 6 }))}
-              >
-                ↘
-              </button>
+              {renderSlotTools("teletextHeader", { x: 2, y: 2, w: 48, h: 6 })}
             </div>
             <div
               className="layout-box layout-guide"
               style={wrapperStyle("teletextBody", { x: 2, y: 9, w: 50, h: 85 })}
-              onPointerDown={(e) => startDrag(e, getLayoutKey(page, "teletextBody"), "move", currentRect("teletextBody", { x: 2, y: 9, w: 50, h: 85 }))}
+              onPointerDown={!isLocked("teletextBody") ? (e) => startDrag(e, getLayoutKey(page, "teletextBody"), "move", currentRect("teletextBody", { x: 2, y: 9, w: 50, h: 85 })) : undefined}
             >
               <span className="layout-label">Bloc text esquerra</span>
-              <button
-                type="button"
-                className="layout-resize"
-                onPointerDown={(e) => startDrag(e, getLayoutKey(page, "teletextBody"), "resize", currentRect("teletextBody", { x: 2, y: 9, w: 50, h: 85 }))}
-              >
-                ↘
-              </button>
+              {renderSlotTools("teletextBody", { x: 2, y: 9, w: 50, h: 85 })}
             </div>
           </>
         )}
@@ -652,7 +687,7 @@ export function DisplayPage({ layoutMode = false, layoutToken = null }: DisplayP
             <div
               className="layout-box layout-game"
               style={wrapperStyle("snakeGame", { x: 47, y: 23, w: 49, h: 64 })}
-              onPointerDown={layoutMode ? (e) => startDrag(e, getLayoutKey(page, "snakeGame"), "move", currentRect("snakeGame", { x: 47, y: 23, w: 49, h: 64 })) : undefined}
+              onPointerDown={layoutMode && !isLocked("snakeGame") ? (e) => startDrag(e, getLayoutKey(page, "snakeGame"), "move", currentRect("snakeGame", { x: 47, y: 23, w: 49, h: 64 })) : undefined}
             >
               <SnakeGame
                 control={lastControl === "up" || lastControl === "down" || lastControl === "left" || lastControl === "right" ? lastControl : null}
@@ -660,15 +695,7 @@ export function DisplayPage({ layoutMode = false, layoutToken = null }: DisplayP
                 active={hasRemote}
                 onGameOver={(score) => sendSnakeResult(score)}
               />
-              {layoutMode && (
-                <button
-                  type="button"
-                  className="layout-resize"
-                  onPointerDown={(e) => startDrag(e, getLayoutKey(page, "snakeGame"), "resize", currentRect("snakeGame", { x: 47, y: 23, w: 49, h: 64 }))}
-                >
-                  ↘
-                </button>
-              )}
+              {renderSlotTools("snakeGame", { x: 47, y: 23, w: 49, h: 64 })}
             </div>
           ) : (
             <SnakeGame
@@ -684,7 +711,9 @@ export function DisplayPage({ layoutMode = false, layoutToken = null }: DisplayP
               className="layout-box layout-game"
               style={wrapperStyle("paraulogicGame", { x: 46, y: 12, w: 52, h: 82 })}
               onPointerDown={
-                layoutMode ? (e) => startDrag(e, getLayoutKey(page, "paraulogicGame"), "move", currentRect("paraulogicGame", { x: 46, y: 12, w: 52, h: 82 })) : undefined
+                layoutMode && !isLocked("paraulogicGame")
+                  ? (e) => startDrag(e, getLayoutKey(page, "paraulogicGame"), "move", currentRect("paraulogicGame", { x: 46, y: 12, w: 52, h: 82 }))
+                  : undefined
               }
             >
               <ParaulogicGame
@@ -694,17 +723,7 @@ export function DisplayPage({ layoutMode = false, layoutToken = null }: DisplayP
                 active={hasRemote}
                 onGameOver={(score) => sendParaulogicResult(score)}
               />
-              {layoutMode && (
-                <button
-                  type="button"
-                  className="layout-resize"
-                  onPointerDown={(e) =>
-                    startDrag(e, getLayoutKey(page, "paraulogicGame"), "resize", currentRect("paraulogicGame", { x: 46, y: 12, w: 52, h: 82 }))
-                  }
-                >
-                  ↘
-                </button>
-              )}
+              {renderSlotTools("paraulogicGame", { x: 46, y: 12, w: 52, h: 82 })}
             </div>
           ) : (
             <ParaulogicGame
@@ -771,8 +790,10 @@ export function DisplayPage({ layoutMode = false, layoutToken = null }: DisplayP
             <div
               className="layout-box"
               style={wrapperStyle("instagramCarousel", { x: 55, y: 20, w: 41, h: 66 })}
-              onPointerDown={(e) =>
-                startDrag(e, getLayoutKey(page, "instagramCarousel"), "move", currentRect("instagramCarousel", { x: 55, y: 20, w: 41, h: 66 }))
+              onPointerDown={
+                !isLocked("instagramCarousel")
+                  ? (e) => startDrag(e, getLayoutKey(page, "instagramCarousel"), "move", currentRect("instagramCarousel", { x: 55, y: 20, w: 41, h: 66 }))
+                  : undefined
               }
             >
               <div className="display-instagram-carousel layout-managed-carousel">
@@ -842,20 +863,7 @@ export function DisplayPage({ layoutMode = false, layoutToken = null }: DisplayP
                   </div>
                 )}
               </div>
-              <button
-                type="button"
-                className="layout-resize"
-                onPointerDown={(e) =>
-                  startDrag(
-                    e,
-                    getLayoutKey(page, "instagramCarousel"),
-                    "resize",
-                    currentRect("instagramCarousel", { x: 55, y: 20, w: 41, h: 66 }),
-                  )
-                }
-              >
-                ↘
-              </button>
+              {renderSlotTools("instagramCarousel", { x: 55, y: 20, w: 41, h: 66 })}
             </div>
           ) : (
             <>
