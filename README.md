@@ -1,6 +1,6 @@
 # Teletext Espai42
 
-![Logo Teletext Espai42](src/assets/espai42-teletext.svg)
+![Captura de la portada Teletext Espai42](docs/images/teletext-home.png)
 
 Projecte interactiu per a pantalla pública d'Espai42, amb estètica teletext clàssica, navegació amb comandament mòbil i contingut viu (jocs, xarxes socials i editor).
 
@@ -54,6 +54,23 @@ Estructura rellevant:
 - Diccionari Paraulògic: `paraulogic-words.json`
 - Contingut editorial: `server/data/teletext-content.json`
 - Cache manual Instagram (fallback temporal): `server/data/instagram-manual-cache.json`
+
+### Editor de contingut (`/editor`)
+
+L'editor permet gestionar contingut sense tocar el codi frontend:
+
+- autenticació per usuari/contrasenya i token de sessió
+- edició de seccions, residents, textos i pàgines
+- pujada d'imatges que es publiquen a `/editor-assets/...`
+- propagació de canvis en viu a pantalles connectades
+
+Rutes API relacionades:
+
+- `POST /api/editor/login`
+- `GET /api/editor/content`
+- `PUT /api/editor/content`
+- `POST /api/editor/upload`
+- `GET /api/editor/public-content`
 
 ### Entorn local
 
@@ -111,6 +128,29 @@ certbot --nginx -d teletext.espai42.org
 pm2 logs teletext
 ```
 
+### Desenvolupat amb Cursor
+
+Aquest projecte s'ha iterat i mantingut amb Cursor, aprofitant:
+
+- mode Agent per refactors i canvis multi-fitxer
+- context de codi i diagnòstic ràpid d'errors
+- iteració assistida per IA sobre frontend/backend en paral lel
+
+Model usat en aquest cicle de treball: **Codex 5.3** (via Cursor Agent).
+
+### Llicència
+
+Aquest projecte es distribueix amb llicència oberta **Creative Commons BY-NC 4.0** (ús no comercial).
+
+- text legal resumit: `LICENSE`
+- detalls oficials: [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/)
+
+### Fitxers estàndard de projecte
+
+- Guia de contribució: `CONTRIBUTING.md`
+- Política de seguretat: `SECURITY.md`
+- Variables d'entorn exemple: `.env.example`
+
 ---
 
 ## ES · Castellano
@@ -161,6 +201,23 @@ Estructura clave:
 - Diccionario Paraulògic: `paraulogic-words.json`
 - Contenido editorial: `server/data/teletext-content.json`
 - Cache manual Instagram (fallback temporal): `server/data/instagram-manual-cache.json`
+
+### Editor de contenido (`/editor`)
+
+El editor permite gestionar contenido sin tocar el frontend:
+
+- autenticación con usuario/contraseña y token de sesión
+- edición de secciones, residentes, textos y páginas
+- subida de imágenes publicadas en `/editor-assets/...`
+- propagación de cambios en vivo a pantallas conectadas
+
+Rutas API relacionadas:
+
+- `POST /api/editor/login`
+- `GET /api/editor/content`
+- `PUT /api/editor/content`
+- `POST /api/editor/upload`
+- `GET /api/editor/public-content`
 
 ### Desarrollo local
 
@@ -217,3 +274,26 @@ certbot --nginx -d teletext.espai42.org
 ```bash
 pm2 logs teletext
 ```
+
+### Desarrollado con Cursor
+
+Este proyecto se ha iterado y mantenido con Cursor, aprovechando:
+
+- modo Agent para refactors y cambios multiarchivo
+- contexto de código y diagnóstico rápido de errores
+- iteración asistida por IA sobre frontend/backend en paralelo
+
+Modelo usado en este ciclo de trabajo: **Codex 5.3** (vía Cursor Agent).
+
+### Licencia
+
+Este proyecto se distribuye bajo licencia abierta **Creative Commons BY-NC 4.0** (uso no comercial).
+
+- texto legal resumido: `LICENSE`
+- detalles oficiales: [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/)
+
+### Archivos estándar de proyecto
+
+- Guía de contribución: `CONTRIBUTING.md`
+- Política de seguridad: `SECURITY.md`
+- Variables de entorno ejemplo: `.env.example`
