@@ -18,6 +18,7 @@ const instagramCache = { expiresAt: 0, payload: null };
 const gameScoresFile = path.join(root, "game-scores.json");
 const paraulogicWordsFile = path.join(root, "paraulogic-words.json");
 const instagramManualCacheFile = path.join(root, "server", "data", "instagram-manual-cache.json");
+const layoutConfigFile = path.join(root, "server", "data", "layout-config.json");
 
 /** @typedef {"snake" | "paraulogic"} GameKey */
 
@@ -123,6 +124,25 @@ function saveGameScores(data) {
 
 let persistedScores = loadGameScores();
 ensureParaulogicWordsFile();
+
+function loadLayoutConfig() {
+  try {
+    if (!fs.existsSync(layoutConfigFile)) return {};
+    const raw = JSON.parse(fs.readFileSync(layoutConfigFile, "utf-8"));
+    return raw && typeof raw === "object" ? raw : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveLayoutConfig(config) {
+  try {
+    fs.writeFileSync(layoutConfigFile, JSON.stringify(config && typeof config === "object" ? config : {}, null, 2));
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 const IG_MEDIA_FIELDS =
   "id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,children{id,media_type,media_url,thumbnail_url}";
@@ -455,6 +475,10 @@ async function buildApp() {
     res.json(editorStore.read());
   });
 
+  app.get("/api/layout/public", (_req, res) => {
+    res.json(loadLayoutConfig());
+  });
+
   app.post("/api/editor/login", (req, res) => {
     const { username, password } = req.body || {};
     if (!editorStore.authenticate(String(username || ""), String(password || ""))) {
@@ -479,6 +503,18 @@ async function buildApp() {
 
   app.get("/api/editor/content", (_req, res) => {
     res.json(editorStore.read());
+  });
+
+  app.get("/api/editor/layout", (_req, res) => {
+    res.json(loadLayoutConfig());
+  });
+
+  app.put("/api/editor/layout", (req, res) => {
+    if (!saveLayoutConfig(req.body)) {
+      res.status(500).json({ error: "No s'ha pogut guardar maquetacio" });
+      return;
+    }
+    res.json({ ok: true, layout: loadLayoutConfig() });
   });
 
   app.put("/api/editor/content", (req, res) => {

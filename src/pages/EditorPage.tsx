@@ -71,6 +71,7 @@ export function EditorPage() {
     }
     const data = (await res.json()) as { token: string };
     setAuth({ token: data.token, loading: false, error: null });
+    window.sessionStorage.setItem("editorToken", data.token);
     const loaded = await fetch("/api/editor/content", { headers: { Authorization: `Bearer ${data.token}` } });
     if (loaded.ok) {
       const c = (await loaded.json()) as EditorContent;
@@ -417,9 +418,14 @@ export function EditorPage() {
     <div className="editor-wrap">
       <header className="editor-header">
         <h1>Editor Teletext</h1>
-        <button type="button" onClick={save}>
-          Guardar i publicar
-        </button>
+        <div className="editor-header-actions">
+          <a className="editor-layout-link" href={`/maquetacio?token=${encodeURIComponent(auth.token)}`} target="_blank" rel="noreferrer">
+            Obrir maquetacio
+          </a>
+          <button type="button" onClick={save}>
+            Guardar i publicar
+          </button>
+        </div>
       </header>
       <div className="editor-status">{status}</div>
       <div className="editor-mode-tabs">

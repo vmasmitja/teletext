@@ -10,6 +10,23 @@
   justify-content: space-between;
   align-items: center;
 }
+
+.editor-header-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.editor-layout-link {
+  display: inline-block;
+  font-family: inherit;
+  font-size: 1.2rem;
+  padding: 0.35rem 0.7rem;
+  color: #001;
+  background: #00ffff;
+  text-decoration: none;
+  border: 1px solid #66f;
+}
 .editor-header button,
 .editor-tabs button,
 .editor-residents-head button,

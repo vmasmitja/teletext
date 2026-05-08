@@ -6,6 +6,126 @@
   background: #000066;
 }
 
+.display-layout-mode .display-crt {
+  cursor: default;
+}
+
+.layout-toolbar {
+  position: absolute;
+  top: 0.45rem;
+  left: 0.45rem;
+  z-index: 100;
+  display: flex;
+  gap: 0.45rem;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 0.35rem 0.45rem;
+  background: rgba(0, 0, 0, 0.78);
+  border: 1px solid #00ffff;
+  color: #fff;
+  font-family: "VT323", monospace;
+  font-size: 1.05rem;
+}
+
+.layout-toolbar input {
+  width: 4.2rem;
+  font-family: inherit;
+}
+
+.layout-page-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+.layout-page-pills button {
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 0.1rem 0.35rem;
+}
+
+.layout-page-pills button.active {
+  background: #ffff00;
+}
+
+.layout-box {
+  position: absolute;
+  border: 2px dashed #00ffff;
+  z-index: 45;
+  touch-action: none;
+}
+
+.layout-resize {
+  position: absolute;
+  right: -0.6rem;
+  bottom: -0.6rem;
+  width: 1.2rem;
+  height: 1.2rem;
+  border: 1px solid #fff;
+  background: #00aaff;
+  color: #001;
+  font-size: 0.8rem;
+  line-height: 1;
+  cursor: se-resize;
+}
+
+.display-logo.layout-managed {
+  position: static !important;
+  width: 100% !important;
+  height: 100% !important;
+  transform: none !important;
+  left: auto !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  object-fit: contain;
+  opacity: 1;
+}
+
+.layout-managed-carousel {
+  position: static !important;
+  left: auto !important;
+  right: auto !important;
+  top: auto !important;
+  bottom: auto !important;
+  transform: none !important;
+  width: 100% !important;
+  height: 100% !important;
+  overflow: auto;
+}
+
+.layout-main-content {
+  overflow: hidden;
+}
+
+.layout-managed-screen,
+.layout-managed-screen .display-screen,
+.layout-managed-screen .art310-screen,
+.layout-managed-screen .art320-screen,
+.layout-managed-screen .art330-screen,
+.layout-managed-screen .art340-screen {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+}
+
+.layout-managed-screen .display-screen {
+  padding: 0.9rem 1.15rem 1.25rem;
+}
+
+.layout-game {
+  overflow: auto;
+}
+
+.layout-box .snake-wrap,
+.layout-box .para-wrap {
+  position: static !important;
+  right: auto !important;
+  top: auto !important;
+  width: 100% !important;
+}
+
 .display-crt {
   position: relative;
   width: 100vw;

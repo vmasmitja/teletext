@@ -32,6 +32,7 @@ L'objectiu és crear una peça de comunicació que siga:
 - **Paraulògic comunitari** (pàg. `502`) amb records i diccionari extern
 - **Carrusel d'Instagram** (pàg. `402`) amb estratègia de fallback
 - **Editor de contingut** per actualitzar seccions i residents
+- **Mode de maquetació** a `/maquetacio` (moure/redimensionar blocs i guardar layout)
 - **Persistència de records** (snake i paraulògic)
 
 ### Arquitectura (resum)
@@ -54,6 +55,7 @@ Estructura rellevant:
 - Diccionari Paraulògic: `paraulogic-words.json`
 - Contingut editorial: `server/data/teletext-content.json`
 - Cache manual Instagram (fallback temporal): `server/data/instagram-manual-cache.json`
+- Configuració de maquetació persistent: `server/data/layout-config.json`
 
 ### Editor de contingut (`/editor`)
 
@@ -63,6 +65,7 @@ L'editor permet gestionar contingut sense tocar el codi frontend:
 - edició de seccions, residents, textos i pàgines
 - pujada d'imatges que es publiquen a `/editor-assets/...`
 - propagació de canvis en viu a pantalles connectades
+- accés a maquetació protegida des del botó de l'editor
 
 Rutes API relacionades:
 
@@ -71,6 +74,9 @@ Rutes API relacionades:
 - `PUT /api/editor/content`
 - `POST /api/editor/upload`
 - `GET /api/editor/public-content`
+- `GET /api/editor/layout`
+- `PUT /api/editor/layout`
+- `GET /api/layout/public`
 
 ### Entorn local
 
@@ -179,6 +185,7 @@ Objetivo:
 - **Paraulògic comunitario** (página `502`) con récords y diccionario externo
 - **Carrusel de Instagram** (página `402`) con fallback
 - **Editor de contenido** para secciones y residentes
+- **Modo de maquetación** en `/maquetacio` (mover/redimensionar bloques y guardar layout)
 - **Persistencia de récords**
 
 ### Arquitectura (resumen)
@@ -201,6 +208,7 @@ Estructura clave:
 - Diccionario Paraulògic: `paraulogic-words.json`
 - Contenido editorial: `server/data/teletext-content.json`
 - Cache manual Instagram (fallback temporal): `server/data/instagram-manual-cache.json`
+- Configuración de maquetación persistente: `server/data/layout-config.json`
 
 ### Editor de contenido (`/editor`)
 
@@ -210,6 +218,7 @@ El editor permite gestionar contenido sin tocar el frontend:
 - edición de secciones, residentes, textos y páginas
 - subida de imágenes publicadas en `/editor-assets/...`
 - propagación de cambios en vivo a pantallas conectadas
+- acceso a maquetación protegida desde el botón del editor
 
 Rutas API relacionadas:
 
@@ -218,6 +227,9 @@ Rutas API relacionadas:
 - `PUT /api/editor/content`
 - `POST /api/editor/upload`
 - `GET /api/editor/public-content`
+- `GET /api/editor/layout`
+- `PUT /api/editor/layout`
+- `GET /api/layout/public`
 
 ### Desarrollo local
 
