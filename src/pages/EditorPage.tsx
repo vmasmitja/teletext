@@ -1,10 +1,11 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { EditorContent, EditorResident, EditorSection } from "../editor/types";
 import { DEFAULT_EDITOR_CONTENT } from "../editor/defaultContent";
 import "./EditorPage.css";
 
 type AuthState = { token: string | null; error: string | null; loading: boolean };
 type EditorMode = "RESIDENTS" | "ESPAI42" | "AGENDA" | "CONTACTE";
+type PixelEditorTarget = { sectionIdx: number; residentIdx: number } | null;
 
 function cloneContent(content: EditorContent): EditorContent {
   return {
@@ -31,6 +32,13 @@ export function EditorPage() {
   const [mode, setMode] = useState<EditorMode>("RESIDENTS");
   const [selectedStaticPage, setSelectedStaticPage] = useState<number>(101);
   const [status, setStatus] = useState<string>("");
+  const [pixelEditorTarget, setPixelEditorTarget] = useState<PixelEditorTarget>(null);
+  const [pixelSourceDataUrl, setPixelSourceDataUrl] = useState<string | null>(null);
+  const [pixelScale, setPixelScale] = useState(8);
+  const [pixelGray, setPixelGray] = useState(false);
+  const [pixelUploading, setPixelUploading] = useState(false);
+  const sourceCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const previewCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const usedPages = useMemo(() => {
     const set = new Set<number>();
@@ -129,6 +137,107 @@ export function EditorPage() {
     if (!r.ok) return;
     const data = (await r.json()) as { path: string };
     updateResident(sectionIdx, residentIdx, (resident) => ({ ...resident, imagePath: data.path }));
+  }
+
+  function openPixelEditor(sectionIdx: number, residentIdx: number, file: File) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      setPixelSourceDataUrl(String(reader.result || ""));
+      setPixelEditorTarget({ sectionIdx, residentIdx });
+      setPixelScale(8);
+      setPixelGray(false);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function closePixelEditor() {
+    setPixelEditorTarget(null);
+    setPixelSourceDataUrl(null);
+    setPixelUploading(false);
+  }
+
+  useEffect(() => {
+    if (!pixelEditorTarget || !pixelSourceDataUrl) return;
+    const img = new Image();
+    img.onload = () => {
+      const srcCanvas = sourceCanvasRef.current;
+      const dstCanvas = previewCanvasRef.current;
+      if (!srcCanvas || !dstCanvas) return;
+      srcCanvas.width = img.naturalWidth;
+      srcCanvas.height = img.naturalHeight;
+      const sctx = srcCanvas.getContext("2d");
+      if (!sctx) return;
+      sctx.clearRect(0, 0, srcCanvas.width, srcCanvas.height);
+      sctx.drawImage(img, 0, 0);
+      renderPixelPreview();
+    };
+    img.src = pixelSourceDataUrl;
+  }, [pixelEditorTarget, pixelSourceDataUrl]);
+
+  useEffect(() => {
+    if (!pixelEditorTarget) return;
+    renderPixelPreview();
+  }, [pixelScale, pixelGray, pixelEditorTarget]);
+
+  function renderPixelPreview() {
+    const srcCanvas = sourceCanvasRef.current;
+    const dstCanvas = previewCanvasRef.current;
+    if (!srcCanvas || !dstCanvas || !srcCanvas.width || !srcCanvas.height) return;
+    const dw = Math.min(420, srcCanvas.width);
+    const ratio = srcCanvas.height / srcCanvas.width;
+    const dh = Math.max(1, Math.round(dw * ratio));
+    dstCanvas.width = dw;
+    dstCanvas.height = dh;
+    const dctx = dstCanvas.getContext("2d");
+    if (!dctx) return;
+    dctx.imageSmoothingEnabled = false;
+    const scale = Math.max(2, pixelScale);
+    const tinyW = Math.max(1, Math.floor(dw / scale));
+    const tinyH = Math.max(1, Math.floor(dh / scale));
+    const tiny = document.createElement("canvas");
+    tiny.width = tinyW;
+    tiny.height = tinyH;
+    const tctx = tiny.getContext("2d");
+    if (!tctx) return;
+    tctx.imageSmoothingEnabled = false;
+    tctx.drawImage(srcCanvas, 0, 0, tinyW, tinyH);
+    if (pixelGray) {
+      const imgData = tctx.getImageData(0, 0, tinyW, tinyH);
+      const data = imgData.data;
+      for (let i = 0; i < data.length; i += 4) {
+        const gray = Math.round(data[i] * 0.3 + data[i + 1] * 0.59 + data[i + 2] * 0.11);
+        data[i] = gray;
+        data[i + 1] = gray;
+        data[i + 2] = gray;
+      }
+      tctx.putImageData(imgData, 0, 0);
+    }
+    dctx.clearRect(0, 0, dw, dh);
+    dctx.drawImage(tiny, 0, 0, dw, dh);
+  }
+
+  async function uploadPixelEditedResidentImage() {
+    if (!auth.token || !pixelEditorTarget || !previewCanvasRef.current) return;
+    setPixelUploading(true);
+    const blob = await new Promise<Blob | null>((resolve) => previewCanvasRef.current!.toBlob(resolve, "image/png"));
+    if (!blob) {
+      setPixelUploading(false);
+      return;
+    }
+    const form = new FormData();
+    form.append("file", new File([blob], `resident-${Date.now()}.png`, { type: "image/png" }));
+    const r = await fetch("/api/editor/upload", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${auth.token}` },
+      body: form,
+    });
+    if (!r.ok) {
+      setPixelUploading(false);
+      return;
+    }
+    const data = (await r.json()) as { path: string };
+    updateResident(pixelEditorTarget.sectionIdx, pixelEditorTarget.residentIdx, (resident) => ({ ...resident, imagePath: data.path }));
+    closePixelEditor();
   }
 
   function updateStaticPageText(pageNum: number, lineIdx: number, value: string) {
@@ -339,9 +448,24 @@ export function EditorPage() {
                   <input
                     type="file"
                     accept="image/*"
-                    onChange={(e) => e.target.files?.[0] && uploadResidentImage(activeSection, idx, e.target.files[0])}
+                    onChange={(e) => e.target.files?.[0] && openPixelEditor(activeSection, idx, e.target.files[0])}
                   />
                 </label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const fileInput = document.createElement("input");
+                    fileInput.type = "file";
+                    fileInput.accept = "image/*";
+                    fileInput.onchange = (ev) => {
+                      const f = (ev.target as HTMLInputElement).files?.[0];
+                      if (f) uploadResidentImage(activeSection, idx, f);
+                    };
+                    fileInput.click();
+                  }}
+                >
+                  Pujar directa (sense editar)
+                </button>
               </div>
             ))}
           </section>
@@ -376,6 +500,31 @@ export function EditorPage() {
             </>
           )}
         </section>
+      )}
+      {pixelEditorTarget && (
+        <div className="pixel-modal-backdrop">
+          <div className="pixel-modal">
+            <h3>Editar i pixelar imatge resident</h3>
+            <label>
+              Intensitat pixelat: {pixelScale}
+              <input type="range" min={2} max={24} value={pixelScale} onChange={(e) => setPixelScale(Number(e.target.value))} />
+            </label>
+            <label className="pixel-check">
+              <input type="checkbox" checked={pixelGray} onChange={(e) => setPixelGray(e.target.checked)} />
+              Escala de grisos
+            </label>
+            <canvas ref={previewCanvasRef} className="pixel-preview" />
+            <canvas ref={sourceCanvasRef} style={{ display: "none" }} />
+            <div className="pixel-actions">
+              <button type="button" onClick={closePixelEditor} disabled={pixelUploading}>
+                Cancel lar
+              </button>
+              <button type="button" onClick={uploadPixelEditedResidentImage} disabled={pixelUploading}>
+                {pixelUploading ? "Pujant..." : "Aplicar i pujar"}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
