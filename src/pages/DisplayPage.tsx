@@ -41,6 +41,11 @@ function clamp(n: number, min: number, max: number) {
   return Math.max(min, Math.min(max, n));
 }
 
+function snapValue(value: number, step: number) {
+  if (!Number.isFinite(step) || step <= 0) return value;
+  return Math.round(value / step) * step;
+}
+
 function getLayoutKey(pageNum: number, slot: EditableSlot) {
   return `p${pageNum}.${slot}`;
 }
@@ -90,6 +95,8 @@ export function DisplayPage({ layoutMode = false, layoutToken = null }: DisplayP
   const [layoutCopyFromPage, setLayoutCopyFromPage] = useState("100");
   const [layoutShowGuides, setLayoutShowGuides] = useState(true);
   const [lockedSlots, setLockedSlots] = useState<Record<string, boolean>>({});
+  const [layoutSnapEnabled, setLayoutSnapEnabled] = useState(true);
+  const [layoutSnapStep, setLayoutSnapStep] = useState(1);
   const prevRemoteRef = useRef(false);
   const welcomeTimerRef = useRef<number | null>(null);
   const dragRef = useRef<{ key: string; mode: "move" | "resize"; startX: number; startY: number; rect: LayoutRect } | null>(null);
@@ -316,11 +323,15 @@ export function DisplayPage({ layoutMode = false, layoutToken = null }: DisplayP
       const dy = ((e.clientY - drag.startY) / vh) * 100;
       const next = { ...drag.rect };
       if (drag.mode === "move") {
-        next.x = clamp(drag.rect.x + dx, 0, 100 - next.w);
-        next.y = clamp(drag.rect.y + dy, 0, 100 - next.h);
+        const rawX = clamp(drag.rect.x + dx, 0, 100 - next.w);
+        const rawY = clamp(drag.rect.y + dy, 0, 100 - next.h);
+        next.x = layoutSnapEnabled ? clamp(snapValue(rawX, layoutSnapStep), 0, 100 - next.w) : rawX;
+        next.y = layoutSnapEnabled ? clamp(snapValue(rawY, layoutSnapStep), 0, 100 - next.h) : rawY;
       } else {
-        next.w = clamp(drag.rect.w + dx, 6, 100 - drag.rect.x);
-        next.h = clamp(drag.rect.h + dy, 6, 100 - drag.rect.y);
+        const rawW = clamp(drag.rect.w + dx, 6, 100 - drag.rect.x);
+        const rawH = clamp(drag.rect.h + dy, 6, 100 - drag.rect.y);
+        next.w = layoutSnapEnabled ? clamp(snapValue(rawW, layoutSnapStep), 6, 100 - drag.rect.x) : rawW;
+        next.h = layoutSnapEnabled ? clamp(snapValue(rawH, layoutSnapStep), 6, 100 - drag.rect.y) : rawH;
       }
       setLayoutDraft((prev) => ({ ...prev, [drag.key]: next }));
       setLayoutDirty(true);
@@ -334,7 +345,7 @@ export function DisplayPage({ layoutMode = false, layoutToken = null }: DisplayP
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
     };
-  }, [layoutMode]);
+  }, [layoutMode, layoutSnapEnabled, layoutSnapStep]);
 
   function currentRect(slot: EditableSlot, fallback: LayoutRect): LayoutRect {
     const key = getLayoutKey(page, slot);
@@ -567,6 +578,19 @@ export function DisplayPage({ layoutMode = false, layoutToken = null }: DisplayP
             <button type="button" onClick={() => setLayoutShowGuides((v) => !v)}>
               {layoutShowGuides ? "Ocultar guies" : "Mostrar guies"}
             </button>
+            <button type="button" onClick={() => setLayoutSnapEnabled((v) => !v)}>
+              {layoutSnapEnabled ? "Snap ON" : "Snap OFF"}
+            </button>
+            <label>
+              Pas snap
+              <input
+                value={String(layoutSnapStep)}
+                onChange={(e) => {
+                  const next = Number(e.target.value);
+                  if (Number.isFinite(next) && next > 0 && next <= 10) setLayoutSnapStep(next);
+                }}
+              />
+            </label>
             <label>
               Copiar des de
               <input value={layoutCopyFromPage} onChange={(e) => setLayoutCopyFromPage(e.target.value)} />
