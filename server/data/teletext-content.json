@@ -16,6 +16,7 @@
           "bio2": "fotografia analògica i cianotipia.",
           "contact1": "Contacte: sara.vifer@gmail.com",
           "contact2": "IG: @euterpedesara",
+          "webpage": "",
           "imagePath": "/editor-assets/1778236452552-bpayvszdsvt.png"
         }
       ]
@@ -35,6 +36,7 @@
           "bio2": "amb marca propia Vassa Jewels.",
           "contact1": "Contacte: belen.vassallo@vassajewels.com",
           "contact2": "IG: @vassajewlls",
+          "webpage": "https://vassajewels.com",
           "imagePath": "/editor-assets/1778237335127-vfzzrdm6sx.png"
         }
       ]
@@ -54,6 +56,7 @@
           "bio2": "sensors i robótica.",
           "contact1": "Contacte: masmitja@proton.me",
           "contact2": "IG: @masmitja",
+          "webpage": "",
           "imagePath": "/editor-assets/1778237732336-tqs3v50fs4m.png"
         }
       ]
@@ -72,7 +75,8 @@
           "bio1": "Bio: llumins, gerros i",
           "bio2": "escultura de vidre bufat.",
           "contact1": "Contacte: joana@espai42.art",
-          "contact2": "IG: @joanaclot.glass"
+          "contact2": "IG: @joanaclot.glass",
+          "webpage": ""
         }
       ]
     }

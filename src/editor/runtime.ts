@@ -6,51 +6,85 @@ const MANAGED_PAGES = new Set<number>([
 ]);
 
 const SECTION_FOOTER_LABEL = "ESPai42";
+const TT_WIDTH = 40;
+const CONTENT_WIDTH = 38;
 
 function blank(): string {
-  return "                              ";
+  return " ".repeat(TT_WIDTH);
 }
 
 function row(text: string, color: "y" | "w" | "c" | "g" | "m" | "r"): TeletextPageDef["lines"][number] {
-  return { text, color };
+  return { text: fitLine(text), color };
+}
+
+function fitLine(text: string): string {
+  const t = String(text || "");
+  if (t.length >= TT_WIDTH) return t.slice(0, TT_WIDTH);
+  return t.padEnd(TT_WIDTH, " ");
+}
+
+function prefixed(text: string): string {
+  return fitLine(`  ${text}`);
+}
+
+function wrapText(text: string, maxLen = CONTENT_WIDTH, maxLines = 3): string[] {
+  const input = String(text || "").trim();
+  if (!input) return [];
+  const words = input.split(/\s+/).filter(Boolean);
+  const lines: string[] = [];
+  let current = "";
+  for (const word of words) {
+    const candidate = current ? `${current} ${word}` : word;
+    if (candidate.length <= maxLen) {
+      current = candidate;
+      continue;
+    }
+    if (current) lines.push(current);
+    current = word;
+    if (lines.length >= maxLines) break;
+  }
+  if (current && lines.length < maxLines) lines.push(current);
+  if (lines.length === 0) return [input.slice(0, maxLen)];
+  return lines.map((l) => l.slice(0, maxLen));
 }
 
 function mkIndexPage(section: EditorSection): TeletextPageDef {
   const lines: TeletextPageDef["lines"] = [
     row(blank(), "w"),
-    row(`  ${section.title} / INDEX`.padEnd(30, " "), "y"),
+    row(prefixed(`${section.title} / INDEX`), "y"),
     row(blank(), "w"),
-    row("  Residents i projectes".padEnd(30, " "), "m"),
+    row(prefixed("Residents i projectes"), "m"),
     row(blank(), "w"),
   ];
   section.residents.slice(0, 8).forEach((r) => {
-    lines.push(row(`  ${String(r.page).padStart(3, "0")}  ${r.name}`.slice(0, 30).padEnd(30, " "), "c"));
+    lines.push(row(prefixed(`${String(r.page).padStart(3, "0")}  ${r.name}`), "c"));
   });
   while (lines.length < 12) lines.push(row(blank(), "w"));
-  lines.push(row("  Tornar a residents: pàg 300".padEnd(30, " "), "w"));
+  lines.push(row(prefixed("Tornar a residents: pàg 300"), "w"));
   lines.push(row(blank(), "w"));
-  lines.push(row(`  Pàg ${section.indexPage}       ${SECTION_FOOTER_LABEL}`.padEnd(30, " "), "g"));
+  lines.push(row(prefixed(`Pàg ${section.indexPage}       ${SECTION_FOOTER_LABEL}`), "g"));
   return { num: section.indexPage, title: section.title, lines };
 }
 
 function mkResidentPage(section: EditorSection, resident: EditorSection["residents"][number]): TeletextPageDef {
+  const bioLines = wrapText([resident.bio1, resident.bio2].filter(Boolean).join(" "), CONTENT_WIDTH, 3);
+  const contactRaw = [resident.contact1, resident.contact2, resident.webpage ? `Web: ${resident.webpage}` : ""].filter(Boolean);
+  const contactLines = contactRaw.flatMap((line) => wrapText(line, CONTENT_WIDTH, 2)).slice(0, 4);
   return {
     num: resident.page,
     title: `${section.title} ${resident.page}`,
     lines: [
       row(blank(), "w"),
-      row(`  ${resident.name.toUpperCase()}`.padEnd(30, " "), "y"),
-      row(`  ${resident.subtitle}`.padEnd(30, " "), "w"),
+      row(prefixed(resident.name.toUpperCase()), "y"),
+      row(prefixed(resident.subtitle), "w"),
       row(blank(), "w"),
-      row(`  ${resident.bio1}`.padEnd(30, " "), "c"),
-      row(`  ${resident.bio2}`.padEnd(30, " "), "c"),
+      ...bioLines.map((line) => row(prefixed(line), "c")),
       row(blank(), "w"),
-      row(`  ${resident.contact1}`.padEnd(30, " "), "m"),
-      row(`  ${resident.contact2}`.padEnd(30, " "), "m"),
+      ...contactLines.map((line) => row(prefixed(line), "m")),
       row(blank(), "w"),
-      row(`  Tornar ${section.title.toLowerCase()}: pàg ${section.indexPage}`.padEnd(30, " "), "w"),
+      row(prefixed(`Tornar ${section.title.toLowerCase()}: pàg ${section.indexPage}`), "w"),
       row(blank(), "w"),
-      row(`  Pàg ${resident.page}       ${SECTION_FOOTER_LABEL}`.padEnd(30, " "), "g"),
+      row(prefixed(`Pàg ${resident.page}       ${SECTION_FOOTER_LABEL}`), "g"),
     ],
   };
 }
@@ -58,26 +92,26 @@ function mkResidentPage(section: EditorSection, resident: EditorSection["residen
 function mkResidentsIndex(content: EditorContent): TeletextPageDef {
   const sectionRows = content.sections
     .sort((a, b) => a.indexPage - b.indexPage)
-    .map((s) => `  ${s.indexPage}  ${s.title}`.slice(0, 30).padEnd(30, " "));
+    .map((s) => prefixed(`${s.indexPage}  ${s.title}`));
   while (sectionRows.length < 4) sectionRows.push(blank());
   return {
     num: 300,
     title: "RESIDENTS",
     lines: [
       row(blank(), "w"),
-      row("  PROJECTES RESIDENTS".padEnd(30, " "), "y"),
+      row(prefixed("PROJECTES RESIDENTS"), "y"),
       row(blank(), "w"),
-      row("  Índex projectes residents".padEnd(30, " "), "w"),
+      row(prefixed("Índex projectes residents"), "w"),
       row(blank(), "w"),
       row(sectionRows[0], "c"),
       row(sectionRows[1], "c"),
       row(sectionRows[2], "c"),
       row(sectionRows[3], "c"),
       row(blank(), "w"),
-      row("  Usa el comandament per".padEnd(30, " "), "m"),
-      row("  entrar a cada categoria.".padEnd(30, " "), "m"),
+      row(prefixed("Usa el comandament per"), "m"),
+      row(prefixed("entrar a cada categoria."), "m"),
       row(blank(), "w"),
-      row("  Pàg 300       ESPai42".padEnd(30, " "), "g"),
+      row(prefixed("Pàg 300       ESPai42"), "g"),
     ],
   };
 }
@@ -85,7 +119,7 @@ function mkResidentsIndex(content: EditorContent): TeletextPageDef {
 function mkHomeUpdate(base: TeletextPageDef, content: EditorContent): TeletextPageDef {
   const byPage = [...content.sections].sort((a, b) => a.indexPage - b.indexPage);
   const names = byPage.map((s) => `${s.indexPage} ${s.title}`).join(" ");
-  const l1 = ` ${names}`.slice(0, 30).padEnd(30, " ");
+  const l1 = fitLine(` ${names}`);
   const lines = [...base.lines];
   if (lines.length > 29) {
     lines[27] = { text: l1, color: "r", bg: "y" };

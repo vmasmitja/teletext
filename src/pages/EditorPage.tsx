@@ -109,6 +109,7 @@ export function EditorPage() {
         bio2: "Bio línia 2",
         contact1: "Contacte",
         contact2: "Web / IG",
+        webpage: "",
       });
       return section;
     });
@@ -539,6 +540,14 @@ export function EditorPage() {
                   <input
                     value={resident.contact2}
                     onChange={(e) => updateResident(activeSection, idx, (r) => ({ ...r, contact2: e.target.value }))}
+                  />
+                </label>
+                <label>
+                  Webpage
+                  <input
+                    value={resident.webpage ?? ""}
+                    onChange={(e) => updateResident(activeSection, idx, (r) => ({ ...r, webpage: e.target.value }))}
+                    placeholder="https://..."
                   />
                 </label>
                 <label>

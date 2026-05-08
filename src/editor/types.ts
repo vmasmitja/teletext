@@ -9,6 +9,7 @@ export type EditorResident = {
   bio2: string;
   contact1: string;
   contact2: string;
+  webpage?: string;
   imagePath?: string;
 };
 
