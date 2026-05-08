@@ -82,7 +82,7 @@ export function DisplayPage({ layoutMode = false, layoutToken = null }: DisplayP
     setRemotePage,
     contentVersion,
   } = useTeletextWs(room, "display");
-  const { getPage, sectionByIndexPage, residentByPage } = useRuntimeContent(contentVersion);
+  const { getPage, knownPageNums, sectionByIndexPage, residentByPage } = useRuntimeContent(contentVersion);
   const currentPageDef = getPage(page);
   const currentSection = sectionByIndexPage.get(page);
   const currentResident = residentByPage.get(page);
@@ -194,6 +194,13 @@ export function DisplayPage({ layoutMode = false, layoutToken = null }: DisplayP
       { text: "  Pàg 502       ESPai42       ", color: "g" },
     ];
   }, [page, paraHighName, paraHighScore]);
+
+  const quickPages = useMemo(() => {
+    const unique = new Set<number>([...QUICK_LAYOUT_PAGES, ...knownPageNums]);
+    return [...unique]
+      .filter((n) => Number.isFinite(n) && n >= 100 && n <= 899)
+      .sort((a, b) => a - b);
+  }, [knownPageNums]);
 
   useEffect(() => {
     if (page !== 402) return;
@@ -418,7 +425,7 @@ export function DisplayPage({ layoutMode = false, layoutToken = null }: DisplayP
             </button>
             <span>{layoutStatus}</span>
             <div className="layout-page-pills">
-              {QUICK_LAYOUT_PAGES.map((p) => (
+              {quickPages.map((p) => (
                 <button key={p} type="button" onClick={() => setRemotePage(p)} className={p === page ? "active" : ""}>
                   {p}
                 </button>

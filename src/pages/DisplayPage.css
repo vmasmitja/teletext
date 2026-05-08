@@ -97,6 +97,7 @@
 
 .layout-main-content {
   overflow: hidden;
+  z-index: 18;
 }
 
 .layout-managed-screen,
@@ -116,6 +117,7 @@
 
 .layout-game {
   overflow: auto;
+  z-index: 48;
 }
 
 .layout-box .snake-wrap,
